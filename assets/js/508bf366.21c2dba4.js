@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[13],{82:function(a){a.exports=JSON.parse('{"allTagsPath":"/fluent-wallet-doc/blog/tags","slug":"hola","name":"hola","count":1,"permalink":"/fluent-wallet-doc/blog/tags/hola"}')}}]);

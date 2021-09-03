@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>My Site Blog</title>
-        <link>https://your-docusaurus-test-site.com/blog</link>
+        <link>https://your-docusaurus-test-site.com/fluent-wallet-doc/blog</link>
         <description>My Site Blog</description>
         <lastBuildDate>Thu, 30 May 2019 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
@@ -19,7 +19,7 @@
             <link>https://your-docusaurus-test-site.com/fluent-wallet-doc/blog/hello-world</link>
             <guid>hello-world</guid>
             <pubDate>Wed, 29 May 2019 00:00:00 GMT</pubDate>
-            <description><![CDATA[Welcome to this blog. This blog is created with Docusaurus 2 alpha.]]></description>
+            <description><![CDATA[Welcome to this blog. This blog is created with Docusaurus 2.]]></description>
         </item>
         <item>
             <title><![CDATA[Hola]]></title>

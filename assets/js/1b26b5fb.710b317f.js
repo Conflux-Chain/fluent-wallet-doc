@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdoc=self.webpackChunkdoc||[]).push([[54],{3399:function(e){e.exports=JSON.parse('{"allTagsPath":"/fluent-wallet-doc/blog/tags","slug":"facebook","name":"facebook","count":1,"permalink":"/fluent-wallet-doc/blog/tags/facebook"}')}}]);

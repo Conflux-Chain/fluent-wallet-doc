@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdoc=self.webpackChunkdoc||[]).push([[535],{5641:function(l){l.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome","permalink":"/fluent-wallet-doc/blog/welcome"},{"title":"Hello","permalink":"/fluent-wallet-doc/blog/hello-world"},{"title":"Hola","permalink":"/fluent-wallet-doc/blog/hola"}]}')}}]);

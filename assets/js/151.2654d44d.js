@@ -67920,12 +67920,19 @@ const main = async ({
   db: {getOneApp, accountAddrByNetwork},
   rpcs: {wallet_requestPermissions},
   site,
+  app,
 }) => {
+  if (app?.currentAccount) {
+    return accountAddrByNetwork({
+      account: app.currentAccount.eid,
+      network: app.currentNetwork.eid,
+    }).base32
+  }
   const permsRes = await wallet_requestPermissions([{cfx_accounts: {}}])
 
-  if (!permsRes?.error) {
-    const app = getOneApp({site: site.eid})
-    const {currentAccount, currentNetwork} = app
+  if (permsRes && !permsRes.error) {
+    const newapp = getOneApp({site: site.eid})
+    const {currentAccount, currentNetwork} = newapp
     const addr = accountAddrByNetwork({
       account: currentAccount.eid,
       network: currentNetwork.eid,
@@ -67984,6 +67991,7 @@ function validateAndFormatTypedDataString({
     throw InvalidParams("Invalid typed data, can't parse with JSON.parse")
   }
 
+  const typedDataSpec = typed_data_spec(type, spec)
   if (!spec.validate(typedDataSpec, typedData)) {
     throw InvalidParams(
       `Invalid typed data\n${JSON.stringify(
@@ -68002,7 +68010,6 @@ function validateAndFormatTypedDataString({
 }
 
 const {cat, ethHexAddress, base32UserAddress, stringp} = spec
-const typedDataSpec = typed_data_spec('eth', spec)
 
 const gen = {
   schemas: type => {
@@ -68046,7 +68053,7 @@ const gen = {
           network: app.currentNetwork.eid,
         })
 
-        if (type === 'cfx' && from.toLowerCase() !== addr.cfxHex.toLowerCase())
+        if (type === 'cfx' && from.toLowerCase() !== addr.base32.toLowerCase())
           throw Unauthorized()
         if (type === 'eth' && from.toLowerCase() !== addr.hex.toLowerCase())
           throw Unauthorized()
@@ -68487,7 +68494,14 @@ const main = async ({
   db: {getOneApp, accountAddrByNetwork},
   rpcs: {wallet_requestPermissions},
   site,
+  app,
 }) => {
+  if (app?.currentAccount) {
+    return accountAddrByNetwork({
+      account: app.currentAccount.eid,
+      network: app.currentNetwork.eid,
+    }).hex
+  }
   const permsRes = await wallet_requestPermissions([{eth_accounts: {}}])
 
   if (!permsRes?.error) {
@@ -68587,17 +68601,17 @@ __webpack_require__.r(__webpack_exports__);
 
 const NAME = 'personal_sign'
 
-const innerSchema = [
+const publicSchema = [
   _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
   [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.stringp, {doc: 'message string to sign'}],
   [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
 ]
 
-const publicSchema = [
+const innerSchema = [
   _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
   {closed: true},
   ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
-  ['data', innerSchema],
+  ['data', publicSchema],
 ]
 
 const schemas = {
@@ -68820,7 +68834,7 @@ const main = async ({
     if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
     const rst = await wallet_addNetwork(chainConf)
     if (rst?.error) return await wallet_userRejectedAuthRequest({authReqId})
-    return await wallet_userApprovedAuthRequest({authReqId, res: null})
+    return await wallet_userApprovedAuthRequest({authReqId, res: '__null__'})
   }
 }
 
@@ -69082,13 +69096,15 @@ const schemas = {
 }
 
 const permissions = {
-  methods: [],
-  db: ['t', 'getSiteById', 'getAppById'],
+  methods: ['wallet_userRejectedAuthRequest'],
+  db: ['t', 'getSiteById', 'getAppById', 'getAuthReqById'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {t, getSiteById, getAppById},
+  db: {t, getSiteById, getAppById, getAuthReqById},
+  rpcs: {wallet_userRejectedAuthRequest},
+  MODE,
   params: {
     req: {method, params},
     siteId,
@@ -69101,11 +69117,32 @@ const main = async ({
   if (appId && !app) throw InvalidParams(`Invalid app id ${appId}`)
 
   const c = (0,_fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_1__/* .chan */ .zH)(1)
-  t([
-    site && {authReq: {site: site.eid, req: {method, params}, c}},
-    app && {authReq: {app: app.eid, req: {method, params}, c}},
+  const {
+    tempids: {authReqId},
+  } = t([
+    site && {
+      eid: 'authReqId',
+      authReq: {site: site.eid, req: {method, params}, c},
+    },
+    app && {
+      eid: 'authReqId',
+      authReq: {app: app.eid, req: {method, params}, c},
+    },
   ])
 
+  const {popup} = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
+
+  const w = await popup.show({
+    alwaysOnTop: MODE.isProd ? true : false,
+    mode: MODE,
+  })
+  if (MODE.isProd) popup.onFocusChanged(w.id, popup.remove)
+  popup.onRemoved(
+    w?.id,
+    () =>
+      getAuthReqById(authReqId) &&
+      wallet_userRejectedAuthRequest({errorFallThrough: true}, {authReqId}),
+  )
   const rst = await c.read()
   if (rst instanceof Error) throw rst
   return rst
@@ -73750,12 +73787,12 @@ const generateSchema=spec=>{const{mapp,map,and,empty}=spec;return[map,...Object.
 
 
 
-const {catn, cat, map, dbid, or, zeroOrMore, oneOrMore} = spec
+const {catn, map, dbid, or, zeroOrMore, oneOrMore} = spec
 
 const NAME = 'wallet_requestPermissions'
 
 const permissionSchema = generateSchema(spec)
-const publicSchema = [cat, permissionSchema]
+const publicSchema = [zeroOrMore, [catn, ['permission', permissionSchema]]]
 
 const responseToAppAuthSchema = [
   map,
@@ -73779,6 +73816,7 @@ const schemas = {
 
 const wallet_requestPermissions_permissions = {
   external: ['inpage', 'popup'],
+  locked: true,
   methods: [
     'wallet_addPendingUserAuthRequest',
     'wallet_userApprovedAuthRequest',
@@ -73925,16 +73963,18 @@ const permissions = {
 async function requestUnlockUI({
   Err: {Internal},
   db: {getLocked, getUnlockReq, retract},
+  MODE,
 }) {
   if (!window) throw Internal('Invalid running env, window is not defined')
-  const {
-    browser,
-    popup: {show},
-  } = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
-  const {id: popupWindowId} = await show({url: 'popup.html#unlock'})
+  const {browser, popup} = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
+  const w = await popup.show({
+    url: 'popup.html#/unlock',
+    alwaysOnTop: MODE.isProd ? true : false,
+    mdoe: MODE,
+  })
 
-  function windowOnRemovedListener(windowId) {
-    if (windowId !== popupWindowId) return
+  if (MODE.isProd) popup.onFocusChanged(w?.id, popup.remove)
+  function windowOnRemovedListener() {
     browser.windows.onRemoved.removeListener(windowOnRemovedListener)
     if (!getLocked()) return
     const unlockReqs = getUnlockReq() || []
@@ -73943,7 +73983,7 @@ async function requestUnlockUI({
     )
   }
 
-  browser.windows.onRemoved.addListener(windowOnRemovedListener)
+  popup.onRemoved(w?.id, windowOnRemovedListener)
 }
 
 const main = async args => {
@@ -74219,7 +74259,7 @@ __webpack_require__.r(__webpack_exports__);
 const NAME = 'wallet_switchEthereumChain'
 
 const publicSchema = [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['chainId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId]]]
-const internalSchema = [
+const innerSchema = [
   _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
   {closed: true},
   ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
@@ -74227,7 +74267,7 @@ const internalSchema = [
 ]
 
 const schemas = {
-  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, publicSchema, internalSchema],
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, publicSchema, innerSchema],
 }
 
 const permissions = {
@@ -74258,8 +74298,11 @@ const generateMain =
     app,
     _popup,
     _inpage,
+    network: currentNetwork,
   }) => {
     const {chainId} = Array.isArray(params) ? params[0] : params.chainConfig[0]
+    if (currentNetwork.type === type && currentNetwork.chainId === chainId)
+      return '__null__'
     const [network] = getNetwork({chainId, type: type}) || []
     if (!network)
       throw InvalidParams(
@@ -74269,7 +74312,10 @@ const generateMain =
     if (_inpage) {
       return await wallet_addPendingUserAuthRequest({
         appId: app.eid,
-        req: {method: NAME, params},
+        req: {
+          method: type === 'cfx' ? 'wallet_switchConfluxChain' : NAME,
+          params,
+        },
       })
     }
 
@@ -74279,7 +74325,7 @@ const generateMain =
       if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
       const rst = await wallet_setCurrentNetwork([network.eid])
       if (rst?.error) return await wallet_userRejectedAuthRequest({authReqId})
-      return await wallet_userApprovedAuthRequest({authReqId, res: null})
+      return await wallet_userApprovedAuthRequest({authReqId, res: '__null__'})
     }
   }
 
@@ -74624,17 +74670,22 @@ const schemas = {
   input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid], ['res', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.anyp]],
 }
 
-const permissions = {db: ['getAuthReqById', 'retract']}
+const permissions = {db: ['getAuthReqById', 'retract', 'getAuthReq']}
 
-const main = ({
+const main = async ({
   Err: {InvalidParams},
-  db: {retract, getAuthReqById},
+  db: {retract, getAuthReqById, getAuthReq},
   params: {authReqId, res},
 }) => {
   const authReq = getAuthReqById(authReqId)
   if (!authReq) throw InvalidParams(`Invalid auth request id ${authReqId}`)
   if (authReq.c) authReq.c.write(res)
   retract(authReqId)
+
+  if (!getAuthReq()?.length) {
+    const {popup} = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
+    popup.removePopup()
+  }
   return
 }
 
@@ -74661,23 +74712,31 @@ const schemas = {
   input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid]],
 }
 
-const permissions = {db: ['getAuthReqById', 'retract']}
+const permissions = {
+  db: ['getAuthReqById', 'retract', 'getAuthReq'],
+  external: ['popup'],
+}
 
-const main = ({
-  Err: {InvalidParams, UserRjected},
-  db: {retract, getAuthReqById},
+const main = async ({
+  Err: {InvalidParams, UserRejected},
+  db: {retract, getAuthReqById, getAuthReq},
   params: {authReqId},
 }) => {
   const authReq = getAuthReqById(authReqId)
   if (!authReq) throw InvalidParams(`Invalid auth request id ${authReqId}`)
 
   if (authReq.c) {
-    const error = UserRjected()
+    const error = UserRejected()
     error.rpcData = authReq.req
     authReq.c.write(error)
   }
 
   retract(authReqId)
+
+  if (!getAuthReq()?.length) {
+    const {popup} = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
+    popup.removePopup()
+  }
 
   return
 }

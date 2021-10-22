@@ -73008,7 +73008,7 @@ const SingleCallGetBalanceSchema = [
             'token-address',
             [
               spec.or,
-              {doc: 'toekn address, 0x0 represents native token'},
+              {doc: 'token address, 0x0 represents native token'},
               [spec.eq, '0x0'],
               spec.base32ContractAddress,
             ],
@@ -73031,7 +73031,7 @@ const SingleCallGetBalanceSchema = [
             'token-address',
             [
               spec.or,
-              {doc: 'toekn address, 0x0 represents native token'},
+              {doc: 'token address, 0x0 represents native token'},
               [spec.eq, '0x0'],
               spec.ethHexAddress,
             ],

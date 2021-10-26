@@ -71487,7 +71487,6 @@ async function newAccounts(arg) {
   const {
     groupId,
     groupName,
-    params: {waitTillFinish},
     rpcs: {wallet_discoverAccounts},
     vault,
     db: {getNetwork, t, getOneAccountByGroupAndIndex},
@@ -71497,7 +71496,7 @@ async function newAccounts(arg) {
     await wallet_discoverAccounts({
       accountGroupId: groupId,
       limit: 10,
-      waitTillFinish,
+      waitTillFinish: true,
     })
     return
   }

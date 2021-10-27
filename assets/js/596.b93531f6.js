@@ -1,5 +1,5 @@
-exports.id = 60;
-exports.ids = [60];
+exports.id = 596;
+exports.ids = [596];
 exports.modules = {
 
 /***/ 38447:
@@ -69837,6 +69837,8 @@ const schemas = {
       ['value', {optional: true, doc: 'default to 0x0'}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
       ['data', {optional: true, doc: 'default to 0x'}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes],
       ['nonce', {optional: true, doc: 'default to 0x0'}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['storageLimit', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['epochHeight', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
     ],
     [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, {doc: 'default to latest_state'}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRef],
   ],
@@ -70177,6 +70179,262 @@ const main = async ({
   }
 
   return permsRes
+}
+
+
+/***/ }),
+
+/***/ 56309:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_sendRawTransaction'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes],
+}
+
+const permissions = {
+  external: [],
+  methods: [],
+  db: [],
+}
+
+const main = async ({f, params}) => {
+  return await f(params)
+}
+
+
+/***/ }),
+
+/***/ 78762:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+/* harmony import */ var _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46681);
+
+
+
+const NAME = 'cfx_sendTransaction'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or,
+    _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input,
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid], ['tx', _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input]],
+  ],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  methods: [
+    'cfx_signTransaction',
+    'cfx_sendRawTransaction',
+    'wallet_addPendingUserAuthRequest',
+    'wallet_userApprovedAuthRequest',
+  ],
+  db: ['getFromAddress'],
+}
+
+const main = async ({
+  Err: {InvalidParams},
+  db: {getFromAddress},
+  rpcs: {
+    cfx_signTransaction,
+    cfx_sendRawTransaction,
+    wallet_addPendingUserAuthRequest,
+    wallet_userApprovedAuthRequest,
+  },
+  params,
+  _inpage,
+  app,
+  network,
+}) => {
+  if (_inpage) {
+    if (params.authReqId) throw InvalidParams('Invalid tx data')
+
+    const [{from}] = params
+
+    // check that from address is authed to the app
+    if (
+      !getFromAddress({networkId: network.eid, address: from, appId: app.eid})
+    )
+      throw InvalidParams(`Invalid from address in tx ${from}`)
+
+    // try sign tx
+    await cfx_signTransaction(params)
+
+    return await wallet_addPendingUserAuthRequest({
+      appId: app.eid,
+      req: {method: NAME, params},
+    })
+  }
+
+  const tx = params.authReqId ? params.tx : params
+  const rawtx = await cfx_signTransaction(tx)
+  const rst = await cfx_sendRawTransaction([rawtx])
+
+  if (params.authReqId) {
+    return await wallet_userApprovedAuthRequest({
+      authReqId: params.authReqId,
+      res: rst,
+    })
+  }
+
+  return rst
+}
+
+
+/***/ }),
+
+/***/ 46681:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+/* harmony import */ var _fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(55063);
+
+
+
+const NAME = 'cfx_signTransaction'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
+    [
+      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+      {closed: true},
+      ['from', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
+      ['to', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address],
+      ['value', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['nonce', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['data', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes],
+      ['gas', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['gasPrice', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['storageLimit', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      ['chainId', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId],
+      ['epochHeight', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+    ],
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRef],
+  ],
+}
+
+const permissions = {
+  external: [],
+  methods: [
+    'wallet_getAddressPrivateKey',
+    'cfx_getNextNonce',
+    'cfx_epochNumber',
+    'cfx_estimateGasAndCollateral',
+    'wallet_detectAddressType',
+  ],
+  db: ['getFromAddress'],
+}
+
+const main = async ({
+  Err: {InvalidParams},
+  db: {getFromAddress},
+  rpcs: {
+    wallet_getAddressPrivateKey,
+    cfx_epochNumber,
+    cfx_estimateGasAndCollateral,
+    cfx_getNextNonce,
+    wallet_detectAddressType,
+  },
+  params: [tx, epoch],
+  network,
+}) => {
+  let newTx = {...tx}
+  let {
+    from,
+    data,
+    to,
+    gas,
+    gasPrice,
+    nonce,
+    value,
+    chainId,
+    storageLimit,
+    epochHeight,
+  } = newTx
+  if (chainId && chainId !== network.chainId)
+    throw InvalidParams(`Invalid chainId ${chainId}`)
+
+  const fromAddr = getFromAddress({networkId: network.eid, address: from})
+  // from address is not belong to wallet
+  if (!fromAddr) throw InvalidParams(`Invalid from address ${from}`)
+
+  // tx without to must have data (deploy contract)
+  if (!to && !data)
+    throw InvalidParams(
+      `Invalid tx, [to] and [data] can't be omit at the same time`,
+    )
+
+  if (!chainId) chainId = network.chainId
+  if (data === '0x') data = undefined
+  if (!gasPrice) gasPrice = '0x1'
+
+  if (!value) value = '0x0'
+
+  if (!epochHeight) epochHeight = await cfx_epochNumber(['latest_state'])
+
+  if (!nonce) {
+    nonce = await cfx_getNextNonce([from, epoch])
+  }
+
+  if (to && (!gas || !storageLimit)) {
+    const {type} = await wallet_detectAddressType({address: to})
+    if (type !== 'contract' && !data) {
+      if (!gas) gas = '0x5280'
+      if (!storageLimit) storageLimit = '0x0'
+    }
+  } else if (!gas || !storageLimit) {
+    const {gasLimit, storageCollateralized} =
+      await cfx_estimateGasAndCollateral([newTx, epoch])
+    if (!gas) gas = gasLimit
+    if (!storageLimit) storageLimit = storageCollateralized
+  }
+
+  const pk = await wallet_getAddressPrivateKey({addressId: fromAddr.eid})
+
+  newTx = {
+    from,
+    data,
+    to,
+    gas,
+    gasPrice,
+    nonce,
+    value,
+    chainId,
+    storageLimit,
+    epochHeight,
+  }
+  return (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .cfxSignTransaction */ .sA)(newTx, pk, network.netId)
 }
 
 
@@ -72144,6 +72402,63 @@ const main = async ({
     throw InvalidParams(`Not allowed to delete builtin network`)
 
   return deleteNetworkById(networkId)
+}
+
+
+/***/ }),
+
+/***/ 35368:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14693);
+
+
+
+const NAME = 'wallet_detectAddressType'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]]],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+  methods: ['eth_getCode'],
+  db: ['getTokenByAddress'],
+}
+
+const main = async ({
+  Err: {InvalidParams},
+  rpcs: {eth_getCode},
+  db: {getTokenByAddress},
+  params: {address},
+  network: {type},
+}) => {
+  if (getTokenByAddress(address).length > 0) return {type: 'contract'}
+  const isBase32 = address.includes(':')
+  if (isBase32) {
+    return {type: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(address).type}
+  }
+
+  if (type === 'cfx')
+    throw InvalidParams(`don't support detect hex address with cfx network`)
+
+  let rst
+  try {
+    rst = await eth_getCode({errorFallThrough: true}, [address])
+  } catch (err) {} // eslint-disable-line no-empty
+
+  if (!rst || rst === '0x') return {type: 'unknown', contract: false}
+  return {type: 'contract'}
 }
 
 
@@ -75398,6 +75713,7 @@ const main = ({db: {getAccountGroup}}) => !getAccountGroup()?.length
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
+  "sA": () => (/* binding */ cfxSignTransaction),
   "Jv": () => (/* binding */ hashTypedData),
   "W0": () => (/* binding */ personalSign),
   "Qi": () => (/* binding */ signTypedData_v4)
@@ -76863,7 +77179,7 @@ var dist = __webpack_require__(68445);
 var keccak256_lib_esm = __webpack_require__(59256);
 ;// CONCATENATED MODULE: ../../packages/signature/index.js
 const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),external_buffer_.Buffer.from(message)):await new wallet_lib_esm/* Wallet */.w5((0,utils/* addHexPrefix */.L_)(privateKey)).signMessage(message);}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,Buffer.from(message));const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}async function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
-async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)(privateKey),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const digest=dist.TypedDataUtils.sign(typedData);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const digest=TypedDataUtils.sign(typedData);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(pk),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);
+async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)(privateKey),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const digest=dist.TypedDataUtils.sign(typedData);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const digest=TypedDataUtils.sign(typedData);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(pk),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};
 
 /***/ }),
 

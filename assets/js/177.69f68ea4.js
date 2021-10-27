@@ -1,5 +1,5 @@
-exports.id = 596;
-exports.ids = [596];
+exports.id = 177;
+exports.ids = [177];
 exports.modules = {
 
 /***/ 38447:
@@ -69655,16 +69655,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
-/* harmony import */ var _fluent_wallet_cfx_request_accounts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(65834);
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
 
 
 const NAME = 'cfx_accounts'
 
-const schemas = _fluent_wallet_cfx_request_accounts__WEBPACK_IMPORTED_MODULE_0__.schemas
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
 
-const permissions = _fluent_wallet_cfx_request_accounts__WEBPACK_IMPORTED_MODULE_0__.permissions
+const permissions = {
+  external: ['popup', 'inpage'],
+  methods: ['cfx_requestAccounts'],
+  db: [],
+}
 
-const main = _fluent_wallet_cfx_request_accounts__WEBPACK_IMPORTED_MODULE_0__.main
+const main = async ({rpcs: {cfx_requestAccounts}, app}) => {
+  if (!app) return []
+  return await cfx_requestAccounts()
+}
 
 
 /***/ }),
@@ -70161,10 +70170,12 @@ const main = async ({
   app,
 }) => {
   if (app?.currentAccount) {
-    return accountAddrByNetwork({
-      account: app.currentAccount.eid,
-      network: app.currentNetwork.eid,
-    }).base32
+    return [
+      accountAddrByNetwork({
+        account: app.currentAccount.eid,
+        network: app.currentNetwork.eid,
+      }).base32,
+    ]
   }
   const permsRes = await wallet_requestPermissions([{cfx_accounts: {}}])
 
@@ -70175,10 +70186,10 @@ const main = async ({
       account: currentAccount.eid,
       network: currentNetwork.eid,
     })
-    return addr.base32
+    return [addr.base32]
   }
 
-  return permsRes
+  return []
 }
 
 
@@ -70639,16 +70650,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
-/* harmony import */ var _fluent_wallet_eth_request_accounts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24125);
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
 
 
 const NAME = 'eth_accounts'
 
-const schemas = _fluent_wallet_eth_request_accounts__WEBPACK_IMPORTED_MODULE_0__.schemas
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
 
-const permissions = _fluent_wallet_eth_request_accounts__WEBPACK_IMPORTED_MODULE_0__.permissions
+const permissions = {
+  external: ['popup', 'inpage'],
+  methods: ['eth_requestAccounts'],
+  db: [],
+}
 
-const main = _fluent_wallet_eth_request_accounts__WEBPACK_IMPORTED_MODULE_0__.main
+const main = async ({rpcs: {eth_requestAccounts}, app}) => {
+  if (!app) return []
+  return await eth_requestAccounts()
+}
 
 
 /***/ }),
@@ -70991,21 +71011,23 @@ const main = async ({
   app,
 }) => {
   if (app?.currentAccount) {
-    return accountAddrByNetwork({
-      account: app.currentAccount.eid,
-      network: app.currentNetwork.eid,
-    }).hex
+    return [
+      accountAddrByNetwork({
+        account: app.currentAccount.eid,
+        network: app.currentNetwork.eid,
+      }).hex,
+    ]
   }
   const permsRes = await wallet_requestPermissions([{eth_accounts: {}}])
 
-  if (!permsRes?.error) {
+  if (permsRes && !permsRes.error) {
     const app = getOneApp({site: site.eid})
     const {currentAccount, currentNetwork} = app
     const addr = accountAddrByNetwork({
       account: currentAccount.eid,
       network: currentNetwork.eid,
     })
-    return addr.hex
+    return [addr.hex]
   }
 
   return permsRes

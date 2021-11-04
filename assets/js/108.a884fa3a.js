@@ -1,5 +1,5 @@
-exports.id = 177;
-exports.ids = [177];
+exports.id = 108;
+exports.ids = [108];
 exports.modules = {
 
 /***/ 38447:
@@ -69557,6 +69557,48 @@ const main = async ({f, rpcs: {cfx_getStatus}}) => {
 
 /***/ }),
 
+/***/ 63689:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_checkBalanceAgainstTransaction'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress,
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress,
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint, // gas
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint, // gasPrice
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint, // storageLimit
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRef],
+  ],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+  methods: [],
+  db: [],
+}
+
+const main = async ({f, params}) => {
+  return await f(params)
+}
+
+
+/***/ }),
+
 /***/ 50320:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -72217,26 +72259,38 @@ const main = async ({
 
 /***/ }),
 
-/***/ 35368:
+/***/ 3113:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
+// ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "NAME": () => (/* binding */ NAME),
-/* harmony export */   "schemas": () => (/* binding */ schemas),
-/* harmony export */   "permissions": () => (/* binding */ permissions),
-/* harmony export */   "main": () => (/* binding */ main)
-/* harmony export */ });
-/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
-/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14693);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "NAME": () => (/* binding */ NAME),
+  "main": () => (/* binding */ main),
+  "permissions": () => (/* binding */ permissions),
+  "schemas": () => (/* binding */ schemas)
+});
+
+// EXTERNAL MODULE: ../../packages/spec/index.js + 1 modules
+var spec = __webpack_require__(53428);
+// EXTERNAL MODULE: ../../packages/base32-address/index.js + 3 modules
+var base32_address = __webpack_require__(14693);
+// EXTERNAL MODULE: ../../packages/checks/index.js + 3 modules
+var checks = __webpack_require__(4424);
+;// CONCATENATED MODULE: ../../packages/detect-address-type/index.js
+const detectCfxAddressType=async address=>{const isBase32=address.includes(':');if(isBase32){const type=(0,base32_address/* decode */.Jx)(address).type;return{type,[type]:true};}throw new Error(`don't support detect hex address with cfx network`);};const detectEthAddressType=async(address,{request}={})=>{if(!(0,checks/* isFunction */.mf)(request))throw new Error('opts.request is not a function');let rst;try{rst=await request({method:'eth_getCode',params:[address]});}catch(err){}// eslint-disable-line no-empty
+if(!rst||rst==='0x')return{type:'unknown',contract:false};return{type:'contract',contract:true};};const detectAddressType=async(address,opts={})=>{if(opts.type==='cfx')return await detectCfxAddressType(address);if(opts.type==='eth')return await detectEthAddressType(address,opts);throw new Error(`Invalid opts.type ${opts.type}, must be one of cfx or eth`);};
+;// CONCATENATED MODULE: ../../packages/rpcs/wallet_detectAddressType/index.js
 
 
 
 const NAME = 'wallet_detectAddressType'
 
 const schemas = {
-  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]]],
+  input: [spec.map, {closed: true}, ['address', [spec.or, spec.base32Address, spec.ethHexAddress]]],
 }
 
 const permissions = {
@@ -72247,28 +72301,19 @@ const permissions = {
 }
 
 const main = async ({
-  Err: {InvalidParams},
   rpcs: {eth_getCode},
   db: {getTokenByAddress},
   params: {address},
   network: {type},
 }) => {
   if (getTokenByAddress(address).length > 0) return {type: 'contract'}
-  const isBase32 = address.includes(':')
-  if (isBase32) {
-    return {type: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(address).type}
-  }
-
-  if (type === 'cfx')
-    throw InvalidParams(`don't support detect hex address with cfx network`)
-
-  let rst
-  try {
-    rst = await eth_getCode({errorFallThrough: true}, [address])
-  } catch (err) {} // eslint-disable-line no-empty
-
-  if (!rst || rst === '0x') return {type: 'unknown', contract: false}
-  return {type: 'contract'}
+  if (type === 'cfx') return await detectCfxAddressType(address)
+  if (type === 'eth')
+    return await detectEthAddressType(address, {
+      request({params}) {
+        return eth_getCode({errorFallThrough: true}, params)
+      },
+    })
 }
 
 
@@ -74274,7 +74319,6 @@ async function requestUnlockUI({
   if (!window) throw Internal('Invalid running env, window is not defined')
   const {browser, popup} = await __webpack_require__.e(/* import() */ 342).then(__webpack_require__.bind(__webpack_require__, 71342))
   const w = await popup.show({
-    url: 'popup.html#/unlock',
     alwaysOnTop: MODE.isProd ? true : false,
     mdoe: MODE,
   })
@@ -77310,7 +77354,7 @@ sv.C=function(a){var b=shared/* $APP.I */.EY.I(a);a=shared/* $APP.J */.EY.J(a);r
 var tv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Ho */.EY.Ho,new shared/* $APP.v */.EY.v(null,2,[shared/* $APP.uk */.EY.uk,8,shared/* $APP.vk */.EY.vk,128],null)],null),shared/* $APP.O */.EY.O([shared/* $APP.Lr */.EY.Lr,"String between 8 to 128 character",shared/* $APP.Y */.EY.Y,shared/* $APP.xo */.EY.xo])),uv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.jr */.EY.jr,new shared/* $APP.v */.EY.v(null,2,[shared/* $APP.uk */.EY.uk,0,shared/* $APP.vk */.EY.vk,4294967295],null)],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,iv,shared/* $APP.Lr */.EY.Lr,"1029 for mainnet, 1 for testnet, 0 \x3c\x3d networkId \x3c\x3d 4294967295"])),vv=sv.j(new shared/* $APP.W */.EY.W(null,5,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"user","contract","builtin","null"],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Ou,shared/* $APP.Lr */.EY.Lr,"Is string, one of user contract builtin null"])),
 wv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0(x|X)?[a-fA-F0-9]+$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,fv,shared/* $APP.fq */.EY.fq,function(){return["0x",shared/* $APP.A.g */.EY.A.g(Math.floor(Math.random()*Number.MAX_SAFE_INTEGER).toString(16))].join("")},shared/* $APP.Dm */.EY.Dm,"invalid hex string",shared/* $APP.Lr */.EY.Lr,"hexadecimal string"])),xv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x([0-9a-fA-F]?){1,2}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,hv,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded byte"],null)])),yv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]*$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,
 jv,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded bytes"],null)])),zv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{64}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Pu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"32 hex encoded bytes"],null)])),Av=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{512}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Lu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"256 hex encoded bytes"],null)])),Bv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{512}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Su,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,
-[shared/* $APP.Lr */.EY.Lr,"65 hex encoded bytes"],null)])),Cv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[1-9a-f]+[0-9a-f]*$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Hu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded unsigned integer"],null)])),Dv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{64}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Qu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded unsigned integer"],null)])),Ev=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{64}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,cv,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,
+[shared/* $APP.Lr */.EY.Lr,"65 hex encoded bytes"],null)])),Cv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]+[0-9a-f]*$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Hu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded unsigned integer"],null)])),Dv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{64}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Qu,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"hex encoded unsigned integer"],null)])),Ev=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^0x[0-9a-f]{64}$/],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,cv,new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,
 "32 byte hex value"],null)])),Fv=sv.j(Cv,shared/* $APP.O */.EY.O([new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Lr */.EY.Lr,"chainid, 0x-prefixed hexadecimal string"],null)])),Gv=shared/* $APP.pt */.EY.pt(new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Y */.EY.Y,Wu,shared/* $APP.ym */.EY.ym,function(a){try{return shared/* $APP.fd */.EY.fd(a)||shared/* $APP.fd */.EY.fd(new Date(a))}catch(b){if(b instanceof Error)return!1;throw b;}},shared/* $APP.El */.EY.El,new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Dm */.EY.Dm,"should be a valid date string",shared/* $APP.Lr */.EY.Lr,"valid js date string",shared/* $APP.fq */.EY.fq,function(){function a(c){var d=null;if(0<arguments.length){d=0;for(var e=Array(arguments.length-0);d<e.length;)e[d]=
 arguments[d+0],++d;d=new shared/* $APP.Uc */.EY.Uc(e,0,null)}return b.call(this,d)}function b(){return(new Date).toISOString()}a.A=0;a.C=function(c){c=shared/* $APP.F */.EY.F(c);return b(c)};a.j=b;return a}()],null)],null)),Hv=shared/* $APP.pt */.EY.pt(new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Y */.EY.Y,Mu,shared/* $APP.ym */.EY.ym,function(a){return shared/* $APP.Pd */.EY.Pd(a)&&shared/* $APP.M.h */.EY.M.h(shared/* $APP.K */.EY.K(shared/* $APP.Wf.h */.EY.Wf.h(shared/* $APP.Ch */.EY.Ch,a)),shared/* $APP.K */.EY.K(a))},shared/* $APP.El */.EY.El,new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Dm */.EY.Dm,"should be a array without duplicate item",shared/* $APP.Lr */.EY.Lr,"array without duplicate item",shared/* $APP.fq */.EY.fq,function(){function a(c){var d=null;if(0<arguments.length){d=
 0;for(var e=Array(arguments.length-0);d<e.length;)e[d]=arguments[d+0],++d;d=new shared/* $APP.Uc */.EY.Uc(e,0,null)}return b.call(this,d)}function b(){return new shared/* $APP.Bh */.EY.Bh(null,new shared/* $APP.v */.EY.v(null,4,[Uu,null,"a",null,3,null,!1,null],null),null)}a.A=0;a.C=function(c){c=shared/* $APP.F */.EY.F(c);return b(c)};a.j=b;return a}()],null)],null)),Iv=shared/* $APP.pt */.EY.pt(new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Y */.EY.Y,shared/* $APP.jq */.EY.jq,shared/* $APP.ym */.EY.ym,shared/* $APP.bb */.EY.bb,shared/* $APP.El */.EY.El,new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Dm */.EY.Dm,"should be null or cljs nil",shared/* $APP.Lr */.EY.Lr,"javascript null or cljs nil",shared/* $APP.fq */.EY.fq,function(){function a(b){if(0<

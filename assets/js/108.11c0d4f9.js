@@ -68603,8 +68603,8 @@ const isAsyncFunction=fn=>isFunction(fn)&&fn instanceof AsyncFunction;
  * @fileOverview consts used in extension
  * @name index.js
  */const MAINNET='mainnet';const TESTNET='testnet';const LOCALHOST='localhost';const CUSTOM='custom';const EXT_STORAGE='ext-storage';const NULL_HEX_ADDRESS='0x0000000000000000000000000000000000000000';const ADMINE_CONTROL_HEX_ADDRESS='0x0888000000000000000000000000000000000000';const SPONSOR_WHITELIST_CONTROL_HEX_ADDRESS='0x0888000000000000000000000000000000000001';const STAKING_HEX_ADDRESS='0x0888000000000000000000000000000000000002';const INTERNAL_CONTRACTS_HEX_ADDRESS=[ADMINE_CONTROL_HEX_ADDRESS,SPONSOR_WHITELIST_CONTROL_HEX_ADDRESS,STAKING_HEX_ADDRESS];const ADDRESS_TYPES=['user','contract','builtin','null'];// * network setting
-const DEFAULT_CURRENCY_DECIMALS=18;const CFX_MAINNET_RPC_ENDPOINT='https://portal-main.confluxrpc.com';const CFX_MAINNET_NAME='CFX_MAINNET';const CFX_MAINNET_CHAINID='0x405';const CFX_MAINNET_NETID=1029;const CFX_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_MAINNET_CURRENCY_NAME='CFX';const CFX_TESTNET_RPC_ENDPOINT='https://portal-test.confluxrpc.com';const CFX_TESTNET_NAME='CFX_TESTNET';const CFX_TESTNET_CHAINID='0x1';const CFX_TESTNET_NETID=1;const CFX_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_TESTNET_CURRENCY_NAME='CFX';// TODO: setup ci to use own infura
-const ETH_MAINNET_RPC_ENDPOINT='https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_MAINNET_NAME='ETH_MAINNET';const ETH_MAINNET_CHAINID='0x1';const ETH_MAINNET_NETID=1;const ETH_MAINNET_CURRENCY_SYMBOL='ETH';const ETH_MAINNET_CURRENCY_NAME='Ether';const ETH_ROPSTEN_RPC_ENDPOINT='https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_ROPSTEN_NAME='ETH_ROPSTEN';const ETH_ROPSTEN_CHAINID='0x3';const ETH_ROPSTEN_NETID=3;const ETH_ROPSTEN_CURRENCY_SYMBOL='ETH';const ETH_ROPSTEN_CURRENCY_NAME='Ether';const BSC_MAINNET_RPC_ENDPOINT='https://bsc-dataseed.binance.org/';const BSC_MAINNET_NAME='BSC_MAINNET';const BSC_MAINNET_CHAINID='0x38';const BSC_MAINNET_NETID=56;const BSC_MAINNET_CURRENCY_SYMBOL='BNB';const BSC_MAINNET_CURRENCY_NAME='BNB';const BSC_TESTNET_RPC_ENDPOINT='https://data-seed-prebsc-1-s1.binance.org:8545/';const BSC_TESTNET_NAME='BSC_TESTNET';const BSC_TESTNET_CHAINID='0x61';const BSC_TESTNET_NETID=97;const BSC_TESTNET_CURRENCY_SYMBOL='BNB';const BSC_TESTNET_CURRENCY_NAME='BNB';const DEFAULT_CFX_HDPATH=`m/44'/503'/0'/0`;const DEFAULT_ETH_HDPATH=`m/44'/60'/0'/0`;const REGENERATE='REGENERATE';const CFX_LOCALNET_RPC_ENDPOINT='http://localhost:12537';const CFX_LOCALNET_NAME='CFX_LOCALNET';const CFX_LOCALNET_CHAINID='0xbb7';const CFX_LOCALNET_NETID=2999;const CFX_LOCALNET_CURRENCY_SYMBOL='CFX';const CFX_LOCALNET_CURRENCY_NAME='CFX';const ETH_LOCALNET_RPC_ENDPOINT='http://localhost:8545';const ETH_LOCALNET_NAME='ETH_LOCALNET';const ETH_LOCALNET_CHAINID='0x539';const ETH_LOCALNET_NETID=1337;const ETH_LOCALNET_CURRENCY_SYMBOL='ETH';const ETH_LOCALNET_CURRENCY_NAME='Ether';// ETH endpoints
+const DEFAULT_CURRENCY_DECIMALS=18;const CFX_MAINNET_RPC_ENDPOINT='https://portal-main.confluxrpc.com';const CFX_MAINNET_NAME='CFX_MAINNET';const CFX_MAINNET_CHAINID='0x405';const CFX_MAINNET_NETID=1029;const CFX_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_MAINNET_CURRENCY_NAME='Conflux';const CFX_TESTNET_RPC_ENDPOINT='https://portal-test.confluxrpc.com';const CFX_TESTNET_NAME='CFX_TESTNET';const CFX_TESTNET_CHAINID='0x1';const CFX_TESTNET_NETID=1;const CFX_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_TESTNET_CURRENCY_NAME='Conflux';// TODO: setup ci to use own infura
+const ETH_MAINNET_RPC_ENDPOINT='https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_MAINNET_NAME='ETH_MAINNET';const ETH_MAINNET_CHAINID='0x1';const ETH_MAINNET_NETID=1;const ETH_MAINNET_CURRENCY_SYMBOL='ETH';const ETH_MAINNET_CURRENCY_NAME='Ether';const ETH_ROPSTEN_RPC_ENDPOINT='https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_ROPSTEN_NAME='ETH_ROPSTEN';const ETH_ROPSTEN_CHAINID='0x3';const ETH_ROPSTEN_NETID=3;const ETH_ROPSTEN_CURRENCY_SYMBOL='ETH';const ETH_ROPSTEN_CURRENCY_NAME='Ether';const BSC_MAINNET_RPC_ENDPOINT='https://bsc-dataseed.binance.org/';const BSC_MAINNET_NAME='BSC_MAINNET';const BSC_MAINNET_CHAINID='0x38';const BSC_MAINNET_NETID=56;const BSC_MAINNET_CURRENCY_SYMBOL='BNB';const BSC_MAINNET_CURRENCY_NAME='Binance Coin';const BSC_TESTNET_RPC_ENDPOINT='https://data-seed-prebsc-1-s1.binance.org:8545/';const BSC_TESTNET_NAME='BSC_TESTNET';const BSC_TESTNET_CHAINID='0x61';const BSC_TESTNET_NETID=97;const BSC_TESTNET_CURRENCY_SYMBOL='BNB';const BSC_TESTNET_CURRENCY_NAME='Binance Coin';const DEFAULT_CFX_HDPATH=`m/44'/503'/0'/0`;const DEFAULT_ETH_HDPATH=`m/44'/60'/0'/0`;const REGENERATE='REGENERATE';const CFX_LOCALNET_RPC_ENDPOINT='http://localhost:12537';const CFX_LOCALNET_NAME='CFX_LOCALNET';const CFX_LOCALNET_CHAINID='0xbb7';const CFX_LOCALNET_NETID=2999;const CFX_LOCALNET_CURRENCY_SYMBOL='CFX';const CFX_LOCALNET_CURRENCY_NAME='CFX';const ETH_LOCALNET_RPC_ENDPOINT='http://localhost:8545';const ETH_LOCALNET_NAME='ETH_LOCALNET';const ETH_LOCALNET_CHAINID='0x539';const ETH_LOCALNET_NETID=1337;const ETH_LOCALNET_CURRENCY_SYMBOL='ETH';const ETH_LOCALNET_CURRENCY_NAME='Ether';// ETH endpoints
 const ETH_ENDPOINT={[ETH_MAINNET_NETID]:ETH_MAINNET_RPC_ENDPOINT,[ETH_ROPSTEN_NETID]:ETH_ROPSTEN_RPC_ENDPOINT// Rinkeby: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Kovan: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Goerli: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
@@ -71264,6 +71264,7 @@ const nativeCurrencySchema = [
   ['name', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.stringp],
   ['symbol', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.tokenSymbol],
   ['decimals', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.eq, 18]],
+  ['iconUrls', {optional: true}, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.plus, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.url]],
 ]
 
 const ChainParameterSchema = [
@@ -72617,7 +72618,7 @@ const main = async ({
       accountGroupId: accountGroup.eid,
     })
 
-  const decrypted = vault.ddata || (0,browser_passworder__WEBPACK_IMPORTED_MODULE_2__.decrypt)(password, vault.data)
+  const decrypted = vault.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_2__.decrypt)(password, vault.data))
 
   const rst = account.address.map(
     async ({index, hex, cfxHex, base32, pk, eid}) => {
@@ -72965,6 +72966,8 @@ __webpack_require__.r(__webpack_exports__);
 
 const NAME = 'wallet_getAccountGroup'
 
+const AccountGroupTypeSchema = [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'hd', 'pk', 'pub']
+
 const schemas = {
   input: [
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.maybe,
@@ -72973,7 +72976,15 @@ const schemas = {
       {closed: true},
       ['accountGroupId', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
       ['includeHidden', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.truep],
-      ['type', {optional: true}, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'hd', 'pk', 'pub']],
+      [
+        'type',
+        {optional: true},
+        [
+          _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or,
+          AccountGroupTypeSchema,
+          [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.oneOrMore, AccountGroupTypeSchema]],
+        ],
+      ],
     ],
   ],
 }
@@ -72983,17 +72994,34 @@ const permissions = {
   external: ['popup'],
 }
 
-const main = ({params = {}, db: {getAccountGroup}}) => {
+const main = ({
+  Err: {InvalidParams},
+  params = {},
+  db: {getAccountGroup},
+}) => {
   const {accountGroupId, includeHidden, type} = params
+  const types = new Set()
+  if (Array.isArray(type)) {
+    if (type.length > 3) throw InvalidParams(`Invalid type: ${type}`)
+    type.forEach(t => types.add(t))
+    if (types.size !== type.length)
+      throw InvalidParams(`Invalid type: ${type}, duplicate value`)
+  } else if (type) {
+    types.add(type)
+  }
   const query = {}
   if (accountGroupId) query.eid = accountGroupId
-  if (includeHidden) query.hidden = true
 
   const accoungGroup = getAccountGroup(query) || []
 
-  if (type) return accoungGroup.filter(g => g.vault.type === type)
-
-  return accoungGroup
+  const notype = !types.size
+  return accoungGroup.reduce((acc, g) => {
+    if (notype || types.has(g.vault.type)) {
+      if (includeHidden) return acc.concat(g)
+      return g.hidden ? acc : acc.concat(g)
+    }
+    return acc
+  }, [])
 }
 
 

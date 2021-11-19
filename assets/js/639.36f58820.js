@@ -87457,13 +87457,24 @@ const schemas = {
 
 const permissions = {
   external: ['popup', 'inpage'],
-  methods: ['cfx_requestAccounts'],
-  db: [],
+  locked: true,
+  db: ['getLocked', 'accountAddrByNetwork'],
 }
 
-const main = async ({rpcs: {cfx_requestAccounts}, app}) => {
+const main = async ({
+  db: {getLocked, accountAddrByNetwork},
+  app,
+  network,
+}) => {
+  if (getLocked()) return []
   if (!app) return []
-  return await cfx_requestAccounts()
+
+  const addr = accountAddrByNetwork({
+    network: network.eid,
+    account: app.currentAccount.eid,
+  })
+  if (network.type === 'cfx') return [addr.base32]
+  return [addr.hex]
 }
 
 
@@ -88844,6 +88855,12 @@ const main = async ({
       account: currentAccount.eid,
       network: currentNetwork.eid,
     })
+
+    newapp.site?.post?.({
+      event: 'accountsChanged',
+      params: [addr.base32],
+    })
+
     return [addr.base32]
   }
 
@@ -89694,6 +89711,10 @@ const main = async ({
     const addr = accountAddrByNetwork({
       account: currentAccount.eid,
       network: currentNetwork.eid,
+    })
+    app.site?.post?.({
+      event: 'accountsChanged',
+      params: [addr.hex],
     })
     return [addr.hex]
   }

@@ -1,5 +1,5 @@
-exports.id = 639;
-exports.ids = [639];
+exports.id = 30;
+exports.ids = [30];
 exports.modules = {
 
 /***/ 38447:
@@ -87840,6 +87840,79 @@ const main = async ({f, params}) => {
 
 /***/ }),
 
+/***/ 89173:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_getAccountPendingInfo'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({f, params}) => {
+  return f(params)
+}
+
+
+/***/ }),
+
+/***/ 54724:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_getAccountPendingTransactions'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress,
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, {doc: 'Optional start nonce to return'}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+    [
+      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne,
+      {doc: 'Optional limit of pending transactions to return'},
+      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint,
+    ],
+  ],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({f, params}) => {
+  return f(params)
+}
+
+
+/***/ }),
+
 /***/ 35904:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -88446,6 +88519,38 @@ const main = async ({f, params}) => {
 
 /***/ }),
 
+/***/ 97253:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_getPoSEconomics'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRefNoMined],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({f, params}) => {
+  return f(params)
+}
+
+
+/***/ }),
+
 /***/ 27942:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -88661,6 +88766,38 @@ const main = ({f, params}) => {
 
 /***/ }),
 
+/***/ 84066:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_getSupplyInfo'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({f, params}) => {
+  return f(params)
+}
+
+
+/***/ }),
+
 /***/ 73530:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -88799,6 +88936,38 @@ const main = async ({f, rpcs: {cfx_getStatus}}) => {
   if (!rst?.result || rst?.result === 'nocache')
     return parseInt((await cfx_getStatus())?.networkId, 16).toString()
   else return rst.result
+}
+
+
+/***/ }),
+
+/***/ 46221:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53428);
+
+
+const NAME = 'cfx_openedMethodGroups'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({f, params}) => {
+  return f(params)
 }
 
 
@@ -96299,12 +96468,13 @@ shared/* $APP.bb */.EY.bb,new shared/* $APP.T */.EY.T(null,"type-properties","ty
 RegExp,To=new shared/* $APP.T */.EY.T(null,"\x3e","\x3e",-555517146),Xo=new shared/* $APP.T */.EY.T(null,"\x3e\x3d","\x3e\x3d",-623615505),Zo=new shared/* $APP.T */.EY.T(null,"\x3c","\x3c",-646864291),$o=new shared/* $APP.T */.EY.T(null,"\x3c\x3d","\x3c\x3d",-395636158),ap=new shared/* $APP.T */.EY.T(null,"not\x3d","not\x3d",-173995323),bp=new shared/* $APP.T */.EY.T(null,"string","string",-1989541586),dp=new shared/* $APP.T */.EY.T(null,"int","int",-1741416922),kp=new shared/* $APP.T */.EY.T(null,"boolean","boolean",-1919418404),lp=new shared/* $APP.T */.EY.T(null,"symbol","symbol",-1038572696),np=new shared/* $APP.T */.EY.T(null,"uuid","uuid",-2145095719),qp=new shared/* $APP.T */.EY.T(null,
 "qualified-symbol","qualified-symbol",-665513695),sp=new shared/* $APP.T */.EY.T(null,"*","*",-1294732318),tp=new shared/* $APP.T */.EY.T(null,"*","*",-1294732318),wp=new shared/* $APP.T */.EY.T(null,"?","?",-1703165233),zp=new shared/* $APP.T */.EY.T(null,"?","?",-1703165233),Ap=new shared/* $APP.T */.EY.T(null,"cat","cat",-1457810207),Bp=new shared/* $APP.T */.EY.T(null,"alt","alt",-3214426),Ep=new shared/* $APP.T */.EY.T(null,"catn","catn",-48807277),Ip=new shared/* $APP.T */.EY.T(null,"and","and",-971899817),Kp=new shared/* $APP.T */.EY.T(null,"not","not",-595976884),Lp=new shared/* $APP.T */.EY.T(null,"sequential","sequential",-1082983960),Mp=new shared/* $APP.T */.EY.T(null,
 "maybe","maybe",-314397560),Qp=new shared/* $APP.T */.EY.T(null,"tuple","tuple",-472667284),Rp=new shared/* $APP.T */.EY.T(null,"multi","multi",-190293005),Sp=new shared/* $APP.T */.EY.T(null,"fn","fn",-1175266204),Xp=new shared/* $APP.T */.EY.T(null,"schema","schema",-1582001791),Yp=new shared/* $APP.T */.EY.T("cfxjs.spec.core","schema","cfxjs.spec.core/schema",-2104791549),Kv=shared/* $APP.pt */.EY.pt(new shared/* $APP.v */.EY.v(null,3,[shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"undefined","undefined",-1970511116),shared/* $APP.ym */.EY.ym,function(a){return shared/* $APP.M.h */.EY.M.h(void 0,a)},new shared/* $APP.T */.EY.T(null,"type-properties","type-properties",-1728352126),new shared/* $APP.v */.EY.v(null,
-3,[new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"should be undefined",shared/* $APP.Lr */.EY.Lr,"javascript undefined",new shared/* $APP.T */.EY.T("gen","fmap","gen/fmap",-1585733563),function(){function a(b){if(0<arguments.length)for(var c=0,d=Array(arguments.length-0);c<d.length;)d[c]=arguments[c+0],++c}a.A=0;a.C=function(b){shared/* $APP.F */.EY.F(b)};a.j=function(){};return a}()],null)],null)),Lv=sv.j(new shared/* $APP.W */.EY.W(null,7,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest_mined","latest_confirmed","latest_state","latest_checkpoint","earliest",null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,
-new shared/* $APP.T */.EY.T(null,"epoch-tag","epoch-tag",-1905188154),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"must be one of latest_mined, latest_confirmed, latest_state, latest_checkpoint, earliest or null",shared/* $APP.Lr */.EY.Lr,"one of latest_mined, latest_confirmed, latest_state, latest_checkpoint, earliest or null, default to latest_state"])),eq=sv.j(new shared/* $APP.W */.EY.W(null,6,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest_confirmed","latest_state","latest_checkpoint","earliest",null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,bq,new shared/* $APP.T */.EY.T("error","message",
-"error/message",-502809098),"must be one of latest_confirmed, latest_state, latest_checkpoint, earliest or null",shared/* $APP.Lr */.EY.Lr,"one of latest_confirmed, latest_state, latest_checkpoint, earliest or null, default to latest_state"])),Mv=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,Lv,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-ref","epoch-ref",-48908512),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid epoch ref, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter",
-shared/* $APP.Lr */.EY.Lr,"epoch number tag, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter"])),fq=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,eq,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,cq,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid epoch ref, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter",shared/* $APP.Lr */.EY.Lr,"epoch number tag, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter"])),
-Nv=sv.j(new shared/* $APP.W */.EY.W(null,5,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest","earliest","pending",null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-tag","epoch-tag",-1905188154),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid block tag, must be one of latest pending or earliest",shared/* $APP.Lr */.EY.Lr,"one of latest pending or earliest, default to latest"])),Ov=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,Nv,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-ref","epoch-ref",-48908512),new shared/* $APP.T */.EY.T("error","message","error/message",
--502809098),"invalid block ref, must be one of latest, pending, earliest, block number or null",shared/* $APP.Lr */.EY.Lr,"one of latest, pending, earliest, block number or null"]));sv.j(new shared/* $APP.W */.EY.W(null,4,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"builtin","user","contract"],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Ou,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid conflux user type, must be one of builtin user contract",shared/* $APP.Lr */.EY.Lr,"one of builtin user contract"]));
+3,[new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"should be undefined",shared/* $APP.Lr */.EY.Lr,"javascript undefined",new shared/* $APP.T */.EY.T("gen","fmap","gen/fmap",-1585733563),function(){function a(b){if(0<arguments.length)for(var c=0,d=Array(arguments.length-0);c<d.length;)d[c]=arguments[c+0],++c}a.A=0;a.C=function(b){shared/* $APP.F */.EY.F(b)};a.j=function(){};return a}()],null)],null)),Lv=sv.j(new shared/* $APP.W */.EY.W(null,8,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest_mined","latest_finalized","latest_confirmed","latest_state","latest_checkpoint","earliest",
+null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-tag","epoch-tag",-1905188154),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"must be one of latest_mined, latest_finalized, latest_confirmed, latest_state, latest_checkpoint, earliest or null",shared/* $APP.Lr */.EY.Lr,"one of latest_mined, latest_finalized, latest_confirmed, latest_state, latest_checkpoint, earliest or null, default to latest_state"])),eq=sv.j(new shared/* $APP.W */.EY.W(null,7,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest_finalized","latest_confirmed","latest_state","latest_checkpoint",
+"earliest",null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,bq,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"must be one of latest_finalized, latest_confirmed, latest_state, latest_checkpoint, earliest or null",shared/* $APP.Lr */.EY.Lr,"one of latest_finalized, latest_confirmed, latest_state, latest_checkpoint, earliest or null, default to latest_state"])),Mv=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,Lv,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-ref","epoch-ref",-48908512),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),
+"invalid epoch ref, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter",shared/* $APP.Lr */.EY.Lr,"epoch number tag, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter"])),fq=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,eq,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,cq,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid epoch ref, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter",
+shared/* $APP.Lr */.EY.Lr,"epoch number tag, check the doc at https://developer.conflux-chain.org/conflux-doc/docs/json_rpc#the-epoch-number-parameter"])),Nv=sv.j(new shared/* $APP.W */.EY.W(null,5,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"latest","earliest","pending",null],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-tag","epoch-tag",-1905188154),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid block tag, must be one of latest pending or earliest",shared/* $APP.Lr */.EY.Lr,"one of latest pending or earliest, default to latest"])),Ov=sv.j(new shared/* $APP.W */.EY.W(null,
+3,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,Nv,Cv],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"epoch-ref","epoch-ref",-48908512),new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid block ref, must be one of latest, pending, earliest, block number or null",shared/* $APP.Lr */.EY.Lr,"one of latest, pending, earliest, block number or null"]));
+sv.j(new shared/* $APP.W */.EY.W(null,4,5,shared/* $APP.X */.EY.X,[shared/* $APP.qq */.EY.qq,"builtin","user","contract"],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Ou,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid conflux user type, must be one of builtin user contract",shared/* $APP.Lr */.EY.Lr,"one of builtin user contract"]));
 var Pv=sv.j(new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))?\.?)(?::\d{2,5})?(?:[\/?#]\S*)?$/i],null),
 shared/* $APP.O */.EY.O([new shared/* $APP.T */.EY.T("gen","fmap","gen/fmap",-1585733563),function(){return"https://example.com/"},shared/* $APP.Y */.EY.Y,$u,new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid http/https url",shared/* $APP.Lr */.EY.Lr,"http/https url"])),Qv=sv.j(new shared/* $APP.W */.EY.W(null,4,5,shared/* $APP.X */.EY.X,[shared/* $APP.Yo */.EY.Yo,Kv,Iv,new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[new shared/* $APP.T */.EY.T(null,"and","and",-971899817),shared/* $APP.Pd */.EY.Pd,shared/* $APP.Id */.EY.Id],null)],null),shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,Xu,shared/* $APP.Lr */.EY.Lr,"undefined, null or empty array"])),Rv=sv.j(shared/* $APP.ae */.EY.ae,shared/* $APP.O */.EY.O([shared/* $APP.Y */.EY.Y,new shared/* $APP.T */.EY.T(null,"dbid","dbid",-196647356),new shared/* $APP.T */.EY.T("error",
 "message","error/message",-502809098),"invalid dbid, must be a positive integer",shared/* $APP.Lr */.EY.Lr,"database id, positive integer"])),Sv=sv.j(new shared/* $APP.W */.EY.W(null,3,5,shared/* $APP.X */.EY.X,[new shared/* $APP.T */.EY.T(null,"and","and",-971899817),new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[shared/* $APP.Bl */.EY.Bl,/^[a-zA-Z0-9+\-%\/$]+$/],null),new shared/* $APP.W */.EY.W(null,2,5,shared/* $APP.X */.EY.X,[new shared/* $APP.T */.EY.T(null,"string","string",-1989541586),new shared/* $APP.v */.EY.v(null,2,[shared/* $APP.uk */.EY.uk,1,shared/* $APP.vk */.EY.vk,20],null)],null)],null),shared/* $APP.O */.EY.O([new shared/* $APP.T */.EY.T("error","message","error/message",-502809098),"invalid token symbol",shared/* $APP.Lr */.EY.Lr,"token symbol"]));ex_spec_uri=shared/* $APP.Ni */.EY.Ni;ex_spec_uuid=np;ex_spec_seq=shared/* $APP.Vd */.EY.Vd;ex_spec_keywordp=shared/* $APP.Ke */.EY.Ke;ex_spec_arrp=shared/* $APP.Pd */.EY.Pd;ex_spec_set=shared/* $APP.hp */.EY.hp;ex_spec_obj=shared/* $APP.Ur */.EY.Ur;ex_spec_mapOf=shared/* $APP.nq */.EY.nq;ex_spec_Bytes65=Bv;ex_spec_lt=Zo;ex_spec_enums=shared/* $APP.qq */.EY.qq;ex_spec_boolean=kp;ex_spec_booleanp=shared/* $APP.Ud */.EY.Ud;ex_spec_map=shared/* $APP.Ur */.EY.Ur;ex_spec_char=shared/* $APP.ib */.EY.ib;ex_spec_addressType=vv;ex_spec_networkId=uv;ex_spec_blockRef=Ov;ex_spec_any=shared/* $APP.dq */.EY.dq;ex_spec_neg=shared/* $APP.Be */.EY.Be;ex_spec_objp=shared/* $APP.Nd */.EY.Nd;ex_spec_indexed=shared/* $APP.qd */.EY.qd;ex_spec_zero=shared/* $APP.Ae */.EY.Ae;ex_spec_objOf=shared/* $APP.nq */.EY.nq;

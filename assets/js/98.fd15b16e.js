@@ -1,5 +1,5 @@
-exports.id = 375;
-exports.ids = [375,565];
+exports.id = 98;
+exports.ids = [98,565];
 exports.modules = {
 
 /***/ 72565:
@@ -1281,7 +1281,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 44375:
+/***/ 73098:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1293,7 +1293,7 @@ __webpack_require__.d(__webpack_exports__, {
   "badge": () => (/* reexport */ badge_namespaceObject),
   "browser": () => (/* reexport */ browser_polyfill),
   "idle": () => (/* reexport */ idle_namespaceObject),
-  "notification": () => (/* reexport */ notification_namespaceObject),
+  "notifications": () => (/* reexport */ notifications_namespaceObject),
   "popup": () => (/* reexport */ popup_namespaceObject),
   "tab": () => (/* reexport */ tab_namespaceObject)
 });
@@ -1309,10 +1309,10 @@ __webpack_require__.d(popup_namespaceObject, {
   "show": () => (show)
 });
 
-// NAMESPACE OBJECT: ../../packages/webextension/notification.js
-var notification_namespaceObject = {};
-__webpack_require__.r(notification_namespaceObject);
-__webpack_require__.d(notification_namespaceObject, {
+// NAMESPACE OBJECT: ../../packages/webextension/notifications.js
+var notifications_namespaceObject = {};
+__webpack_require__.r(notifications_namespaceObject);
+__webpack_require__.d(notifications_namespaceObject, {
   "create": () => (create)
 });
 
@@ -1350,10 +1350,10 @@ var _browser$windows3,_browser$windows4;const POPUP_HEIGHT=620;const POPUP_WIDTH
 return false;};let ON_FOCUS_CHANGED=[];let ON_REMOVED=[];if(browser_polyfill!==null&&browser_polyfill!==void 0&&(_browser$windows3=browser_polyfill.windows)!==null&&_browser$windows3!==void 0&&_browser$windows3.onFocusChanged){browser_polyfill.windows.onFocusChanged.addListener(id=>{ON_FOCUS_CHANGED=ON_FOCUS_CHANGED.reduce((acc,f)=>{try{const dontRemoveListener=f(id);if(dontRemoveListener)return acc.concat(f);}catch(err){}// eslint-disable-line no-empty
 return acc;},[]);});browser_polyfill.windows.onRemoved.addListener(id=>{ON_REMOVED=ON_REMOVED.reduce((acc,f)=>{try{const dontRemoveListener=f(id);if(dontRemoveListener===true)return acc.concat(f);}catch(err){}// eslint-disable-line no-empty
 return acc;},[]);});}const onFocusChanged=(windowId,f)=>{if(!(0,checks/* isFunction */.mf)(f))throw new Error('Invalid callback, must be a function');ON_FOCUS_CHANGED.push(id=>{if(windowId===id){return f(id);}return true;});};const onRemoved=(windowId,f)=>{if(!(0,checks/* isFunction */.mf)(f))throw new Error('Invalid callback, must be a function');ON_REMOVED.push(id=>{if(windowId===id){return f(id);}return true;});};const remove=(_browser$windows4=browser_polyfill.windows)===null||_browser$windows4===void 0?void 0:_browser$windows4.remove;
-;// CONCATENATED MODULE: ../../packages/webextension/notification.js
-const create=(options={})=>{const{id='__FLUENT_NOTIFICATION__',type='basic',message='',title='Fluent wallet',iconUrl='images/icon-64.png'}=options;return browser_polyfill.notifications.create(id,{...options,type,message,title,iconUrl});};
+;// CONCATENATED MODULE: ../../packages/webextension/notifications.js
+function notificationOnClicked(notificationId){if(notificationId.startsWith('https://')){browser_polyfill.tabs.create({url:notificationId});}}function subscribeToNotificationClicked(){if(!browser_polyfill.notifications.onClicked.hasListener(notificationOnClicked)){browser_polyfill.notifications.onClicked.addListener(notificationOnClicked);}}function create(id,options={}){const{type='basic',message='',title='Fluent wallet',iconUrl='images/icon-64.png'}=options;subscribeToNotificationClicked();return browser_polyfill.notifications.create(id??undefined,{...options,type,message,title,iconUrl});}
 ;// CONCATENATED MODULE: ../../packages/webextension/badge.js
-const set=({text='',color='green'})=>{return Promise.all([browser_polyfill.browserAction.setBadgeText({text}),browser_polyfill.browserAction.setBadgeBackgroundColor({color})]);};const clear=()=>{return browser_polyfill.browserAction.setBadgeText({text:''});};
+const set=({text='',color='#037DD6'})=>{return Promise.all([browser_polyfill.browserAction.setBadgeText({text:text===null||text===void 0?void 0:text.toString()}),browser_polyfill.browserAction.setBadgeBackgroundColor({color})]);};const clear=()=>{return browser_polyfill.browserAction.setBadgeText({text:''});};
 ;// CONCATENATED MODULE: ../../packages/webextension/idle.js
 var _browser$idle;const DETECTION_INTERVAL=15;browser_polyfill===null||browser_polyfill===void 0?void 0:(_browser$idle=browser_polyfill.idle)===null||_browser$idle===void 0?void 0:_browser$idle.setDetectionInterval(DETECTION_INTERVAL);const query=()=>{return browser_polyfill.idle.queryState(DETECTION_INTERVAL);};const isLocked=async()=>{return(await query())==='locked';};const isIdle=async()=>{return(await query())==='idle';};// NOTE: firefox don't support locked right now
 const listen=f=>{const listener=s=>(s===null||s===void 0?void 0:s.newState)&&(s===null||s===void 0?void 0:s.newState)!=='active'&&f(s.newState);browser_polyfill.idle.onStateChanged.addListener(listener);return;};

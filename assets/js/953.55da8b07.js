@@ -1,5 +1,5 @@
-exports.id = 816;
-exports.ids = [816];
+exports.id = 953;
+exports.ids = [953];
 exports.modules = {
 
 /***/ 38447:
@@ -17644,6 +17644,41 @@ function verifyTypedData(domain, types, value, signature) {
 
 /***/ }),
 
+/***/ 13527:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "h": () => (/* binding */ assert)
+/* harmony export */ });
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(43475);
+
+/**
+ * Takes a `test` result or predicate function without args and throws
+ * error with given `msg` if test failed (i.e. is falsy).
+ *
+ * @remarks
+ * The function is only enabled if `process.env.NODE_ENV != "production"`
+ * or if the `UMBRELLA_ASSERTS` env var is set to 1.
+ */
+const assert = (() => {
+    try {
+        return ( false ||
+            process.env.UMBRELLA_ASSERTS === "1");
+    }
+    catch (e) { }
+    return false;
+})()
+    ? (test, msg = "assertion failed") => {
+        if ((typeof test === "function" && !test()) || !test) {
+            throw new Error(typeof msg === "function" ? msg() : msg);
+        }
+    }
+    : _constants__WEBPACK_IMPORTED_MODULE_0__/* .NO_OP */ .Jw;
+
+
+/***/ }),
+
 /***/ 43475:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -17674,6 +17709,30 @@ const EVENT_DISABLE = "disable";
 
 /***/ }),
 
+/***/ 32287:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "f": () => (/* binding */ implementsFunction)
+/* harmony export */ });
+const implementsFunction = (x, fn) => x != null && typeof x[fn] === "function";
+
+
+/***/ }),
+
+/***/ 87206:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "z": () => (/* binding */ isArrayLike)
+/* harmony export */ });
+const isArrayLike = (x) => x != null && typeof x !== "function" && x.length !== undefined;
+
+
+/***/ }),
+
 /***/ 49040:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -17686,14 +17745,27 @@ const isFunction = (x) => typeof x === "function";
 
 /***/ }),
 
+/***/ 55157:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "T": () => (/* binding */ isIterable)
+/* harmony export */ });
+const isIterable = (x) => x != null && typeof x[Symbol.iterator] === "function";
+
+
+/***/ }),
+
 /***/ 4088:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "pS": () => (/* binding */ comp),
 /* harmony export */   "zv": () => (/* binding */ compL)
 /* harmony export */ });
-/* unused harmony exports comp, compI */
+/* unused harmony export compI */
 /* harmony import */ var _thi_ng_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(83813);
 
 function comp(...fns) {
@@ -17772,7 +17844,7 @@ function partial(fn, ...args) {
 
 /***/ }),
 
-/***/ 22156:
+/***/ 60687:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -17784,9 +17856,8 @@ __webpack_require__.d(__webpack_exports__, {
 
 // UNUSED EXPORTS: dcons, defDCons
 
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/checks/is-arraylike.js
-const isArrayLike = (x) => x != null && typeof x !== "function" && x.length !== undefined;
-
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-arraylike.js
+var is_arraylike = __webpack_require__(87206);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compare/compare.js
 const compare = (a, b) => {
     if (a === b) {
@@ -17980,7 +18051,7 @@ class DCons {
         }
     }
     equiv(o) {
-        if (!(o instanceof DCons || isArrayLike(o)) ||
+        if (!(o instanceof DCons || (0,is_arraylike/* isArrayLike */.z)(o)) ||
             this._length !== o.length) {
             return false;
         }
@@ -18628,45 +18699,13 @@ const SYSTEM = new SystemRandom();
 
 /***/ }),
 
-/***/ 23435:
+/***/ 48008:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Vp": () => (/* binding */ isReduced),
-/* harmony export */   "Hw": () => (/* binding */ unreduced)
+/* harmony export */   "w": () => (/* binding */ compR)
 /* harmony export */ });
-/* unused harmony exports Reduced, reduced, ensureReduced */
-class Reduced {
-    constructor(val) {
-        this.value = val;
-    }
-    deref() {
-        return this.value;
-    }
-}
-const reduced = (x) => new Reduced(x);
-const isReduced = (x) => x instanceof Reduced;
-const ensureReduced = (x) => x instanceof Reduced ? x : new Reduced(x);
-const unreduced = (x) => (x instanceof Reduced ? x.deref() : x);
-
-
-/***/ }),
-
-/***/ 75160:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "U": () => (/* binding */ map)
-});
-
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/checks/is-iterable.js
-const is_iterable_isIterable = (x) => x != null && typeof x[Symbol.iterator] === "function";
-
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/func/compr.js
 /**
  * Reducer composition helper, internally used by various transducers
  * during initialization. Takes existing reducer `rfn` (a 3-tuple) and a
@@ -18693,18 +18732,36 @@ const is_iterable_isIterable = (x) => x != null && typeof x[Symbol.iterator] ===
  */
 const compR = (rfn, fn) => [rfn[0], rfn[1], fn];
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/api/constants.js
-var constants = __webpack_require__(43475);
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/checks/implements-function.js
-const implementsFunction = (x, fn) => x != null && typeof x[fn] === "function";
 
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/internal/ensure.js
+/***/ }),
 
-const ensure_ensureTransducer = (x) => implementsFunction(x, "xform") ? x.xform() : x;
+/***/ 46145:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/reduced.js
-var reduced = __webpack_require__(23435);
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/iterator.js
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "q": () => (/* binding */ ensureTransducer)
+/* harmony export */ });
+/* harmony import */ var _thi_ng_checks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32287);
+
+const ensureTransducer = (x) => (0,_thi_ng_checks__WEBPACK_IMPORTED_MODULE_0__/* .implementsFunction */ .f)(x, "xform") ? x.xform() : x;
+
+
+/***/ }),
+
+/***/ 18711:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Vc": () => (/* binding */ iterator1),
+/* harmony export */   "ps": () => (/* binding */ $iter)
+/* harmony export */ });
+/* unused harmony export iterator */
+/* harmony import */ var _thi_ng_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(43475);
+/* harmony import */ var _thi_ng_checks__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(55157);
+/* harmony import */ var _internal_ensure__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(46145);
+/* harmony import */ var _reduced__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(23435);
 
 
 
@@ -18744,17 +18801,17 @@ function* iterator(xform, xs) {
  * @param xs -
  */
 function* iterator1(xform, xs) {
-    const reduce = (ensure_ensureTransducer(xform)([constants/* NO_OP */.Jw, constants/* NO_OP */.Jw, (_, x) => x]))[2];
+    const reduce = ((0,_internal_ensure__WEBPACK_IMPORTED_MODULE_0__/* .ensureTransducer */ .q)(xform)([_thi_ng_api__WEBPACK_IMPORTED_MODULE_1__/* .NO_OP */ .Jw, _thi_ng_api__WEBPACK_IMPORTED_MODULE_1__/* .NO_OP */ .Jw, (_, x) => x]))[2];
     for (let x of xs) {
-        let y = reduce(constants/* SEMAPHORE */.fL, x);
-        if ((0,reduced/* isReduced */.Vp)(y)) {
-            y = (0,reduced/* unreduced */.Hw)(y.deref());
-            if (y !== constants/* SEMAPHORE */.fL) {
+        let y = reduce(_thi_ng_api__WEBPACK_IMPORTED_MODULE_1__/* .SEMAPHORE */ .fL, x);
+        if ((0,_reduced__WEBPACK_IMPORTED_MODULE_2__/* .isReduced */ .Vp)(y)) {
+            y = (0,_reduced__WEBPACK_IMPORTED_MODULE_2__/* .unreduced */ .Hw)(y.deref());
+            if (y !== _thi_ng_api__WEBPACK_IMPORTED_MODULE_1__/* .SEMAPHORE */ .fL) {
                 yield y;
             }
             return;
         }
-        if (y !== constants/* SEMAPHORE */.fL) {
+        if (y !== _thi_ng_api__WEBPACK_IMPORTED_MODULE_1__/* .SEMAPHORE */ .fL) {
             yield y;
         }
     }
@@ -18771,23 +18828,60 @@ function* iterator1(xform, xs) {
  */
 const $iter = (xform, args, impl = iterator1) => {
     const n = args.length - 1;
-    return isIterable(args[n])
+    return (0,_thi_ng_checks__WEBPACK_IMPORTED_MODULE_3__/* .isIterable */ .T)(args[n])
         ? args.length > 1
             ? impl(xform.apply(null, args.slice(0, n)), args[n])
             : impl(xform(), args[0])
         : undefined;
 };
 
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js
+
+/***/ }),
+
+/***/ 23435:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Vp": () => (/* binding */ isReduced),
+/* harmony export */   "Hw": () => (/* binding */ unreduced)
+/* harmony export */ });
+/* unused harmony exports Reduced, reduced, ensureReduced */
+class Reduced {
+    constructor(val) {
+        this.value = val;
+    }
+    deref() {
+        return this.value;
+    }
+}
+const reduced = (x) => new Reduced(x);
+const isReduced = (x) => x instanceof Reduced;
+const ensureReduced = (x) => x instanceof Reduced ? x : new Reduced(x);
+const unreduced = (x) => (x instanceof Reduced ? x.deref() : x);
+
+
+/***/ }),
+
+/***/ 84900:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "U": () => (/* binding */ map)
+/* harmony export */ });
+/* harmony import */ var _thi_ng_checks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55157);
+/* harmony import */ var _func_compr__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48008);
+/* harmony import */ var _iterator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(18711);
 
 
 
 function map(fn, src) {
-    return is_iterable_isIterable(src)
-        ? iterator1(map(fn), src)
+    return (0,_thi_ng_checks__WEBPACK_IMPORTED_MODULE_0__/* .isIterable */ .T)(src)
+        ? (0,_iterator__WEBPACK_IMPORTED_MODULE_1__/* .iterator1 */ .Vc)(map(fn), src)
         : (rfn) => {
             const r = rfn[2];
-            return compR(rfn, (acc, x) => r(acc, fn(x)));
+            return (0,_func_compr__WEBPACK_IMPORTED_MODULE_2__/* .compR */ .w)(rfn, (acc, x) => r(acc, fn(x)));
         };
 }
 
@@ -86174,10 +86268,10 @@ const memoize1 = (fn, cache) => {
     };
 };
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/dcons/dcons.js + 4 modules
-var dcons = __webpack_require__(22156);
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js + 5 modules
-var map = __webpack_require__(75160);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/dcons/dcons.js + 3 modules
+var dcons = __webpack_require__(60687);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js
+var map = __webpack_require__(84900);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/cache/lru.js
 
 
@@ -86464,7 +86558,7 @@ const ABI=[{inputs:[{internalType:'address',name:'tokenHolder',type:'address'}],
 
 /***/ }),
 
-/***/ 42636:
+/***/ 44611:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -86476,33 +86570,8 @@ __webpack_require__.d(__webpack_exports__, {
 
 // UNUSED EXPORTS: Channel, DroppingBuffer, FixedBuffer, Mult, PubSub, SlidingBuffer, applyTransducer, fromPromise
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/api/constants.js
-var constants = __webpack_require__(43475);
-;// CONCATENATED MODULE: ../../node_modules/@thi.ng/api/assert.js
-
-/**
- * Takes a `test` result or predicate function without args and throws
- * error with given `msg` if test failed (i.e. is falsy).
- *
- * @remarks
- * The function is only enabled if `process.env.NODE_ENV != "production"`
- * or if the `UMBRELLA_ASSERTS` env var is set to 1.
- */
-const assert = (() => {
-    try {
-        return ( false ||
-            process.env.UMBRELLA_ASSERTS === "1");
-    }
-    catch (e) { }
-    return false;
-})()
-    ? (test, msg = "assertion failed") => {
-        if ((typeof test === "function" && !test()) || !test) {
-            throw new Error(typeof msg === "function" ? msg() : msg);
-        }
-    }
-    : constants/* NO_OP */.Jw;
-
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/api/assert.js
+var assert = __webpack_require__(13527);
 // EXTERNAL MODULE: ../../node_modules/@thi.ng/random/system.js + 1 modules
 var system = __webpack_require__(9366);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/arrays/shuffle.js
@@ -86523,7 +86592,7 @@ var system = __webpack_require__(9366);
  * @param rnd - PRNG
  */
 const shuffleRange = (buf, start = 0, end = buf.length, rnd = system/* SYSTEM */.w) => {
-    assert(start >= 0 && end >= start && end <= buf.length, `illegal range ${start}..${end}`);
+    (0,assert/* assert */.h)(start >= 0 && end >= start && end <= buf.length, `illegal range ${start}..${end}`);
     let n = end - start;
     const l = n;
     if (l > 1) {
@@ -86551,15 +86620,15 @@ const shuffle = (buf, n = buf.length, rnd = system/* SYSTEM */.w) => shuffleRang
 
 // EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-function.js
 var is_function = __webpack_require__(49040);
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/dcons/dcons.js + 4 modules
-var dcons = __webpack_require__(22156);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/dcons/dcons.js + 3 modules
+var dcons = __webpack_require__(60687);
 // EXTERNAL MODULE: ../../node_modules/@thi.ng/errors/illegal-arity.js
 var illegal_arity = __webpack_require__(83813);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compose/delayed.js
 const delayed = (x, t) => new Promise((resolve) => setTimeout(() => resolve(x), t));
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js + 5 modules
-var map = __webpack_require__(75160);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js
+var map = __webpack_require__(84900);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/delayed.js
 
 
@@ -88361,7 +88430,7 @@ __webpack_require__.r(__webpack_exports__);
 const NAME = 'cfx_getNextNonce'
 
 const schemas = {
-  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRefNoMined],
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRefNoMined]],
 }
 
 const permissions = {
@@ -88376,6 +88445,46 @@ const cache = {
 
 const main = async ({f, params}) => {
   return await f(params)
+}
+
+
+/***/ }),
+
+/***/ 10826:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'cfx_getNextUsableNonce'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+  methods: ['cfx_getNextNonce', 'txpool_nextNonce'],
+}
+
+const main = async ({
+  rpcs: {cfx_getNextNonce, txpool_nextNonce},
+  params,
+}) => {
+  try {
+    return await txpool_nextNonce({errorFallThrough: true}, params)
+  } catch (err) {
+    return await cfx_getNextNonce({errorFallThrough: true}, params)
+  }
 }
 
 
@@ -88543,6 +88652,7 @@ const cache = {
   type: 'ttl',
   key: () => `${NAME}`,
   afterSet(setCache, req, res) {
+    if (!res?.result) return
     setCache({req, res: {result: res.result.chainId}, conf: chainIdCacheConf})
     setCache({
       req,
@@ -88668,6 +88778,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "NAME": () => (/* binding */ NAME),
 /* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "cache": () => (/* binding */ cache),
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
@@ -88678,6 +88789,11 @@ const NAME = 'cfx_getTransactionByHash'
 
 const schemas = {
   input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32],
+}
+
+const cache = {
+  type: 'epoch',
+  key: ({params}) => `${NAME}${params[0]}`,
 }
 
 const permissions = {
@@ -88700,6 +88816,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "NAME": () => (/* binding */ NAME),
 /* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "cache": () => (/* binding */ cache),
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
@@ -88710,6 +88827,11 @@ const NAME = 'cfx_getTransactionReceipt'
 
 const schemas = {
   input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32],
+}
+
+const cache = {
+  type: 'epoch',
+  key: ({params}) => `${NAME}${params[0]}`,
 }
 
 const permissions = {
@@ -88794,7 +88916,6 @@ const cache = {
 
 const main = async ({f, rpcs: {cfx_getStatus}}) => {
   const rst = await f()
-  console.log('rst = ', rst)
   if (!rst?.result || rst?.result === 'nocache')
     return parseInt((await cfx_getStatus())?.networkId, 16).toString()
   else return rst.result
@@ -88922,6 +89043,7 @@ const schemas = {
 }
 
 const permissions = {
+  locked: true,
   external: [],
   methods: [],
   db: [],
@@ -88947,6 +89069,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(46681);
+/* harmony import */ var _fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(52206);
+
 
 
 
@@ -88955,8 +89079,8 @@ const NAME = 'cfx_sendTransaction'
 const schemas = {
   input: [
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or,
-    _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input,
-    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid], ['tx', _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input]],
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.txSchema],
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['authReqId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid], ['tx', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat, _fluent_wallet_cfx_sign_transaction__WEBPACK_IMPORTED_MODULE_1__.txSchema]]],
   ],
 }
 
@@ -88964,21 +89088,33 @@ const permissions = {
   external: ['popup', 'inpage'],
   methods: [
     'cfx_signTransaction',
-    'cfx_sendRawTransaction',
     'wallet_addPendingUserAuthRequest',
     'wallet_userApprovedAuthRequest',
+    'wallet_handleUnfinishedCFXTx',
   ],
-  db: ['getFromAddress'],
+  db: [
+    'getAuthReqById',
+    'getFromAddress',
+    'getAddrFromNetworkAndAddress',
+    'getAddrTxByHash',
+    't',
+  ],
 }
 
 const main = async ({
-  Err: {InvalidParams},
-  db: {getFromAddress},
+  Err: {InvalidParams, Server},
+  db: {
+    getAuthReqById,
+    getFromAddress,
+    getAddrFromNetworkAndAddress,
+    getAddrTxByHash,
+    t,
+  },
   rpcs: {
     cfx_signTransaction,
-    cfx_sendRawTransaction,
     wallet_addPendingUserAuthRequest,
     wallet_userApprovedAuthRequest,
+    wallet_handleUnfinishedCFXTx,
   },
   params,
   _inpage,
@@ -88996,6 +89132,7 @@ const main = async ({
     )
       throw InvalidParams(`Invalid from address in tx ${from}`)
 
+    delete params[0].nonce
     // try sign tx
     await cfx_signTransaction(params)
 
@@ -89005,18 +89142,67 @@ const main = async ({
     })
   }
 
+  const authReqId = params?.authReqId
+  let authReq
+  if (authReqId) authReq = getAuthReqById(authReqId)
+  if (authReqId && !authReq)
+    throw InvalidParams(`Invalid authReqId ${authReqId}`)
+
+  // tx array [tx]
   const tx = params.authReqId ? params.tx : params
-  const rawtx = await cfx_signTransaction(tx)
-  const rst = await cfx_sendRawTransaction([rawtx])
+  const addr = getAddrFromNetworkAndAddress({
+    networkId: network.eid,
+    address: tx[0].from,
+  })
+  if (!addr) throw InvalidParams(`Invalid from address ${tx[0].from}`)
+  const signed = await cfx_signTransaction(
+    tx.concat({
+      returnTxMeta: true,
+    }),
+  )
 
-  if (params.authReqId) {
-    return await wallet_userApprovedAuthRequest({
-      authReqId: params.authReqId,
-      res: rst,
+  if (!signed) throw Server(`Server error while signning tx`)
+  const {raw: rawtx, txMeta} = signed
+
+  const txhash = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_2__/* .getTxHashFromRawTx */ .PV)(rawtx)
+  const duptx = getAddrTxByHash({addressId: addr.eid, txhash})
+
+  if (duptx) throw InvalidParams('duplicate tx')
+
+  const {
+    tempids: {newTxId},
+  } = t([
+    {
+      eid: 'newTxId',
+      tx: {payload: txMeta, hash: txhash, raw: rawtx, status: 0},
+    },
+    {eid: addr.eid, address: {tx: 'newTxId'}},
+    authReq && {eid: authReq.app.eid, app: {tx: 'newTxId'}},
+  ])
+
+  return await new Promise(resolve => {
+    wallet_handleUnfinishedCFXTx({
+      tx: newTxId,
+      address: addr.eid,
+      okCb: rst => {
+        if (params.authReqId) {
+          return wallet_userApprovedAuthRequest({
+            authReqId: params.authReqId,
+            res: rst,
+          }).then(resolve)
+        }
+        resolve(rst)
+      },
+      failedCb: err => {
+        if (params.authReqId) {
+          return wallet_userApprovedAuthRequest({
+            authReqId: params.authReqId,
+            res: err,
+          }).then(resolve)
+        }
+      },
     })
-  }
-
-  return rst
+  })
 }
 
 
@@ -89029,6 +89215,7 @@ const main = async ({
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "txSchema": () => (/* binding */ txSchema),
 /* harmony export */   "schemas": () => (/* binding */ schemas),
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
@@ -89040,24 +89227,34 @@ __webpack_require__.r(__webpack_exports__);
 
 const NAME = 'cfx_signTransaction'
 
+const txSchema = [
+  _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+  {closed: true},
+  ['from', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
+  ['to', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address],
+  ['value', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+  ['nonce', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+  ['data', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes],
+  ['gas', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+  ['gasPrice', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+  ['storageLimit', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+  ['chainId', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId],
+  ['epochHeight', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+]
+
 const schemas = {
   input: [
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
+    txSchema,
     [
-      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
-      {closed: true},
-      ['from', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress],
-      ['to', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address],
-      ['value', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-      ['nonce', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-      ['data', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes],
-      ['gas', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-      ['gasPrice', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-      ['storageLimit', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-      ['chainId', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId],
-      ['epochHeight', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
+      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne,
+      [
+        _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+        {closed: true},
+        ['epoch', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRef],
+        ['returnTxMeta', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.boolean],
+      ],
     ],
-    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrOne, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.epochRef],
   ],
 }
 
@@ -89065,7 +89262,7 @@ const permissions = {
   external: [],
   methods: [
     'wallet_getAddressPrivateKey',
-    'cfx_getNextNonce',
+    'cfx_getNextUsableNonce',
     'cfx_epochNumber',
     'cfx_estimateGasAndCollateral',
     'wallet_detectAddressType',
@@ -89080,12 +89277,13 @@ const main = async ({
     wallet_getAddressPrivateKey,
     cfx_epochNumber,
     cfx_estimateGasAndCollateral,
-    cfx_getNextNonce,
+    cfx_getNextUsableNonce,
     wallet_detectAddressType,
   },
-  params: [tx, epoch],
+  params: [tx, opts = {}],
   network,
 }) => {
+  const {epoch, returnTxMeta} = opts
   let newTx = {...tx}
   if (newTx.chainId && newTx.chainId !== network.chainId)
     throw InvalidParams(`Invalid chainId ${_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId}`)
@@ -89112,9 +89310,8 @@ const main = async ({
     ])
 
   if (!newTx.nonce) {
-    newTx.nonce = await cfx_getNextNonce({errorFallThrough: true}, [
+    newTx.nonce = await cfx_getNextUsableNonce({errorFallThrough: true}, [
       newTx.from,
-      epoch,
     ])
   }
 
@@ -89141,7 +89338,13 @@ const main = async ({
 
   const pk = await wallet_getAddressPrivateKey({addressId: fromAddr.eid})
 
-  return (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .cfxSignTransaction */ .sA)(newTx, pk, network.netId)
+  const raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .cfxSignTransaction */ .sA)(newTx, pk, network.netId)
+
+  if (returnTxMeta) {
+    return {txMeta: newTx, raw}
+  }
+
+  return raw
 }
 
 
@@ -90350,7 +90553,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
-/* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(42636);
+/* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(44611);
 
 
 
@@ -90399,7 +90602,7 @@ const main = async ({
     },
   ])
 
-  const {popup} = await __webpack_require__.e(/* import() */ 375).then(__webpack_require__.bind(__webpack_require__, 44375))
+  const {popup} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
 
   const w = await popup.show({
     alwaysOnTop: MODE.isProd ? true : false,
@@ -91369,8 +91572,8 @@ var spec = __webpack_require__(27797);
 var addr_by_network = __webpack_require__(64347);
 // EXTERNAL MODULE: ../../packages/hdkey/index.js
 var hdkey = __webpack_require__(32299);
-// EXTERNAL MODULE: ../../packages/csp/index.js + 8 modules
-var csp = __webpack_require__(42636);
+// EXTERNAL MODULE: ../../packages/csp/index.js + 7 modules
+var csp = __webpack_require__(44611);
 // EXTERNAL MODULE: ../../packages/utils/index.js
 var utils = __webpack_require__(11818);
 // EXTERNAL MODULE: ../../node_modules/bn.js/lib/bn.js
@@ -92385,7 +92588,7 @@ const permissions = {
 const main = async ({db: {getAppBySite, getSiteByOrigin}}) => {
   let t
   try {
-    const {tab} = await __webpack_require__.e(/* import() */ 375).then(__webpack_require__.bind(__webpack_require__, 44375))
+    const {tab} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
     t = await tab.getCurrent()
     if (!t?.length) return null
     t = t[0]
@@ -92402,6 +92605,73 @@ const main = async ({db: {getAppBySite, getSiteByOrigin}}) => {
   const [app] = getAppBySite(site.eid)
 
   return {site, app}
+}
+
+
+/***/ }),
+
+/***/ 97192:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_getExplorerUrl'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+    {closed: true},
+    [
+      'address',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    [
+      'contract',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    [
+      'token',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    ['transaction', {optional: true}, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32]],
+  ],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({
+  params: {address = [], contract = [], token = [], transaction = []},
+  network,
+}) => {
+  const {scanUrl} = network
+  const to = {
+    address: addr => `https://${scanUrl}/address/${addr}`,
+    contract: addr => `https://${scanUrl}/contract/${addr}`,
+    token: addr => `https://${scanUrl}/token/${addr}`,
+    transaction: txhash => `https://${scanUrl}/tx/${txhash}`,
+  }
+
+  return {
+    address: address.map(to.address),
+    contract: contract.map(to.contract),
+    token: token.map(to.token),
+    transaction: transaction.map(to.transaction),
+  }
 }
 
 
@@ -92585,6 +92855,1364 @@ const main = ({Err: {InvalidRequest}, app}) => {
   )
 
   return permissions
+}
+
+
+/***/ }),
+
+/***/ 9562:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "NAME": () => (/* binding */ NAME),
+  "main": () => (/* binding */ main),
+  "permissions": () => (/* binding */ permissions),
+  "schemas": () => (/* binding */ schemas)
+});
+
+// EXTERNAL MODULE: ../../packages/spec/index.js + 1 modules
+var spec = __webpack_require__(27797);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-function.js
+var is_function = __webpack_require__(49040);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/api/api/logger.js
+var logger_LogLevel;
+(function (LogLevel) {
+    LogLevel[LogLevel["FINE"] = 0] = "FINE";
+    LogLevel[LogLevel["DEBUG"] = 1] = "DEBUG";
+    LogLevel[LogLevel["INFO"] = 2] = "INFO";
+    LogLevel[LogLevel["WARN"] = 3] = "WARN";
+    LogLevel[LogLevel["SEVERE"] = 4] = "SEVERE";
+    LogLevel[LogLevel["NONE"] = 5] = "NONE";
+})(logger_LogLevel || (logger_LogLevel = {}));
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/api/logger.js
+
+const NULL_LOGGER = Object.freeze({
+    level: logger_LogLevel.NONE,
+    fine() { },
+    debug() { },
+    info() { },
+    warn() { },
+    severe() { },
+});
+class ConsoleLogger {
+    constructor(id, level = LogLevel.FINE) {
+        this.id = id;
+        this.level = level;
+    }
+    fine(...args) {
+        this.level <= LogLevel.FINE && this.log("FINE", args);
+    }
+    debug(...args) {
+        this.level <= LogLevel.DEBUG && this.log("DEBUG", args);
+    }
+    info(...args) {
+        this.level <= LogLevel.INFO && this.log("INFO", args);
+    }
+    warn(...args) {
+        this.level <= LogLevel.WARN && this.log("WARN", args);
+    }
+    severe(...args) {
+        this.level <= LogLevel.SEVERE && this.log("SEVERE", args);
+    }
+    log(level, args) {
+        console.log(`[${level}] ${this.id}:`, ...args);
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/rstream/api.js
+
+var State;
+(function (State) {
+    State[State["IDLE"] = 0] = "IDLE";
+    State[State["ACTIVE"] = 1] = "ACTIVE";
+    State[State["DONE"] = 2] = "DONE";
+    State[State["UNSUBSCRIBED"] = 3] = "UNSUBSCRIBED";
+    State[State["ERROR"] = 4] = "ERROR";
+})(State || (State = {}));
+/**
+ * Closing behaviors.
+ */
+var CloseMode;
+(function (CloseMode) {
+    /**
+     * Never close, even if no more inputs/outputs.
+     */
+    CloseMode[CloseMode["NEVER"] = 0] = "NEVER";
+    /**
+     * Close when first input/output is done / removed.
+     */
+    CloseMode[CloseMode["FIRST"] = 1] = "FIRST";
+    /**
+     * Close when last input/output is done / removed.
+     */
+    CloseMode[CloseMode["LAST"] = 2] = "LAST";
+})(CloseMode || (CloseMode = {}));
+let LOGGER = NULL_LOGGER;
+const setLogger = (logger) => (LOGGER = logger);
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/api/constants.js
+var constants = __webpack_require__(43475);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/api/assert.js
+var assert = __webpack_require__(13527);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/arrays/peek.js
+/**
+ * Returns first element of given array or `undefined` if array is empty.
+ *
+ * @param buf - array
+ */
+const first = (buf) => buf[0];
+/**
+ * Returns last element of given array or `undefined` if array is empty.
+ *
+ * @param buf - array
+ */
+const peek = (buf) => buf[buf.length - 1];
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/checks/is-plain-object.js
+const OBJP = Object.getPrototypeOf;
+/**
+ * Similar to {@link isObject}, but also checks if prototype is that of
+ * `Object` (or `null`).
+ *
+ * @param x -
+ */
+const isPlainObject = (x) => {
+    let p;
+    return (x != null &&
+        typeof x === "object" &&
+        ((p = OBJP(x)) === null || OBJP(p) === null));
+};
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/errors/deferror.js
+var deferror = __webpack_require__(90513);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/errors/illegal-state.js
+
+const IllegalStateError = (0,deferror/* defError */.o)(() => "illegal state");
+const illegalState = (msg) => {
+    throw new IllegalStateError(msg);
+};
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/implements-function.js
+var implements_function = __webpack_require__(32287);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-arraylike.js
+var is_arraylike = __webpack_require__(87206);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/errors/illegal-arity.js
+var illegal_arity = __webpack_require__(83813);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/reduced.js
+var reduced = __webpack_require__(23435);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/reduce.js
+
+
+
+const parseArgs = (args) => args.length === 2
+    ? [undefined, args[1]]
+    : args.length === 3
+        ? [args[1], args[2]]
+        : (0,illegal_arity/* illegalArity */.N)(args.length);
+function reduce(...args) {
+    const rfn = args[0];
+    const init = rfn[0];
+    const complete = rfn[1];
+    const reduce = rfn[2];
+    args = parseArgs(args);
+    const acc = args[0] == null ? init() : args[0];
+    const xs = args[1];
+    return (0,reduced/* unreduced */.Hw)(complete((0,implements_function/* implementsFunction */.f)(xs, "$reduce")
+        ? xs.$reduce(reduce, acc)
+        : (0,is_arraylike/* isArrayLike */.z)(xs)
+            ? reduceArray(reduce, acc, xs)
+            : reduceIterable(reduce, acc, xs)));
+}
+function reduce_reduceRight(...args) {
+    const rfn = args[0];
+    const init = rfn[0];
+    const complete = rfn[1];
+    const reduce = rfn[2];
+    args = parseArgs(args);
+    let acc = args[0] == null ? init() : args[0];
+    const xs = args[1];
+    for (let i = xs.length; --i >= 0;) {
+        acc = reduce(acc, xs[i]);
+        if (isReduced(acc)) {
+            acc = acc.deref();
+            break;
+        }
+    }
+    return unreduced(complete(acc));
+}
+const reduceArray = (rfn, acc, xs) => {
+    for (let i = 0, n = xs.length; i < n; i++) {
+        acc = rfn(acc, xs[i]);
+        if ((0,reduced/* isReduced */.Vp)(acc)) {
+            acc = acc.deref();
+            break;
+        }
+    }
+    return acc;
+};
+const reduceIterable = (rfn, acc, xs) => {
+    for (let x of xs) {
+        acc = rfn(acc, x);
+        if ((0,reduced/* isReduced */.Vp)(acc)) {
+            acc = acc.deref();
+            break;
+        }
+    }
+    return acc;
+};
+/**
+ * Convenience helper for building a full {@link Reducer} using the identity
+ * function (i.e. `(x) => x`) as completion step (true for 90% of all
+ * bundled transducers).
+ *
+ * @param init - init step of reducer
+ * @param rfn - reduction step of reducer
+ */
+const reducer = (init, rfn) => [init, (acc) => acc, rfn];
+const $$reduce = (rfn, args) => {
+    const n = args.length - 1;
+    return isIterable(args[n])
+        ? args.length > 1
+            ? reduce(rfn.apply(null, args.slice(0, n)), args[n])
+            : reduce(rfn(), args[0])
+        : undefined;
+};
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/rfn/push.js
+
+function push(xs) {
+    return xs
+        ? [...xs]
+        : reducer(() => [], (acc, x) => (acc.push(x), acc));
+}
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/compose/comp.js
+var comp = __webpack_require__(4088);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/internal/ensure.js
+var ensure = __webpack_require__(46145);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/func/comp.js
+
+
+function comp_comp(...fns) {
+    fns = fns.map(ensure/* ensureTransducer */.q);
+    return comp/* comp.apply */.pS.apply(null, fns);
+}
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/xform/map.js
+var xform_map = __webpack_require__(84900);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/rstream/utils/idgen.js
+let NEXT_ID = 0;
+const nextID = () => NEXT_ID++;
+const optsWithID = (prefix, opts) => ((!opts || !opts.id ? Object.assign(Object.assign({}, opts), { id: prefix + "-" + nextID() }) : opts));
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/rstream/subscription.js
+
+
+
+
+
+
+
+/**
+ * Creates a new {@link Subscription} instance, the fundamental datatype
+ * and building block provided by this package.
+ *
+ * @remarks
+ * Most other types in rstream, including {@link Stream}s, are
+ * `Subscription`s and all can be:
+ *
+ * - connected into directed graphs (sync or async & not necessarily
+ *   DAGs)
+ * - transformed using transducers (incl. support for early termination)
+ * - can have any number of subscribers (optionally each w/ their own
+ *   transducers)
+ * - recursively unsubscribe themselves from parent after their last
+ *   subscriber unsubscribed (configurable)
+ * - will go into a non-recoverable error state if none of the
+ *   subscribers has an error handler itself
+ * - implement the {@link @thi.ng/api#IDeref} interface
+ *
+ * If a transducer is provided (via the `xform` option), all received
+ * values will be first processed by the transducer and only its
+ * transformed result(s) (if any) will be passed to downstream
+ * subscribers. Any uncaught errors *inside* the transducer will cause
+ * this subscription's error handler to be called and will stop this
+ * subscription from receiving any further values (by default, unless
+ * overridden).
+ *
+ * Subscription behavior can be customized via the additional (optional)
+ * options arg. See {@link CommonOpts} and {@link SubscriptionOpts} for
+ * further details.
+ *
+ * @example
+ * ```ts
+ * // as reactive value mechanism (same as with stream() above)
+ * s = subscription();
+ * s.subscribe(trace("s1"));
+ * s.subscribe(trace("s2"), { xform: tx.filter((x) => x > 25) });
+ *
+ * // external trigger
+ * s.next(23);
+ * // s1 23
+ * s.next(42);
+ * // s1 42
+ * // s2 42
+ * ```
+ *
+ * @param sub -
+ * @param opts -
+ */
+const subscription = (sub, opts) => new Subscription(sub, opts);
+class Subscription {
+    constructor(wrapped, opts) {
+        this.wrapped = wrapped;
+        this.last = constants/* SEMAPHORE */.fL;
+        this.state = State.IDLE;
+        this.subs = [];
+        opts = optsWithID(`sub`, Object.assign({ closeIn: CloseMode.LAST, closeOut: CloseMode.LAST, cache: true }, opts));
+        this.parent = opts.parent;
+        this.id = opts.id;
+        this.closeIn = opts.closeIn;
+        this.closeOut = opts.closeOut;
+        this.cacheLast = opts.cache;
+        opts.xform && (this.xform = opts.xform(push()));
+    }
+    deref() {
+        return this.last !== constants/* SEMAPHORE */.fL ? this.last : undefined;
+    }
+    getState() {
+        return this.state;
+    }
+    setState(state) {
+        this.state = state;
+    }
+    subscribe(sub, opts = {}) {
+        this.ensureState();
+        let $sub;
+        if (sub instanceof Subscription && !opts.xform) {
+            sub.ensureState();
+            // ensure sub is still unattached
+            (0,assert/* assert */.h)(!sub.parent, `sub '${sub.id}' already has a parent`);
+            sub.parent = this;
+            $sub = sub;
+        }
+        else {
+            $sub = new Subscription(sub, Object.assign(Object.assign({}, opts), { parent: this }));
+        }
+        this.subs.push($sub);
+        this.setState(State.ACTIVE);
+        $sub.setState(State.ACTIVE);
+        this.last != constants/* SEMAPHORE */.fL && $sub.next(this.last);
+        return $sub;
+    }
+    transform(...args) {
+        let sub;
+        let opts;
+        if (isPlainObject(peek(args))) {
+            opts = args.pop();
+            sub = { error: opts.error };
+        }
+        return this.subscribe(sub, optsWithID("xform", args.length > 0
+            ? Object.assign(Object.assign({}, opts), { 
+                // @ts-ignore
+                xform: comp_comp(...args) }) : opts));
+    }
+    /**
+     * Syntax sugar for {@link Subscription.transform} when using a
+     * single {@link @thi.ng/transducers#map} transducer only. The given
+     * function `fn` is used as `map`'s transformation fn.
+     *
+     * @param fn
+     * @param opts
+     */
+    map(fn, opts) {
+        return this.transform((0,xform_map/* map */.U)(fn), opts || {});
+    }
+    unsubscribe(sub) {
+        return sub ? this.unsubscribeChild(sub) : this.unsubscribeSelf();
+    }
+    unsubscribeSelf() {
+        LOGGER.debug(this.id, "unsub self");
+        this.parent && this.parent.unsubscribe(this);
+        this.state < State.UNSUBSCRIBED && (this.state = State.UNSUBSCRIBED);
+        this.release();
+        return true;
+    }
+    unsubscribeChild(sub) {
+        LOGGER.debug(this.id, "unsub child", sub.id);
+        const idx = this.subs.indexOf(sub);
+        if (idx >= 0) {
+            this.subs.splice(idx, 1);
+            if (this.closeOut === CloseMode.FIRST ||
+                (!this.subs.length && this.closeOut !== CloseMode.NEVER)) {
+                this.unsubscribe();
+            }
+            return true;
+        }
+        return false;
+    }
+    next(x) {
+        if (this.state >= State.DONE)
+            return;
+        this.xform ? this.dispatchXform(x) : this.dispatch(x);
+    }
+    done() {
+        LOGGER.debug(this.id, "entering done()");
+        if (this.state >= State.DONE)
+            return;
+        if (this.xform) {
+            if (!this.dispatchXformDone())
+                return;
+        }
+        this.state = State.DONE;
+        // attempt to call .done in wrapped sub
+        if (this.dispatchTo("done")) {
+            // disconnect from parent & internal cleanup
+            this.state < State.UNSUBSCRIBED && this.unsubscribe();
+        }
+        LOGGER.debug(this.id, "exiting done()");
+    }
+    error(e) {
+        // only the wrapped sub's error handler gets a chance
+        // to deal with the error
+        const sub = this.wrapped;
+        const hasErrorHandler = sub && sub.error;
+        hasErrorHandler &&
+            LOGGER.debug(this.id, "attempting wrapped error handler");
+        // flag success if error handler returns true
+        // (i.e. it could handle/recover from the error)
+        // else detach this entire sub by going into error state...
+        return (hasErrorHandler && sub.error(e)) || this.unhandledError(e);
+    }
+    unhandledError(e) {
+        // ensure error is at least logged to console
+        // even if default NULL_LOGGER is used...
+        (LOGGER !== NULL_LOGGER ? LOGGER : console).warn(this.id, "unhandled error:", e);
+        this.unsubscribe();
+        this.state = State.ERROR;
+        return false;
+    }
+    dispatchTo(type, x) {
+        let s = this.wrapped;
+        if (s) {
+            try {
+                s[type] && s[type](x);
+            }
+            catch (e) {
+                // give wrapped sub a chance to handle error
+                // (if that failed then we're already in error state now & terminate)
+                if (!this.error(e))
+                    return false;
+            }
+        }
+        // process other child subs
+        const subs = type === "next" ? this.subs : [...this.subs];
+        for (let i = subs.length; --i >= 0;) {
+            s = subs[i];
+            try {
+                s[type] && s[type](x);
+            }
+            catch (e) {
+                if (type === "error" || !s.error || !s.error(e)) {
+                    // if no or failed handler, go into error state
+                    return this.unhandledError(e);
+                }
+            }
+        }
+        return true;
+    }
+    dispatch(x) {
+        LOGGER.debug(this.id, "dispatch", x);
+        this.cacheLast && (this.last = x);
+        this.dispatchTo("next", x);
+    }
+    dispatchXform(x) {
+        let acc;
+        try {
+            acc = this.xform[2]([], x);
+        }
+        catch (e) {
+            // error in transducer can only be handled by the wrapped
+            // subscriber's error handler (if avail)
+            this.error(e);
+            // don't dispatch value(s)
+            return;
+        }
+        if (this.dispatchXformVals(acc)) {
+            (0,reduced/* isReduced */.Vp)(acc) && this.done();
+        }
+    }
+    dispatchXformDone() {
+        let acc;
+        try {
+            // collect remaining values from transducer
+            acc = this.xform[1]([]);
+        }
+        catch (e) {
+            // error in transducer can only be handled by the wrapped
+            // subscriber's error handler (if avail)
+            return this.error(e);
+        }
+        return this.dispatchXformVals(acc);
+    }
+    dispatchXformVals(acc) {
+        const uacc = (0,reduced/* unreduced */.Hw)(acc);
+        for (let i = 0, n = uacc.length; i < n && this.state < State.DONE; i++) {
+            this.dispatch(uacc[i]);
+        }
+        return this.state < State.ERROR;
+    }
+    ensureState() {
+        if (this.state >= State.DONE) {
+            illegalState(`operation not allowed in state ${this.state}`);
+        }
+    }
+    release() {
+        this.subs.length = 0;
+        delete this.parent;
+        delete this.xform;
+        delete this.last;
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/rstream/stream.js
+
+
+
+
+function stream(src, opts) {
+    return new Stream(src, opts);
+}
+/**
+ * Syntax sugar for {@link stream}. Creates new stream which is
+ * immediately seeded with initial `val` and configured with optional
+ * `opts`.
+ *
+ * @param val -
+ * @param opts -
+ */
+const reactive = (val, opts) => {
+    const res = new Stream(opts);
+    res.next(val);
+    return res;
+};
+/**
+ * @see {@link stream} & {@link reactive} for reference & examples.
+ */
+class Stream extends Subscription {
+    constructor(src, opts) {
+        const [_src, _opts] = (0,is_function/* isFunction */.m)(src)
+            ? [src, opts || {}]
+            : [undefined, src || {}];
+        super(_opts.error ? { error: _opts.error } : undefined, optsWithID("stream", _opts));
+        this.src = _src;
+        this._inited = false;
+    }
+    subscribe(sub, opts = {}) {
+        const $sub = super.subscribe(sub, opts);
+        if (!this._inited) {
+            if (this.src) {
+                try {
+                    this._cancel = this.src(this) || (() => void 0);
+                }
+                catch (e) {
+                    let s = this.wrapped;
+                    if (!s || !s.error || !s.error(e)) {
+                        this.unhandledError(e);
+                    }
+                }
+            }
+            this._inited = true;
+        }
+        return $sub;
+    }
+    unsubscribe(sub) {
+        const res = super.unsubscribe(sub);
+        if (res &&
+            (!sub ||
+                ((!this.subs || !this.subs.length) &&
+                    this.closeOut !== CloseMode.NEVER))) {
+            this.cancel();
+        }
+        return res;
+    }
+    done() {
+        this.cancel();
+        super.done();
+        delete this.src;
+        delete this._cancel;
+    }
+    error(e) {
+        if (super.error(e))
+            return true;
+        this.cancel();
+        return false;
+    }
+    cancel() {
+        if (this._cancel) {
+            LOGGER.debug(this.id, "cancel");
+            const f = this._cancel;
+            delete this._cancel;
+            f();
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/rstream/subs/resolve.js
+
+
+
+/**
+ * Creates a {@link Subscription} which receives promises, buffers them
+ * and then passes their resolved values downstream.
+ *
+ * @remarks
+ * If the optional `fail` handler is provided, it'll be called with the
+ * error of each failed promise. If none is provided, the sub's
+ * {@link ISubscriber.error} handler is called, which then stops the sub
+ * from receiving further values.
+ *
+ * @example
+ * ```ts
+ * fromIterable([1, 2, 3], 100)
+ *   .transform(tx.delayed(1000))
+ *   .subscribe(resolve())
+ *   .subscribe(trace("result"))
+ * // result 1
+ * // result 2
+ * // result 3
+ * // result done
+ * ```
+ *
+ * @param opts -
+ */
+const resolve = (opts) => new Resolver(opts);
+class Resolver extends Subscription {
+    constructor(opts = {}) {
+        super(undefined, optsWithID("resolve"));
+        this.outstanding = 0;
+        this.fail = opts.fail;
+    }
+    next(x) {
+        this.outstanding++;
+        x.then((y) => {
+            if (this.state < State.DONE) {
+                this.dispatch(y);
+                if (--this.outstanding === 0) {
+                    this.done();
+                }
+            }
+            else {
+                LOGGER.warn(`resolved value in state ${this.state} (${x})`);
+            }
+        }, (e) => {
+            if (this.fail) {
+                this.fail(e);
+            }
+            else {
+                this.error(e);
+            }
+        });
+    }
+    done() {
+        if (this.parent &&
+            this.parent.getState() === State.DONE &&
+            this.outstanding === 0) {
+            super.done();
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/side-effect.js
+
+/**
+ * Helper transducer. Applies given `fn` to each input value, presumably
+ * for side effects. Discards function's result and yields original
+ * inputs.
+ *
+ * @param fn - side effect
+ */
+const sideEffect = (fn) => (0,xform_map/* map */.U)((x) => (fn(x), x));
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compose/identity.js
+const identity = (x) => x;
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/func/compr.js
+var compr = __webpack_require__(48008);
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/transducers/iterator.js
+var iterator = __webpack_require__(18711);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/keep.js
+
+
+
+function keep(...args) {
+    return ((0,iterator/* $iter */.ps)(keep, args) ||
+        ((rfn) => {
+            const r = rfn[2];
+            const pred = args[0] || identity;
+            return (0,compr/* compR */.w)(rfn, (acc, x) => pred(x) != null ? r(acc, x) : acc);
+        }));
+}
+
+;// CONCATENATED MODULE: ../../packages/transducers/index.js
+/**
+ * @fileOverview wrap @thi.ng/transducers to add more xforms for promise
+ * @name index.js
+ */const check=f=>map(a=>(f(a),a));const keepTruthy=fn=>comp_comp(sideEffect(x=>{if(!x&&typeof fn==='function')fn();}),keep(x=>x||null));
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compose/juxt.js
+function juxt(...fns) {
+    const [a, b, c, d, e, f, g, h] = fns;
+    switch (fns.length) {
+        case 1:
+            return (x) => [a(x)];
+        case 2:
+            return (x) => [a(x), b(x)];
+        case 3:
+            return (x) => [a(x), b(x), c(x)];
+        case 4:
+            return (x) => [a(x), b(x), c(x), d(x)];
+        case 5:
+            return (x) => [a(x), b(x), c(x), d(x), e(x)];
+        case 6:
+            return (x) => [a(x), b(x), c(x), d(x), e(x), f(x)];
+        case 7:
+            return (x) => [a(x), b(x), c(x), d(x), e(x), f(x), g(x)];
+        case 8:
+            return (x) => [a(x), b(x), c(x), d(x), e(x), f(x), g(x), h(x)];
+        default:
+            return (x) => {
+                let res = new Array(fns.length);
+                for (let i = fns.length; --i >= 0;) {
+                    res[i] = fns[i](x);
+                }
+                return res;
+            };
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/step.js
+
+
+
+/**
+ * Single-step transducer execution wrapper.
+ * Returns array if transducer produces multiple results
+ * and undefined if there was no output. Else returns single
+ * result value.
+ *
+ * @remarks
+ * Likewise, once a transducer has produced a final / reduced
+ * value, all further invocations of the stepper function will
+ * return undefined.
+ *
+ * @example
+ * ```ts
+ * // single result
+ * step(map(x => x * 10))(1);
+ * // 10
+ *
+ * // multiple results
+ * step(mapcat(x => [x, x + 1, x + 2]))(1)
+ * // [ 1, 2, 3 ]
+ *
+ * // no result
+ * f = step(filter((x) => !(x & 1)))
+ * f(1); // undefined
+ * f(2); // 2
+ *
+ * // reduced value termination
+ * f = step(take(2));
+ * f(1); // 1
+ * f(1); // 1
+ * f(1); // undefined
+ * f(1); // undefined
+ * ```
+ *
+ * @param tx -
+ */
+const step = (tx) => {
+    const { 1: complete, 2: reduce } = (0,ensure/* ensureTransducer */.q)(tx)(push());
+    let done = false;
+    return (x) => {
+        if (!done) {
+            let acc = reduce([], x);
+            done = (0,reduced/* isReduced */.Vp)(acc);
+            if (done) {
+                acc = complete(acc.deref());
+            }
+            return acc.length === 1 ? acc[0] : acc.length > 0 ? acc : undefined;
+        }
+    };
+};
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/multiplex.js
+
+
+
+function multiplex(...args) {
+    return (0,xform_map/* map */.U)(juxt.apply(null, args.map(step)));
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/checks/is-array.js
+const isArray = Array.isArray;
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/func/renamer.js
+const renamer = (kmap) => {
+    const ks = Object.keys(kmap);
+    const [a2, b2, c2] = ks;
+    const [a1, b1, c1] = ks.map((k) => kmap[k]);
+    switch (ks.length) {
+        case 3:
+            return (x) => {
+                const res = {};
+                let v;
+                (v = x[c1]), v !== undefined && (res[c2] = v);
+                (v = x[b1]), v !== undefined && (res[b2] = v);
+                (v = x[a1]), v !== undefined && (res[a2] = v);
+                return res;
+            };
+        case 2:
+            return (x) => {
+                const res = {};
+                let v;
+                (v = x[b1]), v !== undefined && (res[b2] = v);
+                (v = x[a1]), v !== undefined && (res[a2] = v);
+                return res;
+            };
+        case 1:
+            return (x) => {
+                const res = {};
+                let v = x[a1];
+                v !== undefined && (res[a2] = v);
+                return res;
+            };
+        default:
+            return (x) => {
+                let k, v;
+                const res = {};
+                for (let i = ks.length - 1; i >= 0; i--) {
+                    (k = ks[i]),
+                        (v = x[kmap[k]]),
+                        v !== undefined && (res[k] = v);
+                }
+                return res;
+            };
+    }
+};
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/transduce.js
+
+
+
+
+function transduce(...args) {
+    return $transduce(transduce, reduce, args);
+}
+function transduceRight(...args) {
+    return $transduce(transduceRight, reduceRight, args);
+}
+const $transduce = (tfn, rfn, args) => {
+    let acc, xs;
+    switch (args.length) {
+        case 4:
+            xs = args[3];
+            acc = args[2];
+            break;
+        case 3:
+            xs = args[2];
+            break;
+        case 2:
+            return (0,xform_map/* map */.U)((x) => tfn(args[0], args[1], x));
+        default:
+            (0,illegal_arity/* illegalArity */.N)(args.length);
+    }
+    return rfn((0,ensure/* ensureTransducer */.q)(args[0])(args[1]), acc, xs);
+};
+
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-iterable.js
+var is_iterable = __webpack_require__(55157);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/filter.js
+
+
+
+function filter(pred, src) {
+    return (0,is_iterable/* isIterable */.T)(src)
+        ? (0,iterator/* iterator1 */.Vc)(filter(pred), src)
+        : (rfn) => {
+            const r = rfn[2];
+            return (0,compr/* compR */.w)(rfn, (acc, x) => (pred(x) ? r(acc, x) : acc));
+        };
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/rename.js
+
+
+
+
+
+
+
+function rename(...args) {
+    const iter = args.length > 2 && (0,iterator/* $iter */.ps)(rename, args);
+    if (iter) {
+        return iter;
+    }
+    let kmap = args[0];
+    if (isArray(kmap)) {
+        kmap = kmap.reduce((acc, k, i) => ((acc[k] = i), acc), {});
+    }
+    if (args[1]) {
+        const ks = Object.keys(kmap);
+        return (0,xform_map/* map */.U)((y) => transduce(comp_comp((0,xform_map/* map */.U)((k) => [k, y[kmap[k]]]), filter((x) => x[1] !== undefined)), args[1], ks));
+    }
+    else {
+        return (0,xform_map/* map */.U)(renamer(kmap));
+    }
+}
+
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/multiplex-obj.js
+
+
+
+
+function multiplexObj(...args) {
+    const iter = (0,iterator/* $iter */.ps)(multiplexObj, args);
+    if (iter) {
+        return iter;
+    }
+    const [xforms, rfn] = args;
+    const ks = Object.keys(xforms);
+    return comp_comp(multiplex.apply(null, ks.map((k) => xforms[k])), rename(ks, rfn));
+}
+
+;// CONCATENATED MODULE: ../../packages/conflux-tx-error/index.js
+function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{shouldDiscard:true,errorType:'duplicateTx'};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};}return{shouldDiscard:false};}
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
+var bignumber = __webpack_require__(54997);
+;// CONCATENATED MODULE: ../../packages/rpcs/wallet_handleUnfinishedCFXTx/index.js
+
+
+
+
+
+
+
+const NAME = 'wallet_handleUnfinishedCFXTx'
+
+function defs(...args) {
+  const s = stream({
+    id: args.length === 2 ? args[0] : undefined,
+    closeIn: CloseMode.FIRST,
+    closeOut: false,
+    cache: true,
+  })
+  s.next(args.length === 2 ? args[1] : args[0])
+  return s
+}
+
+let Ext
+
+function getExt() {
+  return Ext
+    ? Promise.resolve(Ext)
+    : __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098)).then(ext => {
+        Ext = ext
+        return ext
+      })
+}
+
+function updateBadge(count) {
+  return getExt().then(ext =>
+    count > 0 ? ext.badge.set({text: count}) : ext.badge.clear(),
+  )
+}
+
+const schemas = {
+  input: [spec.mapp],
+}
+
+const permissions = {
+  locked: true,
+  methods: [
+    'cfx_epochNumber',
+    'cfx_sendRawTransaction',
+    'cfx_getTransactionByHash',
+    'cfx_getTransactionReceipt',
+    'wallet_handleUnfinishedCFXTx',
+    'wallet_getExplorerUrl',
+    'cfx_getNextNonce',
+  ],
+  db: [
+    'getUnfinishedTxCount',
+    'getAddressById',
+    'getTxById',
+    'setTxSkipped',
+    'setTxFailed',
+    'setTxSending',
+    'setTxPending',
+    'setTxPackaged',
+    'setTxExecuted',
+    'setTxConfirmed',
+    'setTxUnsent',
+  ],
+}
+
+const main = ({
+  rpcs: {
+    cfx_epochNumber,
+    cfx_sendRawTransaction,
+    cfx_getTransactionByHash,
+    cfx_getTransactionReceipt,
+    cfx_getNextNonce,
+    wallet_getExplorerUrl,
+    wallet_handleUnfinishedCFXTx,
+  },
+  db: {
+    getUnfinishedTxCount,
+    getAddressById,
+    getTxById,
+    setTxSkipped,
+    setTxFailed,
+    setTxSending,
+    setTxPending,
+    setTxPackaged,
+    setTxExecuted,
+    setTxConfirmed,
+    setTxUnsent,
+  },
+  params: {tx, address, okCb, failedCb},
+}) => {
+  tx = getTxById(tx)
+  address = getAddressById(address)
+  const {status, hash, raw} = tx
+  const s = defs(hash, {tx, address})
+  const sdone = () => s.done()
+  const keepTrack = () => {
+    sdone()
+    return wallet_handleUnfinishedCFXTx({tx: tx.eid, address: address.eid})
+  }
+
+  // unsent
+  if (status === 0) {
+    s.transform(
+      sideEffect(() => setTxSending({hash})),
+      sideEffect(() => updateBadge(getUnfinishedTxCount())),
+    )
+      .map(() => {
+        return cfx_sendRawTransaction({errorFallThrough: true}, [raw])
+      })
+      .subscribe(
+        resolve({
+          fail: err => {
+            // failed to send
+            setTxUnsent({hash})
+
+            const {errorType, shouldDiscard} = processError(err)
+            const isDuplicateTx = !errorType !== 'duplicateTx'
+            const failed = shouldDiscard && isDuplicateTx
+
+            defs({
+              failed: failed && {errorType, err},
+              isDuplicateTx,
+              keepTrack: !failed,
+            }).transform(
+              multiplexObj({
+                failed: comp_comp(
+                  keepTruthy(),
+                  sideEffect(
+                    ({err}) => typeof failedCb === 'function' && failedCb(err),
+                  ),
+                  sideEffect(({errorType}) => {
+                    setTxFailed({hash, error: errorType})
+                    getExt().then(ext =>
+                      ext.notifications.create(hash, {
+                        title: 'Failed transaction',
+                        message: `Transaction ${parseInt(
+                          tx.payload.nonce,
+                          16,
+                        )} failed! ${err?.message || ''}`,
+                      }),
+                    )
+                  }),
+                  sideEffect(() => updateBadge(getUnfinishedTxCount())),
+                ),
+
+                isDuplicateTx: comp_comp(
+                  keepTruthy(),
+                  sideEffect(() => {
+                    setTxPending({hash})
+                    typeof okCb === 'function' && okCb(hash)
+                    keepTrack()
+                  }),
+                ),
+
+                keepTrack: (0,xform_map/* map */.U)(x => x && keepTrack), // retry in next run
+              }),
+            )
+          },
+        }),
+      )
+      .transform(
+        // successfully sent
+        sideEffect(() => setTxPending({hash})),
+        sideEffect(() => typeof okCb === 'function' && okCb(hash)),
+        sideEffect(keepTrack),
+      )
+    return
+  }
+
+  // sending
+  if (status === 1) {
+    return
+  }
+
+  // pending
+  if (status === 2) {
+    s.map(() => cfx_getTransactionByHash({errorFallThrough: true}, [hash]))
+      .subscribe(resolve({fail: keepTrack}))
+      .transform(
+        sideEffect(rst => {
+          if (!rst) return
+          setTxPackaged({hash})
+          const {status} = rst
+          if (status === '0x1') {
+            let err = 'Transaction reverted'
+            setTxFailed({hash, err})
+
+            // get the error message in receipt
+            cfx_getTransactionReceipt({errorFallThrough: true}, [hash])
+              .then(receipt => {
+                if (receipt?.txExecErrorMsg) {
+                  err = receipt.txExecErrorMsg
+                  setTxFailed({hash, err})
+                }
+                updateBadge(getUnfinishedTxCount())
+                getExt().then(ext =>
+                  ext.notifications.create(hash, {
+                    title: 'Failed transaction',
+                    message: `Transaction ${parseInt(
+                      tx.payload.nonce,
+                      16,
+                    )} failed! ${err}`,
+                  }),
+                )
+              })
+              .catch(identity)
+
+            getExt().then(ext =>
+              ext.notifications.create(hash, {
+                title: 'Failed transaction',
+                message: `Transaction ${parseInt(
+                  tx.payload.nonce,
+                  16,
+                )} failed! ${err?.message || ''}`,
+              }),
+            )
+            return
+          }
+          if (status === '0x2') {
+            setTxSkipped({hash})
+            updateBadge(getUnfinishedTxCount())
+            wallet_getExplorerUrl({transaction: [hash]}).then(
+              ({transaction: [txUrl]}) => {
+                getExt().then(ext =>
+                  ext.notifications.create(txUrl, {
+                    title: 'Skipped transaction',
+                    message: `Transaction ${parseInt(
+                      tx.payload.nonce,
+                      16,
+                    )}  skipped! ${txUrl?.length ? 'View on explorer.' : ''}`,
+                  }),
+                )
+              },
+            )
+            return
+          }
+        }),
+        (0,xform_map/* map */.U)(rst => {
+          if (rst) {
+            keepTrack()
+            return Promise.resolve(null)
+          }
+          return cfx_getNextNonce([address.base32])
+        }),
+      )
+      .subscribe(resolve({fail: keepTrack}))
+      .transform(
+        keep(),
+        sideEffect(nonce => {
+          if (nonce > tx.payload.nonce) {
+            setTxSkipped({hash})
+            updateBadge(getUnfinishedTxCount())
+            getExt().then(ext =>
+              ext.notifications.create(hash, {
+                title: 'Skipped transaction',
+                message: `Transaction ${parseInt(
+                  tx.payload.nonce,
+                  16,
+                )}  skipped!`,
+              }),
+            )
+            return sdone()
+          }
+          keepTrack()
+        }),
+      )
+
+    return
+  }
+
+  // packaged
+  if (status === 3) {
+    s.map(() => cfx_getTransactionReceipt({errorFallThrough: true}, [hash]))
+      .subscribe(resolve({fail: keepTrack}))
+      .transform(
+        sideEffect(rst => {
+          !rst && keepTrack()
+        }),
+        keep(),
+        sideEffect(rst => {
+          const {
+            outcomeStatus,
+            blockHash,
+            epochNumber,
+            txExecErrorMsg,
+            contractCreated,
+            gasUsed,
+            gasFee,
+            storageCollateralized,
+            gasCoveredBySponsor,
+            storageReleased,
+          } = rst
+          const receipt = {
+            blockHash,
+            epochNumber,
+            gasUsed,
+            gasFee,
+            storageCollateralized,
+            gasCoveredBySponsor,
+          }
+          if (storageReleased?.length) receipt.storageReleased = storageReleased
+          if (contractCreated) receipt.contractCreated = contractCreated
+
+          if (outcomeStatus === '0x0') {
+            setTxExecuted({hash, receipt})
+            keepTrack()
+          } else {
+            setTxFailed({hash, err: txExecErrorMsg})
+            updateBadge(getUnfinishedTxCount())
+            getExt().then(ext =>
+              ext.notifications.create(hash, {
+                title: 'Failed transaction',
+                message: `Transaction ${parseInt(
+                  tx.payload.nonce,
+                  16,
+                )} failed! ${txExecErrorMsg}`,
+              }),
+            )
+          }
+        }),
+        sideEffect(sdone),
+      )
+
+    return
+  }
+
+  // executed
+  if (status === 4) {
+    s.map(() => cfx_epochNumber(['latest_confirmed']))
+      .subscribe(resolve({fail: keepTrack}))
+      .transform(
+        (0,xform_map/* map */.U)(n => {
+          if (
+            n &&
+            bignumber/* BigNumber.from */.O$.from(n).gte(bignumber/* BigNumber.from */.O$.from(tx.receipt.epochNumber))
+          ) {
+            setTxConfirmed({hash})
+            updateBadge(getUnfinishedTxCount())
+            return true
+          }
+          keepTrack()
+          return false
+        }),
+        keepTruthy(), // filter non-null tx
+        (0,xform_map/* map */.U)(() => wallet_getExplorerUrl({transaction: [hash]})),
+      )
+      .subscribe(resolve({fail: identity}))
+      .transform(
+        sideEffect(({transaction: [txUrl]}) => {
+          getExt().then(ext => {
+            ext.notifications.create(txUrl, {
+              title: 'Confirmed transaction',
+              message: `Transaction ${parseInt(
+                tx.payload.nonce,
+                16,
+              )} confirmed! ${txUrl?.length ? 'View on Explorer.' : ''}`,
+            })
+          })
+        }),
+        sideEffect(sdone),
+      )
+    return
+  }
+}
+
+
+/***/ }),
+
+/***/ 22176:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* eslint-disable no-empty */
+
+
+const NAME = 'wallet_handleUnfinishedTxs'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  locked: true,
+  methods: [
+    'wallet_handleUnfinishedCFXTx', // 'wallet_handleUnfinishedETHTx'
+  ],
+  db: ['getUnfinishedTx'],
+}
+
+const main = ({
+  db: {getUnfinishedTx},
+  rpcs: {
+    wallet_handleUnfinishedCFXTx, // wallet_handleUnfinishedETHTx
+  },
+}) => {
+  const txs = getUnfinishedTx()
+  txs.forEach(({tx, address, network}) => {
+    if (network.type === 'cfx') {
+      try {
+        wallet_handleUnfinishedCFXTx({network}, {tx, address: address.eid})
+      } catch (err) {}
+    } else {
+      try {
+        // wallet_handleUnfinishedETHTx(txinfo)
+      } catch (err) {}
+    }
+  })
 }
 
 
@@ -93074,7 +94702,7 @@ __webpack_require__.d(__webpack_exports__, {
 // EXTERNAL MODULE: ../../packages/spec/index.js + 1 modules
 var spec = __webpack_require__(27797);
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/permissions.js
-/* harmony default export */ const permissions = ({// basic rpc methods like cfx_epochNumbeer, eth_blockNumber
+/* harmony default export */ const permissions = ({// basic rpc methods like cfx_epochNumber, eth_blockNumber
 wallet_basic:{},// methods
 // to get user addresses like eth_accounts, cfx_accounts
 // to request user's signature of these accounts, eg. cfx_sendTransaction, eth_signTypedData_v4
@@ -93249,7 +94877,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
-/* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(42636);
+/* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(44611);
 
 
 
@@ -93270,7 +94898,7 @@ async function requestUnlockUI({
   MODE,
 }) {
   if (!window) throw Internal('Invalid running env, window is not defined')
-  const {browser, popup} = await __webpack_require__.e(/* import() */ 375).then(__webpack_require__.bind(__webpack_require__, 44375))
+  const {browser, popup} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
   const w = await popup.show({
     alwaysOnTop: MODE.isProd ? true : false,
     mdoe: MODE,
@@ -93884,7 +95512,7 @@ __webpack_require__.d(__webpack_exports__, {
 // EXTERNAL MODULE: ../../packages/spec/index.js + 1 modules
 var spec = __webpack_require__(27797);
 ;// CONCATENATED MODULE: ../../packages/token-list-schema/index.js
-/* harmony default export */ function token_list_schema({map,stringp,and,or,regexp,boolean,int,nil,ethHexAddress,base32ContractAddress,posInt,url,repeat,mapOf,jsinst,tokenSymbol,jssetp,integer}){const VersionSchema=[map,{closed:true},['major',[integer,{min:0}]],['minor',[integer,{min:0}]],['patch',[integer,{min:0}]]];const TagIdentifierSchema=[and,[stringp,{min:1,max:10}],[regexp,'^[\\w]+$']];const ExtensionIdentifierSchema=[and,[stringp,{min:1,max:30}],[regexp,'^[\\w]+$']];const ExtensionValueSchema=[or,nil,boolean,int,[stringp,{min:1,max:42}]];const TagDefinitionSchema=[map,{closed:true},['name',[and,[stringp,{min:1,max:40}],[regexp,'^[ \\w]+$']]],['description',[and,[stringp,{min:1,max:200}],[regexp,'^[ \\w\\.,]+$']]]];const TokenInfoSchema=[map,{closed:true},['chainId',int],['address',[or,ethHexAddress,base32ContractAddress]],['decimals',[posInt,{max:255}]],['name',[and,[regexp,"^[ \\w.'+\\-%\\/À-ÖØ-öø-ÿ:]+$"],[stringp,{min:1,max:40}]]],['symbol',tokenSymbol],['logoURI',{optional:true},url],['tags',{optional:true},[repeat,{min:0,max:10},TagIdentifierSchema]],['extensions',{optional:true},[mapOf,{min:0,max:20},ExtensionIdentifierSchema,ExtensionValueSchema]]];const TokenListSchema=[map,{closed:true},['name',[and,[stringp,{min:1,max:20}],[regexp,'^[ \\w]+$']]],['timestamp',jsinst],['version',VersionSchema],['tokens',[repeat,{min:1,max:10000},TokenInfoSchema]],['keywords',{optional:true},[and,[repeat,{min:1,max:20},[and,[stringp,{min:1,max:20}],[regexp,'^[ \\w]+$']]],jssetp]],['tags',{optional:true},[mapOf,{min:1,max:20},TagIdentifierSchema,TagDefinitionSchema]],['logoURI',{optional:true},url]];return TokenListSchema;}
+/* harmony default export */ function token_list_schema({map,stringp,and,or,regexp,boolean,int,nil,ethHexAddress,base32ContractAddress,posInt,url,repeat,mapOf,jsinst,tokenSymbol,jssetp,integer}){const VersionSchema=[map,{closed:true},['major',[integer,{min:0}]],['minor',[integer,{min:0}]],['patch',[integer,{min:0}]]];const TagIdentifierSchema=[and,[stringp,{min:1,max:10}],[regexp,'^[\\w]+$']];const ExtensionIdentifierSchema=[and,[stringp,{min:1,max:30}],[regexp,'^[\\w]+$']];const ExtensionValueSchema=[or,nil,boolean,int,[stringp,{min:1,max:42}]];const TagDefinitionSchema=[map,{closed:true},['name',[and,[stringp,{min:1,max:40}],[regexp,'^[ \\w]+$']]],['description',[and,[stringp,{min:1,max:200}],[regexp,'^[ \\w\\.,]+$']]]];const TokenInfoSchema=[map,{closed:true},['chainId',int],['address',[or,ethHexAddress,base32ContractAddress]],['decimals',[posInt,{max:255}]],['name',[and,[regexp,"^[ \\w.'+\\-%\\/À-ÖØ-öø-ÿ:]+$"],[stringp,{min:1,max:40}]]],['symbol',tokenSymbol],['logoURI',{optional:true},url],['tags',{optional:true},[repeat,{min:0,max:10},TagIdentifierSchema]],['extensions',{optional:true},[mapOf,{min:0,max:20},ExtensionIdentifierSchema,ExtensionValueSchema]]];const TokenListSchema=[map,{closed:true},['name',[and,[stringp,{min:1,max:20}],[regexp,'^[ \\w]+$']]],['timestamp',jsinst],['version',VersionSchema],['tokens',[repeat,{min:1,max:10000},TokenInfoSchema]],['keywords',{optional:true},[and,[repeat,{min:1,max:20},[and,[stringp,{min:1,max:20}],[regexp,'^[ \\w]+$']]],jssetp]],['tags',{optional:true},[mapOf,{min:0,max:20},TagIdentifierSchema,TagDefinitionSchema]],['logoURI',{optional:true},url]];return TokenListSchema;}
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_updateTokenList/index.js
 
 
@@ -94067,7 +95695,7 @@ const main = async ({
   retract(authReqId)
 
   if (!getAuthReq()?.length) {
-    const {popup} = await __webpack_require__.e(/* import() */ 375).then(__webpack_require__.bind(__webpack_require__, 44375))
+    const {popup} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
     popup.removePopup()
   }
   return
@@ -94118,7 +95746,7 @@ const main = async ({
   retract(authReqId)
 
   if (!getAuthReq()?.length) {
-    const {popup} = await __webpack_require__.e(/* import() */ 375).then(__webpack_require__.bind(__webpack_require__, 44375))
+    const {popup} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
     popup.removePopup()
   }
 
@@ -94577,6 +96205,7 @@ const main = ({db: {getAccountGroup}}) => !getAccountGroup()?.length
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
   "sA": () => (/* binding */ cfxSignTransaction),
+  "PV": () => (/* binding */ getTxHashFromRawTx),
   "Jv": () => (/* binding */ hashTypedData),
   "W0": () => (/* binding */ personalSign),
   "Qi": () => (/* binding */ signTypedData_v4)
@@ -96045,7 +97674,7 @@ var dist = __webpack_require__(68445);
 var keccak256_lib_esm = __webpack_require__(59256);
 ;// CONCATENATED MODULE: ../../packages/signature/index.js
 const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),external_buffer_.Buffer.from(message)):await new wallet_lib_esm/* Wallet */.w5((0,utils/* addHexPrefix */.L_)(privateKey)).signMessage(message);}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,Buffer.from(message));const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}async function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
-async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)(privateKey),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const digest=dist.TypedDataUtils.sign(typedData);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const digest=TypedDataUtils.sign(typedData);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(pk),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};
+async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)(privateKey),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const digest=dist.TypedDataUtils.sign(typedData);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const digest=TypedDataUtils.sign(typedData);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(pk),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};const getTxHashFromRawTx=txhash=>{return (0,keccak256_lib_esm/* keccak256 */.w)(txhash);};
 
 /***/ }),
 

@@ -1,5 +1,5 @@
-exports.id = 406;
-exports.ids = [406];
+exports.id = 997;
+exports.ids = [997];
 exports.modules = {
 
 /***/ 38447:
@@ -90299,6 +90299,7 @@ const permissions = {
     'wallet_addPendingUserAuthRequest',
     'wallet_userApprovedAuthRequest',
     'wallet_handleUnfinishedCFXTx',
+    'wallet_enrichConfluxTx',
   ],
   db: [
     'getAuthReqById',
@@ -90319,6 +90320,7 @@ const main = async ({
     t,
   },
   rpcs: {
+    wallet_enrichConfluxTx,
     cfx_signTransaction,
     wallet_addPendingUserAuthRequest,
     wallet_userApprovedAuthRequest,
@@ -90363,6 +90365,7 @@ const main = async ({
     address: tx[0].from,
   })
   if (!addr) throw InvalidParams(`Invalid from address ${tx[0].from}`)
+
   const signed = await cfx_signTransaction(
     tx.concat({
       returnTxMeta: true,
@@ -90377,16 +90380,32 @@ const main = async ({
 
   if (duptx) throw InvalidParams('duplicate tx')
 
-  const {
-    tempids: {newTxId},
-  } = t([
+  const dbtxs = [
+    {eid: 'newTxPayload', txPayload: txMeta},
+    {eid: 'newTxExtra', txExtra: {ok: false}},
     {
       eid: 'newTxId',
-      tx: {payload: txMeta, hash: txhash, raw: rawtx, status: 0},
+      tx: {
+        fromFluent: true,
+        payload: 'newTxPayload',
+        hash: txhash,
+        raw: rawtx,
+        status: 0,
+        created: new Date().getTime(),
+        extra: 'newTxExtra',
+      },
     },
     {eid: addr.eid, address: {tx: 'newTxId'}},
     authReq && {eid: authReq.app.eid, app: {tx: 'newTxId'}},
-  ])
+  ]
+
+  const {
+    tempids: {newTxId},
+  } = t(dbtxs)
+
+  try {
+    wallet_enrichConfluxTx({errorFallThrough: true}, {txhash})
+  } catch (err) {} // eslint-disable-line no-empty
 
   return await new Promise(resolve => {
     wallet_handleUnfinishedCFXTx({
@@ -92181,6 +92200,40 @@ const main = async arg => {
 
 /***/ }),
 
+/***/ 32035:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_cleanupTx'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: [],
+  locked: true,
+  methods: [],
+  db: ['cleanupTx'],
+}
+
+const main = ({db: {cleanupTx}}) => {
+  cleanupTx()
+}
+
+
+/***/ }),
+
 /***/ 7470:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -92920,6 +92973,166 @@ function greatThanOthers(idx, arr) {
 
 /***/ }),
 
+/***/ 14445:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2723);
+
+
+
+const NAME = 'wallet_enrichConfluxTx'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['txhash', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32]],
+}
+
+const permissions = {
+  external: [],
+  locked: true,
+  methods: ['wallet_validate20Token', 'wallet_refetchBalance'],
+  db: ['getCfxTxsToEnrich', 't', 'isTokenInAddr'],
+}
+
+const main = async ({
+  db: {getCfxTxsToEnrich, t, isTokenInAddr},
+  rpcs: {wallet_validate20Token, wallet_refetchBalance},
+  params: {txhash},
+}) => {
+  const txData = getCfxTxsToEnrich({txhash})
+  if (!txData) return
+
+  const {tx, address, network, token, app} = txData
+  const txExtraEid = tx.extra.eid
+  const txs = []
+  const {to, data, receipt} = tx.payload
+
+  let noError = true
+
+  if (token) {
+    txs.push({eid: token.eid, token: {tx: tx.eid}})
+    if (!isTokenInAddr({tokenId: token.eid, addressId: address.eid})) {
+      txs.push({eid: token.eid, token: {tx: tx.eid}})
+      if (app) txs.push({eid: token.eid, token: {fromApp: true}})
+      else txs.push({eid: token.eid, token: {fromUser: true}})
+    }
+  }
+
+  if (to) {
+    const decoded = (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(to)
+    if (decoded.type !== 'contract')
+      txs.push({eid: txExtraEid, txExtra: {simple: true, ok: true}})
+    else if (decoded.type === 'contract')
+      txs.push({
+        eid: txExtraEid,
+        txExtra: {contractInteraction: true, ok: true},
+      })
+  }
+
+  if (!to && data) {
+    if (receipt) txs.push({eid: txExtraEid, txExtra: {contractCreation: true}})
+    else
+      txs.push({eid: txExtraEid, txExtra: {contractCreation: true, ok: true}})
+  }
+
+  if (to && data) {
+    const contractAddress = to
+    try {
+      const {valid, symbol, name, decimals} = await wallet_validate20Token(
+        {network, networkName: network.name, errorFallThrough: true},
+        {tokenAddress: contractAddress},
+      )
+      if (valid) {
+        txs.push(
+          {eid: txExtraEid, txExtra: {token20: true}},
+          {
+            eid: 'newtoken',
+            token: {
+              name,
+              symbol,
+              decimals,
+              tx: tx.eid,
+              address: contractAddress,
+            },
+          },
+          {eid: address.eid, address: {token: 'newtoken'}},
+          {eid: network.eid, network: {token: 'newtoken'}},
+        )
+        if (app) txs.push({eid: 'newtoken', token: {fromApp: true}})
+        else txs.push({eid: 'newtoken', token: {fromUser: true}})
+
+        wallet_refetchBalance(
+          {
+            network,
+            networkName: network.name,
+            errorFallThrough: true,
+          },
+          [],
+        )
+      }
+    } catch (err) {
+      noError = false
+    }
+  }
+
+  if (noError) {
+    txs.length && t(txs)
+  }
+}
+
+
+/***/ }),
+
+/***/ 93235:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_enrichConfluxTxs'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: [],
+  locked: true,
+  methods: ['wallet_enrichConfluxTx'],
+  db: ['getCfxTxsToEnrich'],
+}
+
+const main = ({
+  db: {getCfxTxsToEnrich},
+  rpcs: {wallet_enrichConfluxTx},
+}) => {
+  const txsToEnrich = getCfxTxsToEnrich()
+  txsToEnrich.forEach(({tx}) => {
+    try {
+      wallet_enrichConfluxTx({errorFallThrough: true}, {txhash: tx.hash})
+    } catch (err) {} // eslint-disable-line no-empty
+  })
+}
+
+
+/***/ }),
+
 /***/ 23490:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -93161,7 +93374,7 @@ const schemas = {
 }
 const permissions = {
   locked: true,
-  external: ['popup', 'inpage'],
+  external: ['popup'],
 }
 
 const genRandomCfxHexAddress = type => {
@@ -93201,7 +93414,7 @@ const schemas = {
 }
 const permissions = {
   locked: true,
-  external: ['popup', 'inpage'],
+  external: ['popup'],
 }
 
 const main = () => {
@@ -93235,7 +93448,7 @@ const schemas = {
 }
 const permissions = {
   locked: true,
-  external: ['popup', 'inpage'],
+  external: ['popup'],
 }
 
 async function main() {
@@ -94077,7 +94290,7 @@ const main = ({Err: {InvalidRequest}, app}) => {
 
 /***/ }),
 
-/***/ 9562:
+/***/ 95941:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -94777,11 +94990,18 @@ function keep(...args) {
         }));
 }
 
-;// CONCATENATED MODULE: ../../packages/transducers/index.js
-/**
- * @fileOverview wrap @thi.ng/transducers to add more xforms for promise
- * @name index.js
- */const check=f=>map(a=>(f(a),a));const keepTruthy=fn=>comp_comp(sideEffect(x=>{if(!x&&typeof fn==='function')fn();}),keep(x=>x||null));
+// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-iterable.js
+var is_iterable = __webpack_require__(55157);
+;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/pluck.js
+
+
+
+function pluck(key, src) {
+    return (0,is_iterable/* isIterable */.T)(src)
+        ? (0,iterator/* iterator1 */.Vc)(pluck(key), src)
+        : (0,xform_map/* map */.U)((x) => x[key]);
+}
+
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compose/juxt.js
 function juxt(...fns) {
     const [a, b, c, d, e, f, g, h] = fns;
@@ -94952,8 +95172,6 @@ const $transduce = (tfn, rfn, args) => {
     return rfn((0,ensure/* ensureTransducer */.q)(args[0])(args[1]), acc, xs);
 };
 
-// EXTERNAL MODULE: ../../node_modules/@thi.ng/checks/is-iterable.js
-var is_iterable = __webpack_require__(55157);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/transducers/xform/filter.js
 
 
@@ -95008,6 +95226,11 @@ function multiplexObj(...args) {
     return comp_comp(multiplex.apply(null, ks.map((k) => xforms[k])), rename(ks, rfn));
 }
 
+;// CONCATENATED MODULE: ../../packages/transducers/index.js
+/**
+ * @fileOverview wrap @thi.ng/transducers to add more xforms for promise
+ * @name index.js
+ */const check=f=>map(a=>(f(a),a));const keepTruthy=fn=>comp_comp(sideEffect(x=>{if(!x&&typeof fn==='function')fn();}),keep(x=>x||null));function branchObj(obj){const multiplexObjTx=Object.entries(obj).reduce((acc,[k,vs])=>{vs=Array.isArray(vs)?vs:[vs];acc[k]=comp_comp(pluck(k),...vs);return acc;},{});return comp_comp(multiplexObj(multiplexObjTx),(0,xform_map/* map */.U)(d=>{Object.entries(d).reduce((acc,[k,v])=>{if(v)acc[k]=v;return acc;},{});}));}
 ;// CONCATENATED MODULE: ../../packages/conflux-tx-error/index.js
 function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{shouldDiscard:true,errorType:'duplicateTx'};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};}return{shouldDiscard:false};}
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
@@ -95104,15 +95327,21 @@ const main = ({
     setTxUnsent,
   },
   params: {tx, address, okCb, failedCb},
+  network,
 }) => {
   tx = getTxById(tx)
   address = getAddressById(address)
+  const cacheTime = network.cacheTime || 1000
   const {status, hash, raw} = tx
   const s = defs(hash, {tx, address})
   const sdone = () => s.done()
-  const keepTrack = () => {
+  const keepTrack = (delay = cacheTime) => {
+    if (!Number.isInteger(delay)) delay = cacheTime
     sdone()
-    return wallet_handleUnfinishedCFXTx({tx: tx.eid, address: address.eid})
+    setTimeout(
+      () => wallet_handleUnfinishedCFXTx({tx: tx.eid, address: address.eid}),
+      delay,
+    )
   }
 
   // unsent
@@ -95139,8 +95368,8 @@ const main = ({
               isDuplicateTx,
               keepTrack: !failed,
             }).transform(
-              multiplexObj({
-                failed: comp_comp(
+              branchObj({
+                failed: [
                   keepTruthy(),
                   sideEffect(
                     ({err}) => typeof failedCb === 'function' && failedCb(err),
@@ -95158,16 +95387,15 @@ const main = ({
                     )
                   }),
                   sideEffect(() => updateBadge(getUnfinishedTxCount())),
-                ),
-
-                isDuplicateTx: comp_comp(
+                ],
+                isDuplicateTx: [
                   keepTruthy(),
                   sideEffect(() => {
                     setTxPending({hash})
                     typeof okCb === 'function' && okCb(hash)
                     keepTrack()
                   }),
-                ),
+                ],
 
                 keepTrack: (0,xform_map/* map */.U)(x => x && keepTrack), // retry in next run
               }),
@@ -95179,7 +95407,7 @@ const main = ({
         // successfully sent
         sideEffect(() => setTxPending({hash})),
         sideEffect(() => typeof okCb === 'function' && okCb(hash)),
-        sideEffect(keepTrack),
+        sideEffect(() => keepTrack),
       )
     return
   }
@@ -95254,7 +95482,7 @@ const main = ({
         }),
         (0,xform_map/* map */.U)(rst => {
           if (rst) {
-            keepTrack()
+            keepTrack(5 * cacheTime)
             return Promise.resolve(null)
           }
           return cfx_getNextNonce([address.base32])
@@ -95320,7 +95548,7 @@ const main = ({
 
           if (outcomeStatus === '0x0') {
             setTxExecuted({hash, receipt})
-            keepTrack()
+            keepTrack(50 * cacheTime)
           } else {
             setTxFailed({hash, err: txExecErrorMsg})
             updateBadge(getUnfinishedTxCount())
@@ -95355,7 +95583,7 @@ const main = ({
             updateBadge(getUnfinishedTxCount())
             return true
           }
-          keepTrack()
+          keepTrack(50 * cacheTime)
           return false
         }),
         keepTruthy(), // filter non-null tx
@@ -95770,10 +95998,12 @@ const main = async ({
   db: {getSingleCallBalanceParams, upsertBalances},
   params,
   rpcs: {wallet_getBalance},
+  network,
 }) => {
   const refetchBalanceParams = getSingleCallBalanceParams({
     type: params?.type,
     allNetwork: Boolean(params?.allNetwork),
+    networkId: network.eid,
   })
 
   // eslint-disable-next-line no-unused-vars
@@ -96806,7 +97036,7 @@ const main = async ({
     networkId,
   },
 }) => {
-  const network = getNetworkById(networkId)
+  let network = getNetworkById(networkId)
   if (!network) throw InvalidParams(`Invalid network id ${networkId}`)
 
   let tokenList
@@ -96836,13 +97066,9 @@ const main = async ({
   if (oldTokenList) retract(oldTokenList.eid)
   oldTokens.forEach(retract)
 
-  const [existTokensIdx, existTokensAddr] = (
-    getNetworkById(networkId).token || []
-  ).reduce(
-    (acc, {address}, idx) => [
-      [...acc[0], idx],
-      [...acc[1], address],
-    ],
+  network = getNetworkById(networkId)
+  const [existTokensIdx, existTokensAddr] = (network.token || []).reduce(
+    (acc, {address}, idx) => [acc[0].concat([idx]), acc[1].concat([address])],
     [[], []],
   )
 

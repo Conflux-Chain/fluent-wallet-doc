@@ -90619,7 +90619,9 @@ function validateAndFormatTypedDataString({
   try {
     typedData = JSON.parse(typedDataString)
   } catch (err) {
-    throw InvalidParams("Invalid typed data, can't parse with JSON.parse")
+    throw InvalidParams(
+      "Invalid typed data, must be a JSON string, can't parse with JSON.parse",
+    )
   }
 
   const typedDataSpec = typed_data_spec(type, spec)

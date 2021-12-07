@@ -95291,6 +95291,7 @@ const permissions = {
     'cfx_getNextNonce',
   ],
   db: [
+    'retractAttr',
     'getUnfinishedTxCount',
     'getAddressById',
     'getTxById',
@@ -95302,6 +95303,7 @@ const permissions = {
     'setTxExecuted',
     'setTxConfirmed',
     'setTxUnsent',
+    'setTxChainSwitched',
   ],
 }
 
@@ -95316,6 +95318,7 @@ const main = ({
     wallet_handleUnfinishedCFXTx,
   },
   db: {
+    retractAttr,
     getUnfinishedTxCount,
     getAddressById,
     getTxById,
@@ -95327,6 +95330,7 @@ const main = ({
     setTxExecuted,
     setTxConfirmed,
     setTxUnsent,
+    setTxChainSwitched,
   },
   params: {tx, address, okCb, failedCb},
   network,
@@ -95336,7 +95340,9 @@ const main = ({
   const cacheTime = network.cacheTime || 1000
   const {status, hash, raw} = tx
   const s = defs(hash, {tx, address})
+  const ss = defs(hash, {tx, address})
   const sdone = () => s.done()
+  const ssdone = () => ss.done()
   const keepTrack = (delay = cacheTime) => {
     if (!Number.isInteger(delay)) delay = cacheTime
     sdone()
@@ -95345,9 +95351,76 @@ const main = ({
       delay,
     )
   }
+  const skeepTrack = (delay = cacheTime) => {
+    if (!Number.isInteger(delay)) delay = cacheTime
+    ssdone()
+    setTimeout(
+      () => wallet_handleUnfinishedCFXTx({tx: tx.eid, address: address.eid}),
+      delay,
+    )
+  }
 
-  // unsent
+  // # detect pivot chain switch
   if (status === 0) {
+    // ## unsent
+  } else if (status === 1) {
+    // ## sending
+  } else if (status === 2) {
+    // ## pending
+  } else if (status === 3) {
+    // ## packaged
+    ss.map(() => cfx_getTransactionByHash({errorFallThrough: true}, [hash]))
+      .subscribe(resolve({fail: identity}))
+      .transform(
+        sideEffect(rst => {
+          if (!rst) {
+            if (tx.blockHash) retractAttr({eid: tx.eid, attr: 'tx/blockHash'})
+            setTxPending({hash})
+            setTxChainSwitched({hash})
+            skeepTrack()
+          }
+        }),
+        keepTruthy(),
+        sideEffect(rst => {
+          if (rst.blockHash !== tx.blockHash) {
+            setTxPackaged({hash, blockHash: rst.blockHash})
+            setTxChainSwitched({hash})
+          }
+          skeepTrack()
+        }),
+      )
+  } else if (status === 4) {
+    // ## executed
+    ss.map(() => cfx_getTransactionReceipt({errorFallThrough: true}, [hash]))
+      .subscribe(resolve({fail: identity}))
+      .transform(
+        sideEffect(rst => {
+          if (!rst) {
+            if (tx.receipt) retractAttr({eid: tx.eid, attr: 'tx/receipt'})
+            setTxPackaged({hash, blockHash: tx.blockHash})
+            setTxChainSwitched({hash})
+            ssdone()
+          }
+        }),
+        keepTruthy(),
+        sideEffect(rst => {
+          if (
+            rst.blockHash !== tx.receipt.blockHash ||
+            rst.index !== tx.receipt.index ||
+            rst.epochNumber !== tx.receipt.epochNumber
+          ) {
+            if (tx.receipt) retractAttr({eid: tx.eid, attr: 'tx/receipt'})
+            setTxPackaged({hash, blockHash: rst.blockHash})
+            setTxChainSwitched({hash})
+            skeepTrack()
+          }
+        }),
+      )
+  }
+
+  // # process tx
+  if (status === 0) {
+    // ## unsent
     s.transform(
       sideEffect(() => setTxSending({hash})),
       sideEffect(() => updateBadge(getUnfinishedTxCount())),
@@ -95411,22 +95484,41 @@ const main = ({
         sideEffect(() => typeof okCb === 'function' && okCb(hash)),
         sideEffect(() => keepTrack),
       )
-    return
-  }
-
-  // sending
-  if (status === 1) {
-    return
-  }
-
-  // pending
-  if (status === 2) {
+  } else if (status === 1) {
+    // ## sending
+  } else if (status === 2) {
+    // ## pending
     s.map(() => cfx_getTransactionByHash({errorFallThrough: true}, [hash]))
       .subscribe(resolve({fail: keepTrack}))
       .transform(
         sideEffect(rst => {
-          if (!rst) return
-          setTxPackaged({hash})
+          if (rst) return
+          cfx_epochNumber({errorFallThrough: true}, ['latest_state'])
+            .then(n => {
+              if (
+                bignumber/* BigNumber.form */.O$.form(n)
+                  .sub(bignumber/* BigNumber.from */.O$.from(tx.payload.epochHeight))
+                  .gte(40)
+              ) {
+                setTxUnsent({hash})
+              }
+            })
+            .catch(identity)
+          return keepTrack()
+        }),
+        keepTruthy(),
+      )
+      .transform(
+        (0,xform_map/* map */.U)(rst => {
+          if (!rst.blockHash) {
+            keepTrack()
+            return false
+          }
+          return rst
+        }),
+        keepTruthy(),
+        sideEffect(rst => {
+          setTxPackaged({hash, blockHash: rst.blockHash})
           const {status} = rst
           if (status === '0x1') {
             let err = 'Transaction reverted'
@@ -95511,12 +95603,8 @@ const main = ({
           keepTrack()
         }),
       )
-
-    return
-  }
-
-  // packaged
-  if (status === 3) {
+  } else if (status === 3) {
+    // ## packaged
     s.map(() => cfx_getTransactionReceipt({errorFallThrough: true}, [hash]))
       .subscribe(resolve({fail: keepTrack}))
       .transform(
@@ -95528,6 +95616,7 @@ const main = ({
           const {
             outcomeStatus,
             blockHash,
+            index,
             epochNumber,
             txExecErrorMsg,
             contractCreated,
@@ -95539,6 +95628,7 @@ const main = ({
           } = rst
           const receipt = {
             blockHash,
+            index,
             epochNumber,
             gasUsed,
             gasFee,
@@ -95567,12 +95657,8 @@ const main = ({
         }),
         sideEffect(sdone),
       )
-
-    return
-  }
-
-  // executed
-  if (status === 4) {
+  } else if (status === 4) {
+    // ## executed
     s.map(() => cfx_epochNumber(['latest_confirmed']))
       .subscribe(resolve({fail: keepTrack}))
       .transform(
@@ -95606,7 +95692,6 @@ const main = ({
         }),
         sideEffect(sdone),
       )
-    return
   }
 }
 
@@ -99118,7 +99203,7 @@ var dist = __webpack_require__(68445);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
 var keccak256_lib_esm = __webpack_require__(59256);
 ;// CONCATENATED MODULE: ../../packages/signature/index.js
-const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),external_buffer_.Buffer.from(message)):await new wallet_lib_esm/* Wallet */.w5((0,utils/* addHexPrefix */.L_)(privateKey)).signMessage(message);}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,Buffer.from(message));const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}async function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
+const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),external_buffer_.Buffer.from(message)):await new wallet_lib_esm/* Wallet */.w5((0,utils/* addHexPrefix */.L_)(privateKey)).signMessage(message);}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,Buffer.from(message));const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
 async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)(privateKey),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const digest=dist.TypedDataUtils.sign(typedData);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const digest=TypedDataUtils.sign(typedData);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(pk),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};const getTxHashFromRawTx=txhash=>{return (0,keccak256_lib_esm/* keccak256 */.w)(txhash);};
 
 /***/ }),

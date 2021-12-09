@@ -96540,7 +96540,7 @@ async function requestUnlockUI({
   const {browser, popup} = await __webpack_require__.e(/* import() */ 98).then(__webpack_require__.bind(__webpack_require__, 73098))
   const w = await popup.show({
     alwaysOnTop: MODE.isProd ? true : false,
-    mdoe: MODE,
+    mode: MODE,
   })
 
   if (MODE.isProd) popup.onFocusChanged(w?.id, popup.remove)

@@ -1,5 +1,5 @@
-exports.id = 997;
-exports.ids = [997];
+exports.id = 815;
+exports.ids = [815];
 exports.modules = {
 
 /***/ 38447:
@@ -87366,23 +87366,24 @@ const schemas = {
 const permissions = {
   external: ['popup', 'inpage'],
   locked: true,
-  db: ['getLocked', 'accountAddrByNetwork'],
+  db: ['getLocked', 'findAddress'],
 }
 
 const main = async ({
-  db: {getLocked, accountAddrByNetwork},
+  db: {getLocked, findAddress},
   app,
   network,
+  _inpage,
 }) => {
   if (getLocked()) return []
-  if (!app) return []
+  if (_inpage && !app) return []
 
-  const addr = accountAddrByNetwork({
-    network: network.eid,
-    account: app.currentAccount.eid,
-  })
-  if (network.type === 'cfx') return [addr.base32]
-  return [addr.hex]
+  const addrs = findAddress({
+    appId: app?.eid,
+    networkId: app ? null : network.eid,
+    g: {value: 1},
+  }).map(({value}) => value)
+  return addrs
 }
 
 
@@ -90187,41 +90188,35 @@ const schemas = {
 const permissions = {
   external: ['inpage'],
   methods: ['wallet_requestPermissions'],
-  db: ['getOneApp', 'accountAddrByNetwork'],
+  db: ['getOneApp', 'findAddress'],
   // TODO: this should be wallet_accounts, set it to null to make it compatible with metamask
   scope: null,
 }
 
 const main = async ({
-  db: {getOneApp, accountAddrByNetwork},
+  db: {getOneApp, findAddress},
   rpcs: {wallet_requestPermissions},
   site,
   app,
 }) => {
-  if (app?.currentAccount) {
-    return [
-      accountAddrByNetwork({
-        account: app.currentAccount.eid,
-        network: app.currentNetwork.eid,
-      }).base32,
-    ]
+  if (app) {
+    return findAddress({appId: app.eid, g: {value: 1}}).map(({value}) => value)
   }
   const permsRes = await wallet_requestPermissions([{cfx_accounts: {}}])
 
   if (permsRes && !permsRes.error) {
     const newapp = getOneApp({site: site.eid})
-    const {currentAccount, currentNetwork} = newapp
-    const addr = accountAddrByNetwork({
-      account: currentAccount.eid,
-      network: currentNetwork.eid,
-    })
+    const addrs = findAddress({
+      appId: newapp.eid,
+      g: {value: 1},
+    }).map(({value}) => value)
 
     newapp.site?.post?.({
       event: 'accountsChanged',
-      params: [addr.base32],
+      params: addrs,
     })
 
-    return [addr.base32]
+    return addrs
   }
 
   return []
@@ -90301,24 +90296,12 @@ const permissions = {
     'wallet_handleUnfinishedCFXTx',
     'wallet_enrichConfluxTx',
   ],
-  db: [
-    'getAuthReqById',
-    'getFromAddress',
-    'getAddrFromNetworkAndAddress',
-    'getAddrTxByHash',
-    't',
-  ],
+  db: ['findAddress', 'getAuthReqById', 'getAddrTxByHash', 't'],
 }
 
 const main = async ({
   Err: {InvalidParams, Server},
-  db: {
-    getAuthReqById,
-    getFromAddress,
-    getAddrFromNetworkAndAddress,
-    getAddrTxByHash,
-    t,
-  },
+  db: {findAddress, getAuthReqById, getAddrTxByHash, t},
   rpcs: {
     wallet_enrichConfluxTx,
     cfx_signTransaction,
@@ -90338,13 +90321,20 @@ const main = async ({
 
     // check that from address is authed to the app
     if (
-      !getFromAddress({networkId: network.eid, address: from, appId: app.eid})
+      !findAddress({
+        value: from,
+        appId: app.eid,
+      })?.length
     )
       throw InvalidParams(`Invalid from address in tx ${from}`)
 
     delete params[0].nonce
-    // try sign tx
-    await cfx_signTransaction(params)
+    try {
+      // try sign tx
+      await cfx_signTransaction({errorFallThrough: true}, params)
+    } catch (err) {
+      throw InvalidParams(`Invalid transaction ${JSON.stringify(params)}`)
+    }
 
     return await wallet_addPendingUserAuthRequest({
       appId: app.eid,
@@ -90360,13 +90350,16 @@ const main = async ({
 
   // tx array [tx]
   const tx = params.authReqId ? params.tx : params
-  const addr = getAddrFromNetworkAndAddress({
-    networkId: network.eid,
-    address: tx[0].from,
+  let addr = findAddress({
+    appId: authReq?.app?.eid,
+    networkId: !authReqId && network.eid,
+    value: tx[0].from,
   })
+  addr = addr[0] || addr
   if (!addr) throw InvalidParams(`Invalid from address ${tx[0].from}`)
 
   const signed = await cfx_signTransaction(
+    {network: authReqId ? authReq.app.currentNetwork : network},
     tx.concat({
       returnTxMeta: true,
     }),
@@ -90376,7 +90369,7 @@ const main = async ({
   const {raw: rawtx, txMeta} = signed
 
   const txhash = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_2__/* .getTxHashFromRawTx */ .PV)(rawtx)
-  const duptx = getAddrTxByHash({addressId: addr.eid, txhash})
+  const duptx = getAddrTxByHash({addressId: addr, txhash})
 
   if (duptx) throw InvalidParams('duplicate tx')
 
@@ -90387,16 +90380,16 @@ const main = async ({
       eid: 'newTxId',
       tx: {
         fromFluent: true,
-        payload: 'newTxPayload',
+        txPayload: 'newTxPayload',
         hash: txhash,
         raw: rawtx,
         status: 0,
         created: new Date().getTime(),
-        extra: 'newTxExtra',
+        txExtra: 'newTxExtra',
       },
     },
-    {eid: addr.eid, address: {tx: 'newTxId'}},
-    authReq && {eid: authReq.app.eid, app: {tx: 'newTxId'}},
+    {eid: addr, address: {tx: 'newTxId'}},
+    authReqId && {eid: authReq.app.eid, app: {tx: 'newTxId'}},
   ]
 
   const {
@@ -90404,31 +90397,40 @@ const main = async ({
   } = t(dbtxs)
 
   try {
-    wallet_enrichConfluxTx({errorFallThrough: true}, {txhash})
+    wallet_enrichConfluxTx(
+      {
+        errorFallThrough: true,
+        network: authReqId ? authReq.app.currentNetwork : network,
+      },
+      {txhash},
+    )
   } catch (err) {} // eslint-disable-line no-empty
 
   return await new Promise(resolve => {
-    wallet_handleUnfinishedCFXTx({
-      tx: newTxId,
-      address: addr.eid,
-      okCb: rst => {
-        if (params.authReqId) {
-          return wallet_userApprovedAuthRequest({
-            authReqId: params.authReqId,
-            res: rst,
-          }).then(resolve)
-        }
-        resolve(rst)
+    wallet_handleUnfinishedCFXTx(
+      {network: authReqId ? authReq.app.currentNetwork : network},
+      {
+        tx: newTxId,
+        address: addr,
+        okCb: rst => {
+          if (params.authReqId) {
+            return wallet_userApprovedAuthRequest({
+              authReqId: params.authReqId,
+              res: rst,
+            }).then(resolve)
+          }
+          resolve(rst)
+        },
+        failedCb: err => {
+          if (params.authReqId) {
+            return wallet_userApprovedAuthRequest({
+              authReqId: params.authReqId,
+              res: err,
+            }).then(resolve)
+          }
+        },
       },
-      failedCb: err => {
-        if (params.authReqId) {
-          return wallet_userApprovedAuthRequest({
-            authReqId: params.authReqId,
-            res: err,
-          }).then(resolve)
-        }
-      },
-    })
+    )
   })
 }
 
@@ -90494,12 +90496,12 @@ const permissions = {
     'cfx_estimateGasAndCollateral',
     'wallet_detectAddressType',
   ],
-  db: ['getFromAddress'],
+  db: ['findAddress'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getFromAddress},
+  db: {findAddress},
   rpcs: {
     wallet_getAddressPrivateKey,
     cfx_epochNumber,
@@ -90515,7 +90517,7 @@ const main = async ({
   if (newTx.chainId && newTx.chainId !== network.chainId)
     throw InvalidParams(`Invalid chainId ${_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId}`)
 
-  const fromAddr = getFromAddress({networkId: network.eid, address: newTx.from})
+  const fromAddr = findAddress({networkId: network.eid, value: newTx.from})
   // from address is not belong to wallet
   if (!fromAddr) throw InvalidParams(`Invalid from address ${newTx.from}`)
 
@@ -90563,7 +90565,7 @@ const main = async ({
     if (!newTx.storageLimit) newTx.storageLimit = storageCollateralized
   }
 
-  const pk = await wallet_getAddressPrivateKey({addressId: fromAddr.eid})
+  const pk = await wallet_getAddressPrivateKey({address: newTx.from})
 
   const raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .cfxSignTransaction */ .sA)(newTx, pk, network.netId)
 
@@ -90599,10 +90601,7 @@ var spec = __webpack_require__(27797);
 /* harmony default export */ function typed_data_spec(type,spec){if(type!=='cfx'&&type!=='eth')throw new Error('Invalid type ${type}');const{map,mapOf,and,stringp,plus,mapp}=spec;if(!map)throw new Error('Invalid spec instance');const typeValueSpec=[map,{closed:true},['name',stringp],['type',stringp]];const typePropsSpec=[plus,typeValueSpec];const typesSpec=[and,[map,[type==='eth'?'EIP712Domain':'CIP23Domain',typePropsSpec]],[mapOf,stringp,typePropsSpec]];return[map,{closed:true},['types',typesSpec],['primaryType',{doc:'needs to be defined in types'},stringp],['domain',mapp],['message',mapp]];}
 // EXTERNAL MODULE: ../../packages/signature/index.js + 15 modules
 var signature = __webpack_require__(52206);
-// EXTERNAL MODULE: ../../packages/base32-address/index.js + 3 modules
-var base32_address = __webpack_require__(2723);
 ;// CONCATENATED MODULE: ../../packages/rpcs/cfx_signTypedData_v4/index.js
-
 
 
 
@@ -90666,7 +90665,7 @@ const gen = {
     type =>
     async ({
       Err: {InvalidParams, Unauthorized, UserRejected},
-      db: {getAuthReqById, accountAddrByNetwork},
+      db: {getAuthReqById, findAddress, validateAddrInApp},
       rpcs: {
         wallet_getAddressPrivateKey,
         wallet_addPendingUserAuthRequest,
@@ -90681,15 +90680,23 @@ const gen = {
       if (_inpage) {
         const [from, typedDataString] = params
 
-        const addr = accountAddrByNetwork({
-          account: app.currentAccount.eid,
-          network: app.currentNetwork.eid,
-        })
+        if (
+          !validateAddrInApp({
+            appId: app.eid,
+            networkId: app.currentNetwork.eid,
+            addr: from,
+          })
+        ) {
+          throw Unauthorized()
+        }
 
-        if (type === 'cfx' && from.toLowerCase() !== addr.base32.toLowerCase())
-          throw Unauthorized()
-        if (type === 'eth' && from.toLowerCase() !== addr.hex.toLowerCase())
-          throw Unauthorized()
+        const addr = findAddress({
+          networkId: app.currentNetwork.eid,
+          value: from,
+          g: {
+            _account: {_accountGroup: {vault: {type: 1}}},
+          },
+        })
 
         validateAndFormatTypedDataString({
           type,
@@ -90698,7 +90705,7 @@ const gen = {
           InvalidParams,
         })
 
-        if (addr.vault.type === 'pub') throw UserRejected()
+        if (addr.account.accountGroup.vault.type === 'pub') throw UserRejected()
 
         const req = {method: NAME, params}
         return wallet_addPendingUserAuthRequest({appId: app.eid, req})
@@ -90713,20 +90720,26 @@ const gen = {
         const authReq = getAuthReqById(authReqId)
         if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
 
-        const addr = accountAddrByNetwork({
-          account: authReq.app.currentAccount.eid,
-          network: authReq.app.currentNetwork.eid,
+        if (
+          !validateAddrInApp({
+            appId: authReq.app.eid,
+            networkId: authReq.app.currentNetwork.eid,
+            addr: from,
+          })
+        ) {
+          return wallet_userRejectedAuthRequest({authReqId})
+        }
+
+        const addr = findAddress({
+          networkId: authReq.app.currentNetwork.eid,
+          value: from,
+          g: {
+            pk: 1,
+            _account: {_accountGroup: {vault: {type: 1}}},
+          },
         })
 
-        if (addr.vault.type === 'pub')
-          return wallet_userRejectedAuthRequest({authReqId})
-
-        if (
-          type === 'cfx' &&
-          (0,base32_address/* decode */.Jx)(from).hexAddress !== addr.cfxHex.toLowerCase()
-        )
-          return wallet_userRejectedAuthRequest({authReqId})
-        if (type === 'eth' && from.toLowerCase() !== addr.hex.toLowerCase())
+        if (addr.account.accountGroup.vault.type === 'pub')
           return wallet_userRejectedAuthRequest({authReqId})
 
         const typedData = validateAndFormatTypedDataString({
@@ -90737,7 +90750,7 @@ const gen = {
         })
 
         const pk =
-          addr.pk || (await wallet_getAddressPrivateKey({addressId: addr.eid}))
+          addr.pk || (await wallet_getAddressPrivateKey({address: from}))
 
         const sig = await (0,signature/* signTypedData_v4 */.Qi)(type, pk, typedData)
 
@@ -90752,7 +90765,7 @@ const schemas = gen.schemas('cfx')
 
 const permissions = {
   external: ['inpage', 'popup'],
-  db: ['getAuthReqById', 'accountAddrByNetwork'],
+  db: ['getAuthReqById', 'findAddress', 'validateAddrInApp'],
   methods: [
     'wallet_getAddressPrivateKey',
     'wallet_addPendingUserAuthRequest',
@@ -90789,13 +90802,25 @@ const schemas = {
 
 const permissions = {
   external: ['popup', 'inpage'],
-  methods: ['eth_requestAccounts'],
-  db: [],
+  locked: true,
+  db: ['getLocked', 'findAddress'],
 }
 
-const main = async ({rpcs: {eth_requestAccounts}, app}) => {
-  if (!app) return []
-  return await eth_requestAccounts()
+const main = async ({
+  db: {getLocked, findAddress},
+  app,
+  network,
+  _inpage,
+}) => {
+  if (getLocked()) return []
+  if (_inpage && !app) return []
+
+  const addrs = findAddress({
+    appId: app?.eid,
+    networkId: app ? null : network.eid,
+    g: {value: 1},
+  }).map(({value}) => value)
+  return addrs
 }
 
 
@@ -91148,41 +91173,38 @@ const schemas = {
 const permissions = {
   external: ['inpage'],
   methods: ['wallet_requestPermissions'],
-  db: ['getOneApp', 'accountAddrByNetwork'],
+  db: ['getOneApp', 'findAddress'],
+  // TODO: this should be wallet_accounts, set it to null to make it compatible with metamask
   scope: null,
 }
 
 const main = async ({
-  db: {getOneApp, accountAddrByNetwork},
+  db: {getOneApp, findAddress},
   rpcs: {wallet_requestPermissions},
   site,
   app,
 }) => {
-  if (app?.currentAccount) {
-    return [
-      accountAddrByNetwork({
-        account: app.currentAccount.eid,
-        network: app.currentNetwork.eid,
-      }).hex,
-    ]
+  if (app) {
+    return findAddress({appId: app.eid, g: {value: 1}}).map(({value}) => value)
   }
   const permsRes = await wallet_requestPermissions([{eth_accounts: {}}])
 
   if (permsRes && !permsRes.error) {
-    const app = getOneApp({site: site.eid})
-    const {currentAccount, currentNetwork} = app
-    const addr = accountAddrByNetwork({
-      account: currentAccount.eid,
-      network: currentNetwork.eid,
-    })
-    app.site?.post?.({
+    const newapp = getOneApp({site: site.eid})
+    const addrs = findAddress({
+      appId: newapp.eid,
+      g: {value: 1},
+    }).map(({value}) => value)
+
+    newapp.site?.post?.({
       event: 'accountsChanged',
-      params: [addr.hex],
+      params: addrs,
     })
-    return [addr.hex]
+
+    return addrs
   }
 
-  return permsRes
+  return []
 }
 
 
@@ -91262,8 +91284,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var _fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(52206);
-/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2723);
-
 
 
 
@@ -91294,13 +91314,13 @@ const permissions = {
     'wallet_userRejectedAuthRequest',
     'wallet_getAddressPrivateKey',
   ],
-  db: ['getAuthReqById', 'accountAddrByNetwork'],
+  db: ['getAuthReqById', 'findAddress', 'validateAddrInApp'],
   scope: {wallet_accounts: {}},
 }
 
 const main = async ({
   Err: {InvalidParams, Unauthorized, UserRejected},
-  db: {getAuthReqById, accountAddrByNetwork},
+  db: {getAuthReqById, findAddress, validateAddrInApp},
   rpcs: {
     wallet_getAddressPrivateKey,
     wallet_userApprovedAuthRequest,
@@ -91323,15 +91343,23 @@ const main = async ({
         `Invalid from ${from} for the target network ${app.currentNetwork.name}`,
       )
 
-    const addr = accountAddrByNetwork({
-      account: app.currentAccount.eid,
-      network: app.currentNetwork.eid,
+    if (
+      !validateAddrInApp({
+        appId: app.eid,
+        networkId: app.currentNetwork.eid,
+        addr: from,
+      })
+    ) {
+      throw Unauthorized()
+    }
+
+    const addr = findAddress({
+      networkId: app.currentNetwork.eid,
+      value: from,
+      g: {_account: {_accountGroup: {vault: {type: 1}}}},
     })
 
-    if (type === 'cfx' && (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .decode */ .Jx)(from).hexAddress !== addr.cfxHex.toLowerCase())
-      throw Unauthorized()
-    if (type === 'eth' && from !== addr.hex) throw Unauthorized()
-    if (addr.vault.type === 'pub') throw UserRejected()
+    if (addr.account.accountGroup.vault.type === 'pub') throw UserRejected()
 
     const req = {method: NAME, params}
     return await wallet_addPendingUserAuthRequest({appId: app.eid, req})
@@ -91347,32 +91375,33 @@ const main = async ({
     if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
 
     const type = authReq.app.currentNetwork.type
-    const addr = accountAddrByNetwork({
-      account: authReq.app.currentAccount.eid,
-      network: authReq.app.currentNetwork.eid,
+    if (
+      !validateAddrInApp({
+        appId: authReq.app.eid,
+        networkId: authReq.app.currentNetwork.eid,
+        addr: from,
+      })
+    ) {
+      return wallet_userRejectedAuthRequest({authReqId})
+    }
+    const addr = findAddress({
+      networkId: authReq.app.currentNetwork.eid,
+      value: from,
+      g: {
+        pk: 1,
+        _account: {_accountGroup: {vault: {type: 1}}},
+      },
     })
 
-    if (
-      type === 'cfx' &&
-      !(0,_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.validate)(_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, from, {
-        netId: authReq.app.currentNetwork.netId,
-      })
-    )
-      throw InvalidParams(
-        `Invalid from ${from} for the target network ${authReq.app.currentNetwork.name}`,
-      )
-
-    if (addr.vault.type === 'pub')
-      return wallet_userRejectedAuthRequest({authReqId})
-
-    if (type === 'cfx' && (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .decode */ .Jx)(from).hexAddress !== addr.cfxHex.toLowerCase())
-      return wallet_userRejectedAuthRequest({authReqId})
-
-    if (type === 'eth' && from.toLowerCase() !== addr.hex.toLowerCase())
+    if (addr.account.accountGroup.vault.type === 'pub')
       return wallet_userRejectedAuthRequest({authReqId})
 
     const pk =
-      addr.pk || (await wallet_getAddressPrivateKey({addressId: addr.eid}))
+      addr.pk ||
+      (await wallet_getAddressPrivateKey(
+        {network: authReq.app.currentNetwork},
+        {address: from},
+      ))
     const sig = await (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .personalSign */ .W0)(type, pk, message)
 
     return await wallet_userApprovedAuthRequest({authReqId, res: sig})
@@ -91867,10 +91896,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(89620);
-/* harmony import */ var _fluent_wallet_compose__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4088);
+/* harmony import */ var _fluent_wallet_compose__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(4088);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2723);
 /* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(99855);
 /* harmony import */ var _fluent_wallet_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(11818);
+/* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(44611);
+
 
 
 
@@ -91923,11 +91954,12 @@ const permissions = {
     'wallet_getNextNonce',
     'wallet_validatePassword',
     'wallet_deleteAccountGroup',
-    'wallet_refetchTokenList',
     'wallet_setCurrentAccount',
   ],
   db: [
-    'getAccountGroupById',
+    'findAccount',
+    'newAddressTx',
+    'getGroupFirstAccountId',
     'getAccountGroupByVaultType',
     't',
     'getOneAccount',
@@ -91935,9 +91967,8 @@ const permissions = {
     'getVault',
     'getVaultById',
     'createVault',
-    'getAccountGroup',
+    'findGroup',
     'getNetwork',
-    'getOneAccountByGroupAndIndex',
     'getLocked',
     'getPassword',
   ],
@@ -91945,13 +91976,10 @@ const permissions = {
 
 async function selectNewlyCreatedAccountGroupFirstAccount({
   rpcs: {wallet_setCurrentAccount},
-  db: {getAccountGroupById},
+  db: {getGroupFirstAccountId},
   groupId,
 }) {
-  const group = getAccountGroupById(groupId)
-  if (group?.account?.[0]) {
-    return await wallet_setCurrentAccount([group.account[0].eid])
-  }
+  return await wallet_setCurrentAccount([getGroupFirstAccountId({groupId})])
 }
 
 const DefaultGroupNamePrefix = {
@@ -91962,12 +91990,14 @@ const DefaultGroupNamePrefix = {
 
 async function newAccounts(arg) {
   const {
+    allAccountCreatedChan,
+    firstAccountCreatedChan,
     groupId,
     groupName,
     rpcs: {wallet_discoverAccounts},
     params: {waitTillFinish},
     vault,
-    db: {getNetwork, t, getOneAccountByGroupAndIndex},
+    db: {getNetwork, t, newAddressTx, findAccount},
   } = arg
 
   if (vault.type === 'hd') {
@@ -91975,43 +92005,39 @@ async function newAccounts(arg) {
       accountGroupId: groupId,
       waitTillFinish,
     })
+    if (waitTillFinish) allAccountCreatedChan.write(true)
+    firstAccountCreatedChan.write(true)
     return
   }
 
   const networks = getNetwork()
 
+  // create ONE account and address for pk/pub group
   networks.forEach(({eid, netId, type}) => {
-    const account = getOneAccountByGroupAndIndex({index: 0, groupId})
     if (vault.type === 'pk') {
+      const [account] = findAccount({groupId, index: 0})
       const addr = (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .fromPrivate */ .yV)(vault.ddata).address
+      const addrTx = newAddressTx({
+        eid: -1,
+        value: type === 'cfx' ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(addr), netId) : addr,
+        hex: addr,
+        pk: vault.ddata,
+        network: eid,
+      })
       t([
+        addrTx,
         {
-          eid: -1,
-          address: {
-            hex: addr,
-            pk: vault.ddata,
-            vault: vault.eid,
-          },
-        },
-        type === 'cfx' && {
-          eid: -1,
-          address: {
-            cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(addr),
-            base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(addr), netId),
-          },
-        },
-        {eid, network: {address: -1}},
-        {
-          eid: account?.eid ?? -2,
+          eid: account ?? -2,
           account: {
-            address: -1,
+            address: addrTx.eid,
             index: 0,
             nickname: groupName,
             hidden: false,
           },
         },
-        {eid: groupId, accountGroup: {account: account?.eid ?? -2}},
+        {eid: groupId, accountGroup: {account: account ?? -2}},
       ])
+      firstAccountCreatedChan.write(true)
 
       return
     }
@@ -92020,43 +92046,46 @@ async function newAccounts(arg) {
 
     // vault.type is 'pub'
 
+    const addrTx = newAddressTx({
+      eid: -1,
+      hex: vault.ddata,
+      network: eid,
+      value:
+        type === 'cfx'
+          ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(vault.ddata), netId)
+          : vault.ddata,
+    })
     t([
-      {eid: -1, address: {hex: vault.ddata, vault: vault.eid}},
-      type === 'cfx' && {
-        eid: -1,
-        address: {
-          base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(vault.ddata), netId),
-          cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(vault.ddata),
-        },
-      },
-      {eid, network: {address: -1}},
+      addrTx,
       {
-        eid: account?.eid ?? -2,
+        eid: -2,
         account: {
           index: 0,
           nickname: groupName,
-          address: -1,
+          address: addrTx.eid,
           hidden: false,
         },
       },
       {
         eid: groupId,
-        accountGroup: {account: account?.eid ?? -2},
+        accountGroup: {account: -2},
       },
     ])
+    firstAccountCreatedChan.write(true)
   })
 }
 
 async function newAccountGroup(arg) {
   const {
-    params: {waitTillFinish, nickname},
+    selectedAccountSetChan,
+    params: {nickname},
     db: {getAccountGroupByVaultType, getVaultById, t},
     vaultId,
   } = arg
   const vault = getVaultById(vaultId)
-  const groups = getAccountGroupByVaultType(vault.type)
+  const groupIds = getAccountGroupByVaultType(vault.type)
   const groupName =
-    nickname || `${DefaultGroupNamePrefix[vault.type]}${groups.length + 1}`
+    nickname || `${DefaultGroupNamePrefix[vault.type]}${groupIds.length + 1}`
 
   const {tempids} = t([
     {
@@ -92072,10 +92101,12 @@ async function newAccountGroup(arg) {
     groupId,
     groupName,
   }).then(() => {
-    selectNewlyCreatedAccountGroupFirstAccount({...arg, groupId})
+    selectNewlyCreatedAccountGroupFirstAccount({...arg, groupId}).then(
+      selectedAccountSetChan.write(true),
+    )
   })
 
-  if (waitTillFinish) await newAccountsPromise
+  await newAccountsPromise
 
   return groupId
 }
@@ -92094,17 +92125,12 @@ const main = async arg => {
     db: {
       createVault,
       getVault,
-      getAccountGroup,
+      findGroup,
       getVaultById,
       getPassword,
       getLocked,
     },
-    rpcs: {
-      wallet_validatePassword,
-      wallet_deleteAccountGroup,
-      wallet_unlock,
-      wallet_refetchTokenList,
-    },
+    rpcs: {wallet_validatePassword, wallet_deleteAccountGroup, wallet_unlock},
     params: {
       password: optionalPassword,
       mnemonic,
@@ -92115,7 +92141,7 @@ const main = async arg => {
     },
     Err: {InvalidParams},
   } = arg
-  const isFirstGroup = !getAccountGroup()?.length
+  const isFirstGroup = !findGroup()?.length
   const isLocked = getLocked()
   let password = optionalPassword
 
@@ -92151,7 +92177,7 @@ const main = async arg => {
   const anyDuplicateVaults = (
     await Promise.all(
       vaults.map(
-        (0,_fluent_wallet_compose__WEBPACK_IMPORTED_MODULE_5__/* .compL */ .zv)(
+        (0,_fluent_wallet_compose__WEBPACK_IMPORTED_MODULE_6__/* .compL */ .zv)(
           async v => [v.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.decrypt)(password, v.data)), v.eid],
           p => p.then(([ddata, eid]) => (ddata === vault.data ? eid : null)),
         ),
@@ -92161,29 +92187,29 @@ const main = async arg => {
 
   if (anyDuplicateVaults.length) {
     const [duplicateVaultId] = anyDuplicateVaults
-    const [duplicateAccountGroup] = getAccountGroup({vault: duplicateVaultId})
+    const [duplicateAccountGroupId] = findGroup({vault: duplicateVaultId})
     const duplicateVault = getVaultById(duplicateVaultId)
 
     if (force) {
       if (duplicateVault.type !== 'hd')
         throw InvalidParams("Can't force import none hd vault")
       await wallet_deleteAccountGroup({
-        accountGroupId: duplicateAccountGroup.eid,
+        accountGroupId: duplicateAccountGroupId,
         password,
       })
     } else {
       let err
       if (vault.type === 'hd' && duplicateVault.cfxOnly !== vault.cfxOnly) {
         err = InvalidParams(
-          `Duplicate credential(with different cfxOnly setting) with account group ${duplicateAccountGroup.eid}`,
+          `Duplicate credential(with different cfxOnly setting) with account group ${duplicateAccountGroupId}`,
         )
         err.extra.updateCfxOnly = true
       } else {
         err = InvalidParams(
-          `Duplicate credential with account group ${duplicateAccountGroup.eid}`,
+          `Duplicate credential with account group ${duplicateAccountGroupId}`,
         )
       }
-      err.extra.duplicateAccountGroupId = duplicateAccountGroup.eid
+      err.extra.duplicateAccountGroupId = duplicateAccountGroupId
       throw err
     }
   }
@@ -92193,10 +92219,24 @@ const main = async arg => {
 
   const vaultId = createVault(vault)
   if (isFirstGroup) await wallet_unlock({password, waitSideEffects: true})
-  else await wallet_refetchTokenList()
-  const groupId = newAccountGroup({...arg, vaultId})
+  const selectedAccountSetChan = (0,_fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_5__/* .chan */ .zH)(1)
+  const firstAccountCreatedChan = (0,_fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_5__/* .chan */ .zH)(1)
+  const allAccountCreatedChan = (0,_fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_5__/* .chan */ .zH)(1)
+  const groupId = newAccountGroup({
+    ...arg,
+    vaultId,
+    allAccountCreatedChan,
+    selectedAccountSetChan,
+    firstAccountCreatedChan,
+  })
 
-  return groupId
+  const promises = [
+    selectedAccountSetChan.read(),
+    firstAccountCreatedChan.read(),
+  ]
+  if (arg.params.waitTillFinish) promises.push(allAccountCreatedChan.read())
+
+  return await Promise.all(promises).then(() => groupId)
 }
 
 
@@ -92271,27 +92311,32 @@ const schemas = {
 
 const permissions = {
   db: [
+    'findGroup',
+    'findAccount',
     'getNetwork',
     'getPassword',
-    'getAccountGroupById',
-    'getOneAccountByGroupAndIndex',
     't',
+    'newAddressTx',
   ],
+  methods: ['wallet_setCurrentAccount'],
   external: ['popup'],
 }
 
 const main = async ({
-  db: {
-    getPassword,
-    getNetwork,
-    getOneAccountByGroupAndIndex,
-    t,
-    getAccountGroupById,
-  },
+  rpcs: {wallet_setCurrentAccount},
+  db: {findGroup, getPassword, getNetwork, t, findAccount, newAddressTx},
   params: {accountGroupId, nickname},
   Err: {InvalidParams},
+  _popup,
 }) => {
-  const group = getAccountGroupById(accountGroupId)
+  const group = findGroup({
+    groupId: accountGroupId,
+    g: {
+      account: {nickname: 1},
+      vault: {type: 1, ddata: 1, data: 1, cfxOnly: 1},
+      nickname: 1,
+    },
+  })
   if (!group) throw InvalidParams('Invalid account group id')
   const {vault} = group
   if (vault.type !== 'hd')
@@ -92299,20 +92344,20 @@ const main = async ({
 
   const existAccounts = group.account || []
   const nextAccountIdx = existAccounts.length
-  const hasDuplicateNicknameInSameAccountGroup = existAccounts.reduce(
-    (acc, account) => acc || account.nickname === nickname,
-    false,
-  )
-  if (hasDuplicateNicknameInSameAccountGroup)
-    throw InvalidParams(
-      `Invalid nickname "${nickname}", duplicate with other account in the same account group`,
-    )
+  // const hasDuplicateNicknameInSameAccountGroup = existAccounts.reduce(
+  //   (acc, account) => acc || account.nickname === nickname,
+  //   false,
+  // )
+  // if (hasDuplicateNicknameInSameAccountGroup)
+  //   throw InvalidParams(
+  //     `Invalid nickname "${nickname}", duplicate with other account in the same account group`,
+  //   )
 
   const password = getPassword()
   const decrypted = vault.ddata ?? (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.decrypt)(password, vault.data))
   const networks = getNetwork()
 
-  return (
+  const accountId = (
     await Promise.all(
       networks.map(async ({eid, hdPath, netId, type}) => ({
         eid,
@@ -92326,48 +92371,45 @@ const main = async ({
         }),
       })),
     ).then(params =>
-      params.map(({eid, netId, type, addr: {address, index, privateKey}}) => {
-        let accountId =
-          getOneAccountByGroupAndIndex({
-            index: nextAccountIdx,
+      params.map(({eid, netId, type, addr: {address, privateKey}}) => {
+        const accountId =
+          findAccount({
             groupId: accountGroupId,
-          })?.eid || 'accountId'
+            index: nextAccountIdx,
+          })[0] || 'accountId'
+
+        const addrTx = newAddressTx({
+          eid: -1,
+          network: eid,
+          value:
+            type === 'cfx' ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_4__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address), netId) : address,
+          hex: address,
+          pk: privateKey,
+        })
 
         const {tempids} = t([
-          {
-            eid: -1,
-            address: {
-              vault: vault.eid,
-              index,
-              hex: address,
-              pk: privateKey,
-            },
-          },
-          type === 'cfx' && {
-            eid: -1,
-            address: {
-              cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address),
-              base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_4__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address), netId),
-            },
-          },
-          {eid, network: {address: -1}},
+          addrTx,
           {
             eid: accountId,
             account: {
               index: nextAccountIdx,
               nickname: nickname ?? `${group.nickname}-${nextAccountIdx + 1}`,
-              address: -1,
+              address: addrTx.eid,
               hidden: false,
             },
           },
           {eid: accountGroupId, accountGroup: {account: accountId}},
         ])
 
-        accountId = tempids.accountId ?? accountId
-        return accountId
+        return tempids.accountId ?? accountId
       }),
     )
   )[0]
+
+  if (_popup) {
+    await wallet_setCurrentAccount([accountId])
+  }
+  return accountId
 }
 
 
@@ -92403,17 +92445,23 @@ const schemas = {
 
 const permissions = {
   methods: [],
-  db: ['getPassword', 'getAccountGroupById', 'getNetworkById', 't'],
+  db: ['getPassword', 'findGroup', 'getNetworkById', 't', 'newAddressTx'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getNetworkById, getAccountGroupById, getPassword, t},
+  db: {getNetworkById, findGroup, getPassword, t, newAddressTx},
   params: {networkId, accountGroupId},
 }) => {
   const network = getNetworkById(networkId)
   if (!network) throw InvalidParams(`Invalid network id ${networkId}`)
-  const group = getAccountGroupById(accountGroupId)
+  const group = findGroup({
+    groupId: accountGroupId,
+    g: {
+      account: {eid: 1, index: 1},
+      vault: {type: 1, cfxOnly: 1, ddata: 1, data: 1},
+    },
+  })
   if (!group) throw InvalidParams(`Invalid account group id ${accountGroupId}`)
   const {vault} = group
   if (vault.type === 'pub' && vault.cfxOnly && network.type !== 'cfx')
@@ -92425,35 +92473,33 @@ const main = async ({
 
   const decrypted = vault.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_4__.decrypt)(pwd, vault.data))
   if (vault.type === 'pub') {
+    const addrTx = newAddressTx({
+      eid: 'newAddr',
+      hex: decrypted,
+      network: networkId,
+      value:
+        network.type === 'cfx'
+          ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(decrypted), network.netId)
+          : decrypted,
+    })
     return [
-      t([
-        {eid: 'newAddr', address: {vault: vault.eid, index: 0, hex: decrypted}},
-        network.type === 'cfx' && {
-          eid: 'newAddr',
-          address: {
-            cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(decrypted),
-            base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(decrypted), network.netId),
-          },
-        },
-        {eid: group.account[0].eid, account: {address: 'newAddr'}},
-        {eid: network.eid, network: {address: 'newAddr'}},
-      ]).tempids.newAddr,
+      t([addrTx, {eid: group.account[0].eid, account: {address: addrTx.eid}}])
+        .tempids.newAddr || addrTx.eid,
     ]
   } else if (vault.type === 'pk') {
     const hex = (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .fromPrivate */ .yV)(decrypted)
+    const addrTx = newAddressTx({
+      eid: 'newAddr',
+      hex: hex.toLowerCase(),
+      network: networkId,
+      value:
+        network.type === 'cfx'
+          ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(hex), network.netId)
+          : hex.toLowerCase(),
+    })
     return [
-      t([
-        {eid: 'newAddr', address: {vault: vault.eid, index: 0, hex}},
-        network.type === 'cfx' && {
-          eid: 'newAddr',
-          address: {
-            cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(hex),
-            base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(hex), network.netId),
-          },
-        },
-        {eid: group.account[0].eid, account: {address: 'newAddr'}},
-        {eid: network.eid, network: {address: 'newAddr'}},
-      ]).tempids.newAddr,
+      t([addrTx, {eid: group.account[0].eid, account: {address: addrTx.eid}}])
+        .tempids.newAddr || addrTx.eid,
     ]
   } else {
     return await Promise.all(
@@ -92467,24 +92513,22 @@ const main = async ({
         }),
       })),
     ).then(toCreates =>
-      toCreates.map(
-        ({account, addr: {privateKey, address, index}}) =>
-          t([
-            {
-              eid: 'newAddr',
-              address: {vault: vault.eid, index, hex: address, pk: privateKey},
-            },
-            network.type === 'cfx' && {
-              eid: 'newAddr',
-              address: {
-                cfxHex: (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address),
-                base32: (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address), network.netId),
-              },
-            },
-            {eid: account.eid, account: {address: 'newAddr'}},
-            {eid: network.eid, network: {address: 'newAddr'}},
-          ]).tempids.newAddr,
-      ),
+      toCreates.map(({account, addr: {privateKey, address}}) => {
+        const addrTx = newAddressTx({
+          eid: 'newAddr',
+          hex: address.toLowerCase(),
+          pk: privateKey,
+          network: networkId,
+          value:
+            network.type === 'cfx'
+              ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(address), network.netId)
+              : address.toLowerCase(),
+        })
+        return (
+          t([addrTx, {eid: account.eid, account: {address: addrTx.eid}}])
+            .tempids.newAddr || addrTx.eid
+        )
+      }),
     )
   }
 }
@@ -92557,7 +92601,7 @@ const schemas = {
 }
 
 const permissions = {
-  db: ['getAccountGroupById', 'deleteVaultById', 'deleteAccountGroupById'],
+  db: ['getAccountGroupById', 'retractGroup'],
   external: ['popup'],
   methods: ['wallet_validatePassword'],
 }
@@ -92565,7 +92609,7 @@ const permissions = {
 const main = async ({
   Err: {InvalidParams},
   rpcs: {wallet_validatePassword},
-  db: {getAccountGroupById, deleteVaultById, deleteAccountGroupById},
+  db: {getAccountGroupById, retractGroup},
   params: {accountGroupId, password},
 }) => {
   if (!(await wallet_validatePassword({password})))
@@ -92575,8 +92619,8 @@ const main = async ({
 
   if (!group) throw InvalidParams(`Invalid account group id ${accountGroupId}`)
 
-  deleteVaultById(group.vault.eid)
-  return deleteAccountGroupById(group.eid)
+  retractGroup({groupId: group.eid})
+  return true
 }
 
 
@@ -92594,6 +92638,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var _fluent_wallet_checks__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(34577);
+
 
 
 const NAME = 'wallet_deleteApp'
@@ -92615,6 +92661,8 @@ const main = ({
 }) => {
   const app = getAppById(appId)
   if (!app) throw InvalidParams(`Invalid app id ${appId}`)
+  ;(0,_fluent_wallet_checks__WEBPACK_IMPORTED_MODULE_1__/* .isFunction */ .mf)(app.site.post) &&
+    app.site.post({event: 'accountsChanged', params: []})
   retract(app.eid)
   return null
 }
@@ -92644,13 +92692,13 @@ const schemas = {
 
 const permissions = {
   external: ['popup'],
-  db: ['deleteNetworkById', 'getNetworkById'],
+  db: ['retractNetwork', 'getNetworkById'],
   methods: ['wallet_validatePassword'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {deleteNetworkById, getNetworkById},
+  db: {getNetworkById, retractNetwork},
   rpcs: {wallet_validatePassword},
   params: {password, networkId},
 }) => {
@@ -92662,7 +92710,8 @@ const main = async ({
   if (network.builtin)
     throw InvalidParams(`Not allowed to delete builtin network`)
 
-  return deleteNetworkById(networkId)
+  retractNetwork({networkId})
+  return true
 }
 
 
@@ -92783,7 +92832,7 @@ const main = async ({f, Err: {InvalidParams}, params: {url}}) => {
     rst = await f(
       {
         errorFallThrough: true,
-        timeout: 1000,
+        timeout: 5000,
         networkName: url,
         network: {endpoint: url, name: url},
         method: 'eth_chainId',
@@ -92889,16 +92938,19 @@ const schemas = {
 const permissions = {
   external: ['popup'],
   methods: ['wallet_getBalance', 'wallet_getNextNonce', 'wallet_createAccount'],
-  db: ['getAccountGroupById', 'getNetwork', 'getPassword'],
+  db: ['findGroup', 'getNetwork', 'getPassword'],
 }
 
 const main = async ({
   rpcs: {wallet_getBalance, wallet_getNextNonce, wallet_createAccount},
-  db: {getAccountGroupById, getNetwork, getPassword},
+  db: {findGroup, getNetwork, getPassword},
   params: {accountGroupId, limit = 1000, waitTillFinish},
   Err: {InvalidParams},
 }) => {
-  const accountGroup = getAccountGroupById(accountGroupId)
+  const accountGroup = findGroup({
+    groupId: accountGroupId,
+    g: {vault: {type: 1, data: 1, ddata: 1}, account: {eid: 1}},
+  })
   if (!accountGroup)
     throw InvalidParams('Invalid accountGroupId, account group not found')
   const oldAccountsCount = accountGroup.account?.length ?? 0
@@ -93001,11 +93053,11 @@ const permissions = {
   external: [],
   locked: true,
   methods: ['wallet_validate20Token', 'wallet_refetchBalance'],
-  db: ['getCfxTxsToEnrich', 't', 'isTokenInAddr'],
+  db: ['getCfxTxsToEnrich', 't', 'isTokenInAddr', 'newtokenTx'],
 }
 
 const main = async ({
-  db: {getCfxTxsToEnrich, t, isTokenInAddr},
+  db: {getCfxTxsToEnrich, t, isTokenInAddr, newtokenTx},
   rpcs: {wallet_validate20Token, wallet_refetchBalance},
   params: {txhash},
 }) => {
@@ -93013,9 +93065,9 @@ const main = async ({
   if (!txData) return
 
   const {tx, address, network, token, app} = txData
-  const txExtraEid = tx.extra.eid
+  const txExtraEid = tx.txExtra.eid
   const txs = []
-  const {to, data, receipt} = tx.payload
+  const {to, data, receipt} = tx.txPayload
 
   let noError = true
 
@@ -93045,7 +93097,7 @@ const main = async ({
       txs.push({eid: txExtraEid, txExtra: {contractCreation: true, ok: true}})
   }
 
-  if (to && data) {
+  if (to && data && (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .validateBase32Address */ .pd)(to, 'contract')) {
     const contractAddress = to
     try {
       const {valid, symbol, name, decimals} = await wallet_validate20Token(
@@ -93053,23 +93105,21 @@ const main = async ({
         {tokenAddress: contractAddress},
       )
       if (valid) {
-        txs.push(
-          {eid: txExtraEid, txExtra: {token20: true}},
-          {
-            eid: 'newtoken',
-            token: {
-              name,
-              symbol,
-              decimals,
-              tx: tx.eid,
-              address: contractAddress,
-            },
-          },
-          {eid: address.eid, address: {token: 'newtoken'}},
-          {eid: network.eid, network: {token: 'newtoken'}},
-        )
-        if (app) txs.push({eid: 'newtoken', token: {fromApp: true}})
-        else txs.push({eid: 'newtoken', token: {fromUser: true}})
+        const tokenTx = newtokenTx({
+          eid: 'newtoken',
+          name,
+          symbol,
+          decimals,
+          tx: tx.eid,
+          network: network.eid,
+          address: contractAddress,
+        })
+        txs.push({eid: txExtraEid, txExtra: {token20: true}}, tokenTx, {
+          eid: address.eid,
+          address: {token: tokenTx.eid},
+        })
+        if (app) txs.push({eid: tokenTx.eid, token: {fromApp: true}})
+        else txs.push({eid: tokenTx.eid, token: {fromUser: true}})
 
         wallet_refetchBalance(
           {
@@ -93160,58 +93210,65 @@ const schemas = {
 }
 
 const permissions = {
-  db: ['getAccountById', 'getAddressNetwork', 'getAccountAccountGroup'],
+  db: ['findAccount'],
   methods: ['wallet_validatePassword', 'wallet_exportAccountGroup'],
   external: ['popup'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getAccountById, getAddressNetwork, getAccountAccountGroup},
+  db: {findAccount},
   rpcs: {wallet_validatePassword, wallet_exportAccountGroup},
   params: {password, accountId},
 }) => {
   if (!(await wallet_validatePassword({password})))
     throw InvalidParams('Invalid password')
 
-  const account = getAccountById(accountId)
-  const accountGroup = getAccountAccountGroup(accountId)
-  if (!accountGroup?.vault?.type)
+  const account = findAccount({
+    accountId,
+    g: {
+      _accountGroup: {vault: {type: 1, cfxOnly: 1, data: 1, ddata: 1}, eid: 1},
+      index: 1,
+      address: {
+        hex: 1,
+        value: 1,
+        pk: 1,
+        network: {hdPath: {value: 1}, name: 1},
+      },
+    },
+  })
+  if (!account.accountGroup.vault.type)
     throw InvalidParams(`Invalid account id ${accountId}`)
 
-  const {vault} = accountGroup
+  const {vault} = account.accountGroup
   if (vault.type !== 'hd')
     return await wallet_exportAccountGroup({
       password,
-      accountGroupId: accountGroup.eid,
+      accountGroupId: account.accountGroup.eid,
     })
 
   const decrypted = vault.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_2__.decrypt)(password, vault.data))
 
-  const rst = account.address.map(
-    async ({index, hex, cfxHex, base32, pk, eid}) => {
-      const network = getAddressNetwork(eid)
-      const hdPath = network.hdPath.value // accountGroup.customHdPath?.value ||
-      const privateKey =
-        pk ||
-        (
-          await (0,_fluent_wallet_hdkey__WEBPACK_IMPORTED_MODULE_1__/* .getNthAccountOfHDKey */ .Zr)({
-            mnemonic: decrypted,
-            hdPath,
-            nth: index,
-            only0x1Prefixed: Boolean(vault.cfxOnly),
-          })
-        ).privateKey
+  const rst = account.address.map(async ({hex, value, pk, network}) => {
+    const hdPath = network.hdPath.value // account.accountGroup.customHdPath?.value ||
+    const privateKey =
+      pk ||
+      (
+        await (0,_fluent_wallet_hdkey__WEBPACK_IMPORTED_MODULE_1__/* .getNthAccountOfHDKey */ .Zr)({
+          mnemonic: decrypted,
+          hdPath,
+          nth: account.index,
+          only0x1Prefixed: Boolean(vault.cfxOnly),
+        })
+      ).privateKey
 
-      return {
-        hex,
-        cfxHex,
-        base32,
-        privateKey,
-        network,
-      }
-    },
-  )
+    return {
+      hex,
+      value,
+      privateKey,
+      network,
+    }
+  })
 
   return await Promise.all(rst)
 }
@@ -93251,21 +93308,24 @@ const schemas = {
 }
 
 const permissions = {
-  db: ['getAccountGroupById'],
+  db: ['findGroup'],
   methods: ['wallet_validatePassword'],
   external: ['popup'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getAccountGroupById},
+  db: {findGroup},
   rpcs: {wallet_validatePassword},
   params: {password, accountGroupId},
 }) => {
   if (!(await wallet_validatePassword({password})))
     throw InvalidParams('Invalid password')
 
-  const group = getAccountGroupById(accountGroupId)
+  const group = findGroup({
+    groupId: accountGroupId,
+    g: {vault: {data: 1, ddata: 1, type: 1, cfxOnly: 1}},
+  })
   if (!group?.vault?.data)
     throw InvalidParams(`Invalid account group id ${accountGroupId}`)
 
@@ -93623,7 +93683,7 @@ const schemas = {
 }
 
 const permissions = {
-  external: ['popup', 'inpage'],
+  external: ['popup'],
   db: ['getPassword', 'getAccountGroupById'],
 }
 
@@ -93671,7 +93731,7 @@ const schemas = {
   input: [
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
     {closed: true},
-    ['addressId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
+    ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
     [
       'password',
       {optional: true, doc: 'required when calling from popup'},
@@ -93683,27 +93743,39 @@ const schemas = {
 const permissions = {
   external: ['popup'],
   methods: [],
-  db: ['getAddressById', 'getPassword', 'getAddressNetwork'],
+  db: ['findAddress', 'getPassword'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getPassword, getAddressById, getAddressNetwork},
-  params: {password, addressId},
+  db: {getPassword, findAddress},
+  params: {password, address},
   _popup,
+  network,
 }) => {
   if (_popup && password !== getPassword())
     throw InvalidParams('Invalid password')
-  const addr = getAddressById(addressId)
-  if (!addr) throw InvalidParams(`Invalid address id ${addressId}`)
+  const addr = findAddress({
+    value: address,
+    networkId: network.eid,
+    g: {
+      _account: {
+        _accountGroup: {vault: {type: 1, ddata: 1, data: 1}},
+        index: 1,
+      },
+      pk: 1,
+      network: {hdPath: {value: 1}},
+    },
+  })
+  if (!addr) throw InvalidParams(`Invalid address ${address}`)
 
   if (addr.pk) return (0,_fluent_wallet_utils__WEBPACK_IMPORTED_MODULE_3__/* .addHexPrefix */ .L_)(addr.pk)
 
-  const {vault} = addr
+  const {vault} = addr.account.accountGroup
 
   if (vault.type === 'pub')
     throw InvalidParams(
-      `Invalid address id ${addressId}, the address vault is pub only`,
+      `Invalid address ${address}, the address vault is pub only`,
     )
 
   password = getPassword()
@@ -93713,11 +93785,10 @@ const main = async ({
 
   if (vault.type === 'hd') {
     const mnemonic = vault.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.decrypt)(password, vault.data))
-    const network = getAddressNetwork(addressId)
     const {privateKey} = await (0,_fluent_wallet_hdkey__WEBPACK_IMPORTED_MODULE_2__/* .getNthAccountOfHDKey */ .Zr)({
       mnemonic,
-      hdPath: network.hdPath.value,
-      nth: addr.index,
+      hdPath: addr.network.hdPath.value,
+      nth: addr.account.index,
       only0x1Prefixed: vault.cfxOnly,
     })
 
@@ -93921,6 +93992,73 @@ const main = async arg => {
 
 /***/ }),
 
+/***/ 32573:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_getBlockChainExplorerUrl'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+    {closed: true},
+    [
+      'address',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    [
+      'contract',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    [
+      'token',
+      {optional: true},
+      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+    ],
+    ['transaction', {optional: true}, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32]],
+  ],
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = ({
+  params: {address = [], contract = [], token = [], transaction = []},
+  network,
+}) => {
+  const {scanUrl} = network
+  const to = {
+    address: addr => `https://${scanUrl}/address/${addr}`,
+    contract: addr => `https://${scanUrl}/contract/${addr}`,
+    token: addr => `https://${scanUrl}/token/${addr}`,
+    transaction: txhash => `https://${scanUrl}/tx/${txhash}`,
+  }
+
+  return {
+    address: address.map(to.address),
+    contract: contract.map(to.contract),
+    token: token.map(to.token),
+    transaction: transaction.map(to.transaction),
+  }
+}
+
+
+/***/ }),
+
 /***/ 65416:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -94038,7 +94176,7 @@ const main = async ({db: {getAppBySite, getSiteByOrigin}}) => {
 
 /***/ }),
 
-/***/ 97192:
+/***/ 56543:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -94052,54 +94190,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 
 
-const NAME = 'wallet_getExplorerUrl'
+const NAME = 'wallet_getFluentMetadata'
 
 const schemas = {
-  input: [
-    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
-    {closed: true},
-    [
-      'address',
-      {optional: true},
-      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
-    ],
-    [
-      'contract',
-      {optional: true},
-      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
-    ],
-    [
-      'token',
-      {optional: true},
-      [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
-    ],
-    ['transaction', {optional: true}, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Bytes32]],
-  ],
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
 }
 
 const permissions = {
   external: ['popup', 'inpage'],
   locked: true,
+  methods: [],
+  db: [],
 }
 
-const main = ({
-  params: {address = [], contract = [], token = [], transaction = []},
-  network,
-}) => {
-  const {scanUrl} = network
-  const to = {
-    address: addr => `https://${scanUrl}/address/${addr}`,
-    contract: addr => `https://${scanUrl}/contract/${addr}`,
-    token: addr => `https://${scanUrl}/token/${addr}`,
-    transaction: txhash => `https://${scanUrl}/tx/${txhash}`,
-  }
-
-  return {
-    address: address.map(to.address),
-    contract: contract.map(to.contract),
-    token: token.map(to.token),
-    transaction: transaction.map(to.transaction),
-  }
+const main = () => {
+  return {version: /* unsupported import.meta.env.SNOWPACK_PUBLIC_FLUENT_VERSION */ undefined.SNOWPACK_PUBLIC_FLUENT_VERSION}
 }
 
 
@@ -95234,7 +95339,7 @@ function multiplexObj(...args) {
  * @name index.js
  */const check=f=>map(a=>(f(a),a));const keepTruthy=fn=>comp_comp(sideEffect(x=>{if(!x&&typeof fn==='function')fn();}),keep(x=>x||null));function branchObj(obj){const multiplexObjTx=Object.entries(obj).reduce((acc,[k,vs])=>{vs=Array.isArray(vs)?vs:[vs];acc[k]=comp_comp(pluck(k),...vs);return acc;},{});return comp_comp(multiplexObj(multiplexObjTx),(0,xform_map/* map */.U)(d=>{Object.entries(d).reduce((acc,[k,v])=>{if(v)acc[k]=v;return acc;},{});}));}
 ;// CONCATENATED MODULE: ../../packages/conflux-tx-error/index.js
-function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{shouldDiscard:true,errorType:'duplicateTx'};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};}return{shouldDiscard:false};}
+function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{errorType:'duplicateTx',shouldDiscard:true};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};}return{shouldDiscard:false};}
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
 var bignumber = __webpack_require__(54997);
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_handleUnfinishedCFXTx/index.js
@@ -95287,7 +95392,7 @@ const permissions = {
     'cfx_getTransactionByHash',
     'cfx_getTransactionReceipt',
     'wallet_handleUnfinishedCFXTx',
-    'wallet_getExplorerUrl',
+    'wallet_getBlockChainExplorerUrl',
     'cfx_getNextNonce',
   ],
   db: [
@@ -95314,7 +95419,7 @@ const main = ({
     cfx_getTransactionByHash,
     cfx_getTransactionReceipt,
     cfx_getNextNonce,
-    wallet_getExplorerUrl,
+    wallet_getBlockChainExplorerUrl,
     wallet_handleUnfinishedCFXTx,
   },
   db: {
@@ -95435,8 +95540,8 @@ const main = ({
             setTxUnsent({hash})
 
             const {errorType, shouldDiscard} = processError(err)
-            const isDuplicateTx = !errorType !== 'duplicateTx'
-            const failed = shouldDiscard && isDuplicateTx
+            const isDuplicateTx = errorType === 'duplicateTx'
+            const failed = shouldDiscard && !isDuplicateTx
 
             defs({
               failed: failed && {errorType, err},
@@ -95455,7 +95560,7 @@ const main = ({
                       ext.notifications.create(hash, {
                         title: 'Failed transaction',
                         message: `Transaction ${parseInt(
-                          tx.payload.nonce,
+                          tx.txPayload.nonce,
                           16,
                         )} failed! ${err?.message || ''}`,
                       }),
@@ -95497,7 +95602,7 @@ const main = ({
             .then(n => {
               if (
                 bignumber/* BigNumber.form */.O$.form(n)
-                  .sub(bignumber/* BigNumber.from */.O$.from(tx.payload.epochHeight))
+                  .sub(bignumber/* BigNumber.from */.O$.from(tx.txPayload.epochHeight))
                   .gte(40)
               ) {
                 setTxUnsent({hash})
@@ -95536,7 +95641,7 @@ const main = ({
                   ext.notifications.create(hash, {
                     title: 'Failed transaction',
                     message: `Transaction ${parseInt(
-                      tx.payload.nonce,
+                      tx.txPayload.nonce,
                       16,
                     )} failed! ${err}`,
                   }),
@@ -95548,7 +95653,7 @@ const main = ({
               ext.notifications.create(hash, {
                 title: 'Failed transaction',
                 message: `Transaction ${parseInt(
-                  tx.payload.nonce,
+                  tx.txPayload.nonce,
                   16,
                 )} failed! ${err?.message || ''}`,
               }),
@@ -95558,13 +95663,13 @@ const main = ({
           if (status === '0x2') {
             setTxSkipped({hash})
             updateBadge(getUnfinishedTxCount())
-            wallet_getExplorerUrl({transaction: [hash]}).then(
+            wallet_getBlockChainExplorerUrl({transaction: [hash]}).then(
               ({transaction: [txUrl]}) => {
                 getExt().then(ext =>
                   ext.notifications.create(txUrl, {
                     title: 'Skipped transaction',
                     message: `Transaction ${parseInt(
-                      tx.payload.nonce,
+                      tx.txPayload.nonce,
                       16,
                     )}  skipped! ${txUrl?.length ? 'View on explorer.' : ''}`,
                   }),
@@ -95579,21 +95684,21 @@ const main = ({
             keepTrack(5 * cacheTime)
             return Promise.resolve(null)
           }
-          return cfx_getNextNonce([address.base32])
+          return cfx_getNextNonce([address.value])
         }),
       )
       .subscribe(resolve({fail: keepTrack}))
       .transform(
         keep(),
         sideEffect(nonce => {
-          if (nonce > tx.payload.nonce) {
+          if (nonce > tx.txPayload.nonce) {
             setTxSkipped({hash})
             updateBadge(getUnfinishedTxCount())
             getExt().then(ext =>
               ext.notifications.create(hash, {
                 title: 'Skipped transaction',
                 message: `Transaction ${parseInt(
-                  tx.payload.nonce,
+                  tx.txPayload.nonce,
                   16,
                 )}  skipped!`,
               }),
@@ -95648,7 +95753,7 @@ const main = ({
               ext.notifications.create(hash, {
                 title: 'Failed transaction',
                 message: `Transaction ${parseInt(
-                  tx.payload.nonce,
+                  tx.txPayload.nonce,
                   16,
                 )} failed! ${txExecErrorMsg}`,
               }),
@@ -95675,7 +95780,7 @@ const main = ({
           return false
         }),
         keepTruthy(), // filter non-null tx
-        (0,xform_map/* map */.U)(() => wallet_getExplorerUrl({transaction: [hash]})),
+        (0,xform_map/* map */.U)(() => wallet_getBlockChainExplorerUrl({transaction: [hash]})),
       )
       .subscribe(resolve({fail: identity}))
       .transform(
@@ -95684,7 +95789,7 @@ const main = ({
             ext.notifications.create(txUrl, {
               title: 'Confirmed transaction',
               message: `Transaction ${parseInt(
-                tx.payload.nonce,
+                tx.txPayload.nonce,
                 16,
               )} confirmed! ${txUrl?.length ? 'View on Explorer.' : ''}`,
             })
@@ -96530,7 +96635,7 @@ const main = ({
 
     post({
       event: 'accountsChanged',
-      params: [currentNetwork.type === 'cfx' ? addr.base32 : addr.hex],
+      params: addr.value,
     })
   }
 
@@ -96607,29 +96712,27 @@ const schemas = {
 const permissions = {
   external: ['popup'],
   methods: [],
-  db: ['setCurrentAccount', 'getAccountById', 'accountAddrByNetwork'],
+  db: ['setCurrentAccount', 'findAddress', 'findAccount'],
 }
 
 const main = ({
   Err: {InvalidParams},
-  db: {setCurrentAccount, getAccountById, accountAddrByNetwork},
+  db: {setCurrentAccount, findAddress, findAccount},
   params: accounts,
 }) => {
-  const [account] = accounts
-  if (!getAccountById(account))
-    throw InvalidParams(`Invalid accountId ${account}`)
+  const [account] = accounts.map(accountId => findAccount({accountId}))
+  if (!account) throw InvalidParams(`Invalid accountId ${accounts[0]}`)
 
   const apps = setCurrentAccount(account)
 
-  apps.forEach(({currentAccount, currentNetwork, site: {post}}) => {
+  apps.forEach(({eid, site: {post}}) => {
     if (!post) return
-    const addr = accountAddrByNetwork({
-      account: currentAccount.eid,
-      network: currentNetwork.eid,
+    const addr = findAddress({
+      appId: eid,
     })
     post({
       event: 'accountsChanged',
-      params: [currentNetwork.type === 'cfx' ? addr.base32 : addr.hex],
+      params: addr.map(a => a.value),
     })
   })
 }
@@ -96945,21 +97048,27 @@ const schemas = {
 }
 
 const permissions = {
-  db: ['t', 'getAccountById', 'getAccountGroup', 'anyDupNickAccount'],
+  db: ['t', 'getAccountGroup', 'findAccount'],
   external: ['popup'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getAccountById, t, anyDupNickAccount},
+  db: {t, findAccount},
   params: {nickname, hidden, accountId, offline},
 }) => {
-  const account = getAccountById(accountId)
+  const account = findAccount({
+    accountId,
+    g: {_accountGroup: {eid: 1}},
+  })
   if (!account) throw InvalidParams(`Invalid account id ${accountId}`)
-  if (nickname && anyDupNickAccount({accountId, nickname}))
-    throw InvalidParams(
-      `Invalid nickname ${nickname}, duplicate with other account in the same account group`,
-    )
+  // if (
+  //   nickname &&
+  //   findAccount({groupId: account.accountGroup.eid, nickname})?.length
+  // )
+  //   throw InvalidParams(
+  //     `Invalid nickname ${nickname}, duplicate with other account in the same account group`,
+  //   )
 
   t([
     nickname && {eid: accountId, account: {nickname}},
@@ -97000,16 +97109,16 @@ const schemas = {
 }
 
 const permissions = {
-  db: ['t', 'getAccountGroupById', 'getAccountGroupByNickname'],
+  db: ['t', 'findGroup', 'getAccountGroupByNickname'],
   external: ['popup'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getAccountGroupById, t, getAccountGroupByNickname},
+  db: {findGroup, t, getAccountGroupByNickname},
   params: {nickname, hidden, accountGroupId},
 }) => {
-  const group = getAccountGroupById(accountGroupId)
+  const group = findGroup({groupId: accountGroupId})
   if (!group) throw InvalidParams(`Invalid accountGroupId ${accountGroupId}`)
   if (nickname && getAccountGroupByNickname(nickname).length)
     throw InvalidParams(
@@ -97074,7 +97183,7 @@ const schemas = {
 const permissions = {
   external: ['popup'],
   methods: [],
-  db: ['t', 'getNetworkById', 'retract'],
+  db: ['getNetworkById', 'upsertTokenList', 't'],
 }
 
 const validateAndFormatTokenList = ({tokenList, InvalidParams}) => {
@@ -97117,7 +97226,7 @@ const isNewVersionTokenList = (
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getNetworkById, t, retract},
+  db: {getNetworkById, upsertTokenList, t},
   params: {
     tokenList: {url, name},
     networkId,
@@ -97136,57 +97245,21 @@ const main = async ({
   validateAndFormatTokenList({tokenList, InvalidParams})
   name = name || tokenList.name
 
-  const oldTokenList = network.tokenList
   const oldTokenListVersion = network.tokenList?.value?.version
+
+  // if there's no old version or new version exist
   const isNewVersion =
     !oldTokenListVersion ||
     isNewVersionTokenList(oldTokenListVersion, tokenList.version)
   if (!isNewVersion) return
 
-  const oldTokens =
-    oldTokenList?.token?.reduce(
-      (acc, {eid, fromApp, fromUser}) =>
-        !fromApp && !fromUser ? acc.concat([eid]) : acc,
-      [],
-    ) || []
-
-  if (oldTokenList) retract(oldTokenList.eid)
-  oldTokens.forEach(retract)
-
-  network = getNetworkById(networkId)
-  const [existTokensIdx, existTokensAddr] = (network.token || []).reduce(
-    (acc, {address}, idx) => [acc[0].concat([idx]), acc[1].concat([address])],
-    [[], []],
-  )
-
-  const addTokenTxs = tokenList.tokens.reduce(
-    (acc, t, idx) => {
-      let eid = -idx - 10000
-      const dupIdx = existTokensAddr.indexOf(t.address)
-      if (dupIdx !== -1) {
-        eid = network.token[existTokensIdx[dupIdx]].eid
-      }
-
-      t.fromList = true
-
-      // create token
-      const addTokenTx = {eid, token: t}
-      // add token to network
-      const tokenIntoNetworkTx = {eid: networkId, network: {token: eid}}
-      // add token to tokenList
-      const tokenIntoTokenListTx = {eid: -1, tokenList: {token: eid}}
-
-      return [...acc, addTokenTx, tokenIntoNetworkTx, tokenIntoTokenListTx]
-    },
-    [
-      // create tokenList
-      {eid: -1, tokenList: {url, name, value: tokenList}},
-      // add tokenList to network
-      {eid: networkId, network: {tokenList: -1}},
-    ],
-  )
-
-  t(addTokenTxs)
+  upsertTokenList({newList: tokenList.tokens, networkId})
+  t([
+    // create tokenList
+    {eid: -1, tokenList: {url, name, value: tokenList}},
+    // add tokenList to network
+    {eid: networkId, network: {tokenList: -1}},
+  ])
 }
 
 
@@ -97601,17 +97674,12 @@ const permissions = {
     'wallet_userApprovedAuthRequest',
     'wallet_validate20Token',
   ],
-  db: [
-    'getAuthReqById',
-    'accountAddrByNetwork',
-    'getCurrentAddr',
-    'addTokenToAddr',
-  ],
+  db: ['getAuthReqById', 'getCurrentAddr', 'addTokenToAddr', 'findAddress'],
 }
 
 const main = async ({
   Err: {InvalidParams},
-  db: {getAuthReqById, accountAddrByNetwork, addTokenToAddr, getCurrentAddr},
+  db: {getAuthReqById, addTokenToAddr, getCurrentAddr, findAddress},
   rpcs: {
     wallet_addPendingUserAuthRequest,
     wallet_userApprovedAuthRequest,
@@ -97647,14 +97715,11 @@ const main = async ({
     }
 
     // from dapp
-    const curAddr = accountAddrByNetwork({
-      network: app.currentNetwork.eid,
-      account: app.currentAccount.eid,
-    })
+    const [curAddr] = findAddress({appId: app.eid})
     const {alreadyInAddr} = addTokenToAddr({
       ...params.options,
       network: app.currentNetwork.eid,
-      targetAddressId: curAddr.eid,
+      targetAddressId: curAddr,
       checkOnly: true,
     })
     if (alreadyInAddr) return true
@@ -97675,14 +97740,11 @@ const main = async ({
     const authReq = getAuthReqById(params.authReqId)
     if (!authReq) throw InvalidParams(`Invalid auth req id ${params.authReqId}`)
     const authedApp = authReq.app
-    const addr = accountAddrByNetwork({
-      network: authedApp.currentNetwork.eid,
-      account: authedApp.currentAccount.eid,
-    })
+    const [addr] = findAddress({appId: authedApp.eid})
     addTokenToAddr({
       ...authReq.req.params.options,
       network: authedApp.currentNetwork.eid,
-      targetAddressId: addr.eid,
+      targetAddressId: addr,
       fromApp: true,
     })
 

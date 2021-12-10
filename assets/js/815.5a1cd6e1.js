@@ -90347,6 +90347,10 @@ const main = async ({
   if (authReqId) authReq = getAuthReqById(authReqId)
   if (authReqId && !authReq)
     throw InvalidParams(`Invalid authReqId ${authReqId}`)
+  if (authReqId && authReq.processed)
+    throw InvalidParams(`Already processing auth req ${authReqId}`)
+
+  t({eid: authReqId, authReq: {processed: true}})
 
   // tx array [tx]
   const tx = params.authReqId ? params.tx : params
@@ -91561,6 +91565,8 @@ const main = async ({
     if (!authReqId) throw InvalidParams(`Invalid auth req id ${authReqId}`)
     const authReq = getAuthReqById(authReqId)
     if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
+    if (authReq.processed)
+      throw InvalidParams(`Already processing auth req ${authReqId}`)
     const rst = await wallet_addNetwork(chainConf)
     if (rst?.error) return await wallet_userRejectedAuthRequest({authReqId})
     return await wallet_userApprovedAuthRequest({authReqId, res: '__null__'})
@@ -93068,6 +93074,7 @@ const main = async ({
   const txExtraEid = tx.txExtra.eid
   const txs = []
   const {to, data, receipt} = tx.txPayload
+  let decoded
 
   let noError = true
 
@@ -93081,8 +93088,8 @@ const main = async ({
   }
 
   if (to) {
-    const decoded = (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(to)
-    if (decoded.type !== 'contract')
+    decoded = (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(to)
+    if (decoded.type !== 'contract' || !data)
       txs.push({eid: txExtraEid, txExtra: {simple: true, ok: true}})
     else if (decoded.type === 'contract')
       txs.push({
@@ -93097,7 +93104,7 @@ const main = async ({
       txs.push({eid: txExtraEid, txExtra: {contractCreation: true, ok: true}})
   }
 
-  if (to && data && (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .validateBase32Address */ .pd)(to, 'contract')) {
+  if (to && data && decoded.type === 'contract') {
     const contractAddress = to
     try {
       const {valid, symbol, name, decimals} = await wallet_validate20Token(
@@ -94343,11 +94350,11 @@ const schemas = {
 const permissions = {
   external: ['popup'],
   methods: [],
-  db: ['getAuthReq'],
+  db: ['getPendingAuthReq'],
 }
 
-const main = ({db: {getAuthReq}}) => {
-  return getAuthReq()
+const main = ({db: {getPendingAuthReq}}) => {
+  return getPendingAuthReq()
 }
 
 
@@ -95339,7 +95346,7 @@ function multiplexObj(...args) {
  * @name index.js
  */const check=f=>map(a=>(f(a),a));const keepTruthy=fn=>comp_comp(sideEffect(x=>{if(!x&&typeof fn==='function')fn();}),keep(x=>x||null));function branchObj(obj){const multiplexObjTx=Object.entries(obj).reduce((acc,[k,vs])=>{vs=Array.isArray(vs)?vs:[vs];acc[k]=comp_comp(pluck(k),...vs);return acc;},{});return comp_comp(multiplexObj(multiplexObjTx),(0,xform_map/* map */.U)(d=>{Object.entries(d).reduce((acc,[k,v])=>{if(v)acc[k]=v;return acc;},{});}));}
 ;// CONCATENATED MODULE: ../../packages/conflux-tx-error/index.js
-function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{errorType:'duplicateTx',shouldDiscard:true};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};}return{shouldDiscard:false};}
+function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes,_err$data5,_err$data5$includes;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx already exist'))return{errorType:'duplicateTx',shouldDiscard:true};if((_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};if((_err$data5=err.data)!==null&&_err$data5!==void 0&&(_err$data5$includes=_err$data5.includes)!==null&&_err$data5$includes!==void 0&&_err$data5$includes.match(/Tx with same nonce already inserted.*replace.*gas price/))return{errorType:'replacedWithHigherGasPriceTx',shouldDiscard:true};}return{shouldDiscard:false};}
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
 var bignumber = __webpack_require__(54997);
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_handleUnfinishedCFXTx/index.js
@@ -95577,7 +95584,7 @@ const main = ({
                   }),
                 ],
 
-                keepTrack: (0,xform_map/* map */.U)(x => x && keepTrack), // retry in next run
+                keepTrack: (0,xform_map/* map */.U)(x => x && keepTrack()), // retry in next run
               }),
             )
           },
@@ -95587,7 +95594,7 @@ const main = ({
         // successfully sent
         sideEffect(() => setTxPending({hash})),
         sideEffect(() => typeof okCb === 'function' && okCb(hash)),
-        sideEffect(() => keepTrack),
+        sideEffect(keepTrack),
       )
   } else if (status === 1) {
     // ## sending
@@ -95598,14 +95605,15 @@ const main = ({
       .transform(
         sideEffect(rst => {
           if (rst) return
+          // getTransactionByHash return null
           cfx_epochNumber({errorFallThrough: true}, ['latest_state'])
             .then(n => {
               if (
-                bignumber/* BigNumber.form */.O$.form(n)
-                  .sub(bignumber/* BigNumber.from */.O$.from(tx.txPayload.epochHeight))
+                bignumber/* BigNumber.from */.O$.from(n)
+                  .sub(bignumber/* BigNumber.from */.O$.from(tx.resendAt || tx.txPayload.epochHeight))
                   .gte(40)
               ) {
-                setTxUnsent({hash})
+                setTxUnsent({hash, resendAt: n})
               }
             })
             .catch(identity)
@@ -95615,6 +95623,7 @@ const main = ({
       )
       .transform(
         (0,xform_map/* map */.U)(rst => {
+          // no blockhash in  getTransactionByHash result
           if (!rst.blockHash) {
             keepTrack()
             return false
@@ -95623,6 +95632,7 @@ const main = ({
         }),
         keepTruthy(),
         sideEffect(rst => {
+          // getTransactionByHash result has block hash
           setTxPackaged({hash, blockHash: rst.blockHash})
           const {status} = rst
           if (status === '0x1') {
@@ -97739,6 +97749,8 @@ const main = async ({
   if (params.authReqId) {
     const authReq = getAuthReqById(params.authReqId)
     if (!authReq) throw InvalidParams(`Invalid auth req id ${params.authReqId}`)
+    if (authReq.processed)
+      throw InvalidParams(`Already processing auth req ${params.authReqId}`)
     const authedApp = authReq.app
     const [addr] = findAddress({appId: authedApp.eid})
     addTokenToAddr({

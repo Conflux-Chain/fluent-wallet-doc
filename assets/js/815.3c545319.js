@@ -91679,7 +91679,7 @@ const schemas = {
 }
 
 const permissions = {
-  external: ['popup'],
+  external: [],
   db: [
     't',
     'getNetwork',
@@ -94013,7 +94013,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 
 
-const NAME = 'wallet_getBlockChainExplorerUrl'
+const NAME = 'wallet_getBlockchainExplorerUrl'
 
 const schemas = {
   input: [
@@ -95399,7 +95399,7 @@ const permissions = {
     'cfx_getTransactionByHash',
     'cfx_getTransactionReceipt',
     'wallet_handleUnfinishedCFXTx',
-    'wallet_getBlockChainExplorerUrl',
+    'wallet_getBlockchainExplorerUrl',
     'cfx_getNextNonce',
   ],
   db: [
@@ -95426,7 +95426,7 @@ const main = ({
     cfx_getTransactionByHash,
     cfx_getTransactionReceipt,
     cfx_getNextNonce,
-    wallet_getBlockChainExplorerUrl,
+    wallet_getBlockchainExplorerUrl,
     wallet_handleUnfinishedCFXTx,
   },
   db: {
@@ -95673,7 +95673,7 @@ const main = ({
           if (status === '0x2') {
             setTxSkipped({hash})
             updateBadge(getUnfinishedTxCount())
-            wallet_getBlockChainExplorerUrl({transaction: [hash]}).then(
+            wallet_getBlockchainExplorerUrl({transaction: [hash]}).then(
               ({transaction: [txUrl]}) => {
                 getExt().then(ext =>
                   ext.notifications.create(txUrl, {
@@ -95790,7 +95790,7 @@ const main = ({
           return false
         }),
         keepTruthy(), // filter non-null tx
-        (0,xform_map/* map */.U)(() => wallet_getBlockChainExplorerUrl({transaction: [hash]})),
+        (0,xform_map/* map */.U)(() => wallet_getBlockchainExplorerUrl({transaction: [hash]})),
       )
       .subscribe(resolve({fail: identity}))
       .transform(

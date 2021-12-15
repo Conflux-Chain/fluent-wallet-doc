@@ -1,5 +1,5 @@
-exports.id = 815;
-exports.ids = [815];
+exports.id = 717;
+exports.ids = [717];
 exports.modules = {
 
 /***/ 38447:
@@ -91947,9 +91947,23 @@ const addressSchema = [
   ...baseInputSchema,
   ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress]],
 ]
+const hwSchema = [
+  ...baseInputSchema,
+  ['accountGroupData', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.mapp],
+  ['cfxOnly', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.truep],
+  [
+    'accounts',
+    [
+      _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+      {closed: true},
+      ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+      ['nickname', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.stringp],
+    ],
+  ],
+]
 
 const schemas = {
-  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, menomicSchema, privateKeySchema, addressSchema],
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, menomicSchema, privateKeySchema, addressSchema, hwSchema],
 }
 
 const permissions = {
@@ -91992,6 +92006,7 @@ const DefaultGroupNamePrefix = {
   hd: 'Seed-',
   pub: 'Follow-',
   pk: 'Account-',
+  hw: 'Hardware Wallet-',
 }
 
 async function newAccounts(arg) {
@@ -92001,7 +92016,7 @@ async function newAccounts(arg) {
     groupId,
     groupName,
     rpcs: {wallet_discoverAccounts},
-    params: {waitTillFinish},
+    params: {waitTillFinish, accounts},
     vault,
     db: {getNetwork, t, newAddressTx, findAccount},
   } = arg
@@ -92050,34 +92065,73 @@ async function newAccounts(arg) {
 
     if (vault.cfxOnly && type !== 'cfx') return
 
-    // vault.type is 'pub'
+    if (vault.type === 'pub') {
+      // vault.type is 'pub'
 
-    const addrTx = newAddressTx({
-      eid: -1,
-      hex: vault.ddata,
-      network: eid,
-      value:
-        type === 'cfx'
-          ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(vault.ddata), netId)
-          : vault.ddata,
-    })
-    t([
-      addrTx,
-      {
-        eid: -2,
-        account: {
-          index: 0,
-          nickname: groupName,
-          address: addrTx.eid,
-          hidden: false,
+      const addrTx = newAddressTx({
+        eid: -1,
+        hex: vault.ddata,
+        network: eid,
+        value:
+          type === 'cfx'
+            ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__/* .toAccountAddress */ .RE)(vault.ddata), netId)
+            : vault.ddata,
+      })
+      t([
+        addrTx,
+        {
+          eid: -2,
+          account: {
+            index: 0,
+            nickname: groupName,
+            address: addrTx.eid,
+            hidden: false,
+          },
         },
-      },
-      {
-        eid: groupId,
-        accountGroup: {account: -2},
-      },
-    ])
-    firstAccountCreatedChan.write(true)
+        {
+          eid: groupId,
+          accountGroup: {account: -2},
+        },
+      ])
+      firstAccountCreatedChan.write(true)
+      return
+    }
+
+    if (vault.type === 'hw') {
+      if (!vault.cfxOnly && type === 'cfx') return
+      accounts.forEach(({address, nickname}, idx) => {
+        const [account] = findAccount({groupId, index: idx})
+        const hex = type === 'cfx' ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .decode */ .Jx)(address).hexAddress : address
+        const value =
+          type === 'cfx' ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .encode */ .cv)((0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__/* .decode */ .Jx)(address).hexAddress, netId) : address
+
+        const addrTx = newAddressTx({
+          eid: -1,
+          value,
+          hex,
+          network: eid,
+        })
+
+        t([
+          addrTx,
+          {
+            eid: account ?? -2,
+            account: {
+              index: idx,
+              nickname,
+              address: addrTx.eid,
+              hidden: false,
+            },
+          },
+          {
+            eid: groupId,
+            accountGroup: {account: account ?? -2},
+          },
+        ])
+        idx === 0 && firstAccountCreatedChan.write(true)
+      })
+      return
+    }
   })
 }
 
@@ -92139,6 +92193,7 @@ const main = async arg => {
     rpcs: {wallet_validatePassword, wallet_deleteAccountGroup, wallet_unlock},
     params: {
       password: optionalPassword,
+      accountGroupData,
       mnemonic,
       privateKey,
       address,
@@ -92163,7 +92218,7 @@ const main = async arg => {
 
   // create vault to be added
   const vault = {cfxOnly: false}
-  vault.data = mnemonic || privateKey || address
+  vault.data = mnemonic || privateKey || address || accountGroupData
   if (privateKey) {
     vault.type = 'pk'
     vault.data = (0,_fluent_wallet_utils__WEBPACK_IMPORTED_MODULE_4__/* .stripHexPrefix */ .MT)(privateKey)
@@ -92175,6 +92230,10 @@ const main = async arg => {
     vault.type = 'pub'
     vault.data = validateResult.address
     vault.cfxOnly = validateResult.cfxOnly
+  } else if (accountGroupData) {
+    vault.type = 'hw'
+    vault.data = JSON.stringify(accountGroupData)
+    vault.cfxOnly = cfxOnly
   }
 
   const vaults = getVault({type: vault.type}) || []
@@ -93597,7 +93656,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const NAME = 'wallet_getAccountGroup'
 
-const AccountGroupTypeSchema = [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'hd', 'pk', 'pub']
+const AccountGroupTypeSchema = [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'hd', 'pk', 'pub', 'hw']
 
 const schemas = {
   input: [
@@ -94212,6 +94271,66 @@ const permissions = {
 
 const main = () => {
   return {version: /* unsupported import.meta.env.SNOWPACK_PUBLIC_FLUENT_VERSION */ undefined.SNOWPACK_PUBLIC_FLUENT_VERSION}
+}
+
+
+/***/ }),
+
+/***/ 19482:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(89620);
+
+
+
+const NAME = 'wallet_getImportHardwareWalletInfo'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup'],
+  db: ['findGroup', 'getPassword'],
+}
+
+const main = async ({db: {findGroup, getPassword}}) => {
+  const pwd = getPassword()
+  const groups = findGroup({
+    types: ['hw'],
+    g: {
+      eid: 1,
+      nickname: 1,
+      account: {
+        index: 1,
+        hidden: 1,
+        nickname: 1,
+        address: {
+          value: 1,
+          hex: 1,
+          network: {name: 1, type: 1, hdPath: {name: 1, value: 1}},
+        },
+      },
+      vault: {data: 1, cfxOnly: 1},
+    },
+  })
+
+  const promises = groups.map(async g => {
+    const ddata = JSON.parse(await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.decrypt)(pwd, g.vault.data))
+    g.vault.ddata = ddata
+    return g
+  })
+
+  return await Promise.all(promises)
 }
 
 
@@ -96006,6 +96125,161 @@ const main = async ({
 
     return rst
   }
+}
+
+
+/***/ }),
+
+/***/ 38886:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2723);
+/* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(89620);
+
+
+
+
+const NAME = 'wallet_importHardwareWalletAccountGroupOrAccount'
+
+const AddressSchema = [
+  _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+  {closed: true},
+  ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32UserAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
+  ['nickname', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.stringp],
+]
+
+const BasicSchema = [
+  _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+  {closed: true},
+  ['password', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.password],
+  ['accountGroupData', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.mapp],
+  ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.oneOrMore, AddressSchema]],
+]
+
+const NewAccountGroupSchema = [
+  ['type', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'cfx', 'eth']],
+  ['accountGroupNickname', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.stringp],
+]
+const OldAccountGroupSchema = [['accountGroupId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid]]
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or,
+    BasicSchema.concat(NewAccountGroupSchema),
+    BasicSchema.concat(OldAccountGroupSchema),
+  ],
+}
+
+const permissions = {
+  external: ['popup'],
+  methods: ['wallet_addVault', 'wallet_createAccount'],
+  db: [
+    'getPassword',
+    'findGroup',
+    't',
+    'newAddressTx',
+    'findNetwork',
+    'findAccount',
+  ],
+}
+
+const main = async ({
+  Err: {InvalidParams},
+  rpcs: {wallet_addVault},
+  db: {getPassword, findGroup, t, findNetwork, newAddressTx, findAccount},
+  params: {
+    password,
+    type,
+    address,
+    accountGroupData,
+    accountGroupId,
+    accountGroupNickname,
+  },
+}) => {
+  if (accountGroupNickname) {
+    // credate new account group
+    const toImport = {
+      accountGroupData,
+      nickname: accountGroupNickname,
+      password,
+      accounts: address,
+    }
+
+    if (type === 'cfx') toImport.cfxOnly = true
+
+    return await wallet_addVault(toImport)
+  }
+
+  // add to existing account
+  const group = findGroup({
+    groupId: accountGroupId,
+    g: {vault: {cfxOnly: 1, eid: 1}, account: 1},
+  })
+
+  if (!group) throw InvalidParams(`Invalid account group id: ${accountGroupId}`)
+
+  const ddata = accountGroupData
+  const data = await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_2__.encrypt)(getPassword(), JSON.stringify(ddata))
+
+  let txs = [{eid: group.vault.eid, vault: {data, ddata}}]
+
+  const networks = findNetwork({
+    type: group.vault.cfxOnly ? 'cfx' : 'eth',
+    g: {eid: 1, netId: 1},
+  })
+
+  txs = txs.concat(
+    networks.reduce(
+      (acc, {eid, netId}, idx) =>
+        address.reduce((acc, {address, nickname}, jdx) => {
+          const accountIndex = idx + group.account.length
+          const [account] = findAccount({
+            groupId: accountGroupId,
+            index: accountIndex,
+          })
+          const accountId = account ?? `newaccount ${idx} ${jdx}`
+          const value = group.vault.cfxOnly
+            ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .encode */ .cv)((0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(address).hexAddress, netId)
+            : address
+          const hex = group.vault.cfxOnly ? (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .decode */ .Jx)(address).hexAddress : address
+          const addrTx = newAddressTx({
+            eid: `newaddr ${idx} ${jdx}`,
+            value,
+            hex,
+            network: eid,
+          })
+          return acc.concat([
+            addrTx,
+            {
+              eid: accountId,
+              account: {
+                index: accountIndex,
+                nickname,
+                address: addrTx.eid,
+                hidden: false,
+              },
+            },
+            {
+              eid: accountGroupId,
+              accountGroup: {account: accountId},
+            },
+          ])
+        }, acc),
+      [],
+    ),
+  )
+
+  t(txs)
+  return accountGroupId
 }
 
 

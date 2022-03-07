@@ -1374,7 +1374,7 @@ const set=({text='',color='#037DD6'})=>{return Promise.all([browser_polyfill.bro
 var _browser$idle;const DETECTION_INTERVAL=15;browser_polyfill===null||browser_polyfill===void 0?void 0:(_browser$idle=browser_polyfill.idle)===null||_browser$idle===void 0?void 0:_browser$idle.setDetectionInterval(DETECTION_INTERVAL);const query=()=>{return browser_polyfill.idle.queryState(DETECTION_INTERVAL);};const isLocked=async()=>{return(await query())==='locked';};const isIdle=async()=>{return(await query())==='idle';};// NOTE: firefox don't support locked right now
 const listen=f=>{const listener=s=>(s===null||s===void 0?void 0:s.newState)&&(s===null||s===void 0?void 0:s.newState)!=='active'&&f(s.newState);browser_polyfill.idle.onStateChanged.addListener(listener);return;};
 ;// CONCATENATED MODULE: ../../packages/webextension/tab.js
-const getCurrent=()=>browser_polyfill.tabs.query({active:true});
+const getCurrent=()=>browser_polyfill.tabs.query({active:true,currentWindow:true});
 ;// CONCATENATED MODULE: ../../packages/webextension/runtime.js
 function reload(){return browser_polyfill.runtime.reload();}
 ;// CONCATENATED MODULE: ../../packages/webextension/commands.js

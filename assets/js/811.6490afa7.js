@@ -76889,7 +76889,7 @@ const main = async ({
   let toAddressType
 
   if (to) {
-    toAddressType = wallet_detectAddressType({address: to})
+    toAddressType = await wallet_detectAddressType({address: to})
     if (!toAddressType.contract || !data)
       txs.push({eid: txExtraEid, txExtra: {simple: true, ok: true}})
     else if (toAddressType.contract)

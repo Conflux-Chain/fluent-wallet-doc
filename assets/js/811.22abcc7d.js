@@ -75945,6 +75945,7 @@ const schemas = {
     {closed: true},
     ['accountGroupId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
     ['nickname', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.nickname],
+    ['select', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.boolean],
   ],
 }
 
@@ -75964,7 +75965,7 @@ const permissions = {
 const main = async ({
   rpcs: {wallet_setCurrentAccount},
   db: {findGroup, getPassword, getNetwork, t, findAccount, newAddressTx},
-  params: {accountGroupId, nickname},
+  params: {accountGroupId, nickname, select},
   Err: {InvalidParams},
   _popup,
 }) => {
@@ -76046,7 +76047,7 @@ const main = async ({
     )
   )[0]
 
-  if (_popup) {
+  if (_popup && select) {
     await wallet_setCurrentAccount([accountId])
   }
   return accountId
@@ -81011,7 +81012,7 @@ const schemas = {
 
 const permissions = {
   external: ['popup'],
-  methods: ['wallet_addVault', 'wallet_createAccount'],
+  methods: ['wallet_addVault'],
   db: [
     'getPassword',
     'findGroup',

@@ -83453,7 +83453,7 @@ const publicSchema = [
       ['address', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32ContractAddress, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress]],
       ['symbol', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.tokenSymbol],
       ['decimals', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.posInt, {max: 255}]],
-      ['image', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.url],
+      ['image', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.url],
     ],
   ],
 ]

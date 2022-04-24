@@ -62372,7 +62372,7 @@ const LEDGER_APP_NAME={CONFLUX:'Conflux',ETHEREUM:'Ethereum'};/**
  * import {Conflux} from "@fluent-wallet/ledger";
  * const cfx = new Conflux()
  * cfx.getAddress("44'/503'/0'/0/0").then(o => o.publicKey)
- */class Conflux{app=null;transport=null;constuctor(){this.app=null;this.transport=null;}async setApp(){if(!this.app){try{this.transport=await lib_es_TransportWebUSB.create();const App=await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('@fluent-wallet/hw-app-conflux')));this.app=new App(this.transport);}catch(error){console.warn(error);}}}/**
+ */class Conflux{app=null;transport=null;constuctor(){this.app=null;this.transport=null;}async setApp(){if(!this.app){try{this.transport=await lib_es_TransportWebUSB.create();const App=await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('@fluent-wallet/hw-app-conflux')));this.app=new App.default(this.transport);}catch(error){console.warn(error);}}}/**
    * get address from ledger
    * @param {*} hdPath
    * @returns
@@ -62404,7 +62404,7 @@ const LEDGER_APP_NAME={CONFLUX:'Conflux',ETHEREUM:'Ethereum'};/**
  * import {Ethereum} from "@fluent-wallet/ledger";
  * const eth = new Ethereum()
  * eth.getAddress("44'/60'/0'/0/0").then(o => o.publicKey)
- */class Ethereum{app=null;transport=null;constuctor(){this.app=null;this.transport=null;}async setApp(){if(!this.app){try{this.transport=await lib_es_TransportWebUSB.create();const App=await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('@ledgerhq/hw-app-eth')));this.app=new App(this.transport);}catch(error){console.warn(error);}}}/**
+ */class Ethereum{app=null;transport=null;constuctor(){this.app=null;this.transport=null;}async setApp(){if(!this.app){try{this.transport=await lib_es_TransportWebUSB.create();const App=await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('@ledgerhq/hw-app-eth')));this.app=new App.default(this.transport);}catch(error){console.warn(error);}}}/**
    * get address from ledger
    * @param {*} hdPath
    * @returns

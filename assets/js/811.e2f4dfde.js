@@ -9648,1632 +9648,6 @@ function parse(rawTransaction) {
 
 /***/ }),
 
-/***/ 32569:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "w5": () => (/* binding */ Wallet)
-});
-
-// UNUSED EXPORTS: verifyMessage, verifyTypedData
-
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/address/lib.esm/index.js + 1 modules
-var lib_esm = __webpack_require__(58194);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/properties/lib.esm/index.js + 1 modules
-var properties_lib_esm = __webpack_require__(84427);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
-var logger_lib_esm = __webpack_require__(57036);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-provider/lib.esm/_version.js
-const version = "abstract-provider/5.6.0";
-//# sourceMappingURL=_version.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-provider/lib.esm/index.js
-
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-const logger = new logger_lib_esm/* Logger */.Yd(version);
-;
-;
-//export type CallTransactionable = {
-//    call(transaction: TransactionRequest): Promise<TransactionResponse>;
-//};
-class ForkEvent extends (/* unused pure expression or super */ null && (Description)) {
-    static isForkEvent(value) {
-        return !!(value && value._isForkEvent);
-    }
-}
-class BlockForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
-    constructor(blockHash, expiry) {
-        if (!isHexString(blockHash, 32)) {
-            logger.throwArgumentError("invalid blockHash", "blockHash", blockHash);
-        }
-        super({
-            _isForkEvent: true,
-            _isBlockForkEvent: true,
-            expiry: (expiry || 0),
-            blockHash: blockHash
-        });
-    }
-}
-class TransactionForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
-    constructor(hash, expiry) {
-        if (!isHexString(hash, 32)) {
-            logger.throwArgumentError("invalid transaction hash", "hash", hash);
-        }
-        super({
-            _isForkEvent: true,
-            _isTransactionForkEvent: true,
-            expiry: (expiry || 0),
-            hash: hash
-        });
-    }
-}
-class TransactionOrderForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
-    constructor(beforeHash, afterHash, expiry) {
-        if (!isHexString(beforeHash, 32)) {
-            logger.throwArgumentError("invalid transaction hash", "beforeHash", beforeHash);
-        }
-        if (!isHexString(afterHash, 32)) {
-            logger.throwArgumentError("invalid transaction hash", "afterHash", afterHash);
-        }
-        super({
-            _isForkEvent: true,
-            _isTransactionOrderForkEvent: true,
-            expiry: (expiry || 0),
-            beforeHash: beforeHash,
-            afterHash: afterHash
-        });
-    }
-}
-///////////////////////////////
-// Exported Abstracts
-class Provider {
-    constructor() {
-        logger.checkAbstract(new.target, Provider);
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_isProvider", true);
-    }
-    getFeeData() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { block, gasPrice } = yield (0,properties_lib_esm/* resolveProperties */.mE)({
-                block: this.getBlock("latest"),
-                gasPrice: this.getGasPrice().catch((error) => {
-                    // @TODO: Why is this now failing on Calaveras?
-                    //console.log(error);
-                    return null;
-                })
-            });
-            let maxFeePerGas = null, maxPriorityFeePerGas = null;
-            if (block && block.baseFeePerGas) {
-                // We may want to compute this more accurately in the future,
-                // using the formula "check if the base fee is correct".
-                // See: https://eips.ethereum.org/EIPS/eip-1559
-                maxPriorityFeePerGas = bignumber/* BigNumber.from */.O$.from("1500000000");
-                maxFeePerGas = block.baseFeePerGas.mul(2).add(maxPriorityFeePerGas);
-            }
-            return { maxFeePerGas, maxPriorityFeePerGas, gasPrice };
-        });
-    }
-    // Alias for "on"
-    addListener(eventName, listener) {
-        return this.on(eventName, listener);
-    }
-    // Alias for "off"
-    removeListener(eventName, listener) {
-        return this.off(eventName, listener);
-    }
-    static isProvider(value) {
-        return !!(value && value._isProvider);
-    }
-}
-//# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-signer/lib.esm/_version.js
-const _version_version = "abstract-signer/5.6.0";
-//# sourceMappingURL=_version.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-signer/lib.esm/index.js
-
-var lib_esm_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-const lib_esm_logger = new logger_lib_esm/* Logger */.Yd(_version_version);
-const allowedTransactionKeys = [
-    "accessList", "ccipReadEnabled", "chainId", "customData", "data", "from", "gasLimit", "gasPrice", "maxFeePerGas", "maxPriorityFeePerGas", "nonce", "to", "type", "value"
-];
-const forwardErrors = [
-    logger_lib_esm/* Logger.errors.INSUFFICIENT_FUNDS */.Yd.errors.INSUFFICIENT_FUNDS,
-    logger_lib_esm/* Logger.errors.NONCE_EXPIRED */.Yd.errors.NONCE_EXPIRED,
-    logger_lib_esm/* Logger.errors.REPLACEMENT_UNDERPRICED */.Yd.errors.REPLACEMENT_UNDERPRICED,
-];
-;
-;
-class Signer {
-    ///////////////////
-    // Sub-classes MUST call super
-    constructor() {
-        lib_esm_logger.checkAbstract(new.target, Signer);
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_isSigner", true);
-    }
-    ///////////////////
-    // Sub-classes MAY override these
-    getBalance(blockTag) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("getBalance");
-            return yield this.provider.getBalance(this.getAddress(), blockTag);
-        });
-    }
-    getTransactionCount(blockTag) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("getTransactionCount");
-            return yield this.provider.getTransactionCount(this.getAddress(), blockTag);
-        });
-    }
-    // Populates "from" if unspecified, and estimates the gas for the transaction
-    estimateGas(transaction) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("estimateGas");
-            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
-            return yield this.provider.estimateGas(tx);
-        });
-    }
-    // Populates "from" if unspecified, and calls with the transaction
-    call(transaction, blockTag) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("call");
-            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
-            return yield this.provider.call(tx, blockTag);
-        });
-    }
-    // Populates all fields in a transaction, signs it and sends it to the network
-    sendTransaction(transaction) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("sendTransaction");
-            const tx = yield this.populateTransaction(transaction);
-            const signedTx = yield this.signTransaction(tx);
-            return yield this.provider.sendTransaction(signedTx);
-        });
-    }
-    getChainId() {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("getChainId");
-            const network = yield this.provider.getNetwork();
-            return network.chainId;
-        });
-    }
-    getGasPrice() {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("getGasPrice");
-            return yield this.provider.getGasPrice();
-        });
-    }
-    getFeeData() {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("getFeeData");
-            return yield this.provider.getFeeData();
-        });
-    }
-    resolveName(name) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            this._checkProvider("resolveName");
-            return yield this.provider.resolveName(name);
-        });
-    }
-    // Checks a transaction does not contain invalid keys and if
-    // no "from" is provided, populates it.
-    // - does NOT require a provider
-    // - adds "from" is not present
-    // - returns a COPY (safe to mutate the result)
-    // By default called from: (overriding these prevents it)
-    //   - call
-    //   - estimateGas
-    //   - populateTransaction (and therefor sendTransaction)
-    checkTransaction(transaction) {
-        for (const key in transaction) {
-            if (allowedTransactionKeys.indexOf(key) === -1) {
-                lib_esm_logger.throwArgumentError("invalid transaction key: " + key, "transaction", transaction);
-            }
-        }
-        const tx = (0,properties_lib_esm/* shallowCopy */.DC)(transaction);
-        if (tx.from == null) {
-            tx.from = this.getAddress();
-        }
-        else {
-            // Make sure any provided address matches this signer
-            tx.from = Promise.all([
-                Promise.resolve(tx.from),
-                this.getAddress()
-            ]).then((result) => {
-                if (result[0].toLowerCase() !== result[1].toLowerCase()) {
-                    lib_esm_logger.throwArgumentError("from address mismatch", "transaction", transaction);
-                }
-                return result[0];
-            });
-        }
-        return tx;
-    }
-    // Populates ALL keys for a transaction and checks that "from" matches
-    // this Signer. Should be used by sendTransaction but NOT by signTransaction.
-    // By default called from: (overriding these prevents it)
-    //   - sendTransaction
-    //
-    // Notes:
-    //  - We allow gasPrice for EIP-1559 as long as it matches maxFeePerGas
-    populateTransaction(transaction) {
-        return lib_esm_awaiter(this, void 0, void 0, function* () {
-            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
-            if (tx.to != null) {
-                tx.to = Promise.resolve(tx.to).then((to) => lib_esm_awaiter(this, void 0, void 0, function* () {
-                    if (to == null) {
-                        return null;
-                    }
-                    const address = yield this.resolveName(to);
-                    if (address == null) {
-                        lib_esm_logger.throwArgumentError("provided ENS name resolves to null", "tx.to", to);
-                    }
-                    return address;
-                }));
-                // Prevent this error from causing an UnhandledPromiseException
-                tx.to.catch((error) => { });
-            }
-            // Do not allow mixing pre-eip-1559 and eip-1559 properties
-            const hasEip1559 = (tx.maxFeePerGas != null || tx.maxPriorityFeePerGas != null);
-            if (tx.gasPrice != null && (tx.type === 2 || hasEip1559)) {
-                lib_esm_logger.throwArgumentError("eip-1559 transaction do not support gasPrice", "transaction", transaction);
-            }
-            else if ((tx.type === 0 || tx.type === 1) && hasEip1559) {
-                lib_esm_logger.throwArgumentError("pre-eip-1559 transaction do not support maxFeePerGas/maxPriorityFeePerGas", "transaction", transaction);
-            }
-            if ((tx.type === 2 || tx.type == null) && (tx.maxFeePerGas != null && tx.maxPriorityFeePerGas != null)) {
-                // Fully-formed EIP-1559 transaction (skip getFeeData)
-                tx.type = 2;
-            }
-            else if (tx.type === 0 || tx.type === 1) {
-                // Explicit Legacy or EIP-2930 transaction
-                // Populate missing gasPrice
-                if (tx.gasPrice == null) {
-                    tx.gasPrice = this.getGasPrice();
-                }
-            }
-            else {
-                // We need to get fee data to determine things
-                const feeData = yield this.getFeeData();
-                if (tx.type == null) {
-                    // We need to auto-detect the intended type of this transaction...
-                    if (feeData.maxFeePerGas != null && feeData.maxPriorityFeePerGas != null) {
-                        // The network supports EIP-1559!
-                        // Upgrade transaction from null to eip-1559
-                        tx.type = 2;
-                        if (tx.gasPrice != null) {
-                            // Using legacy gasPrice property on an eip-1559 network,
-                            // so use gasPrice as both fee properties
-                            const gasPrice = tx.gasPrice;
-                            delete tx.gasPrice;
-                            tx.maxFeePerGas = gasPrice;
-                            tx.maxPriorityFeePerGas = gasPrice;
-                        }
-                        else {
-                            // Populate missing fee data
-                            if (tx.maxFeePerGas == null) {
-                                tx.maxFeePerGas = feeData.maxFeePerGas;
-                            }
-                            if (tx.maxPriorityFeePerGas == null) {
-                                tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-                            }
-                        }
-                    }
-                    else if (feeData.gasPrice != null) {
-                        // Network doesn't support EIP-1559...
-                        // ...but they are trying to use EIP-1559 properties
-                        if (hasEip1559) {
-                            lib_esm_logger.throwError("network does not support EIP-1559", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
-                                operation: "populateTransaction"
-                            });
-                        }
-                        // Populate missing fee data
-                        if (tx.gasPrice == null) {
-                            tx.gasPrice = feeData.gasPrice;
-                        }
-                        // Explicitly set untyped transaction to legacy
-                        tx.type = 0;
-                    }
-                    else {
-                        // getFeeData has failed us.
-                        lib_esm_logger.throwError("failed to get consistent fee data", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
-                            operation: "signer.getFeeData"
-                        });
-                    }
-                }
-                else if (tx.type === 2) {
-                    // Explicitly using EIP-1559
-                    // Populate missing fee data
-                    if (tx.maxFeePerGas == null) {
-                        tx.maxFeePerGas = feeData.maxFeePerGas;
-                    }
-                    if (tx.maxPriorityFeePerGas == null) {
-                        tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-                    }
-                }
-            }
-            if (tx.nonce == null) {
-                tx.nonce = this.getTransactionCount("pending");
-            }
-            if (tx.gasLimit == null) {
-                tx.gasLimit = this.estimateGas(tx).catch((error) => {
-                    if (forwardErrors.indexOf(error.code) >= 0) {
-                        throw error;
-                    }
-                    return lib_esm_logger.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", logger_lib_esm/* Logger.errors.UNPREDICTABLE_GAS_LIMIT */.Yd.errors.UNPREDICTABLE_GAS_LIMIT, {
-                        error: error,
-                        tx: tx
-                    });
-                });
-            }
-            if (tx.chainId == null) {
-                tx.chainId = this.getChainId();
-            }
-            else {
-                tx.chainId = Promise.all([
-                    Promise.resolve(tx.chainId),
-                    this.getChainId()
-                ]).then((results) => {
-                    if (results[1] !== 0 && results[0] !== results[1]) {
-                        lib_esm_logger.throwArgumentError("chainId address mismatch", "transaction", transaction);
-                    }
-                    return results[0];
-                });
-            }
-            return yield (0,properties_lib_esm/* resolveProperties */.mE)(tx);
-        });
-    }
-    ///////////////////
-    // Sub-classes SHOULD leave these alone
-    _checkProvider(operation) {
-        if (!this.provider) {
-            lib_esm_logger.throwError("missing provider", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
-                operation: (operation || "_checkProvider")
-            });
-        }
-    }
-    static isSigner(value) {
-        return !!(value && value._isSigner);
-    }
-}
-class VoidSigner extends (/* unused pure expression or super */ null && (Signer)) {
-    constructor(address, provider) {
-        lib_esm_logger.checkNew(new.target, VoidSigner);
-        super();
-        defineReadOnly(this, "address", address);
-        defineReadOnly(this, "provider", provider || null);
-    }
-    getAddress() {
-        return Promise.resolve(this.address);
-    }
-    _fail(message, operation) {
-        return Promise.resolve().then(() => {
-            lib_esm_logger.throwError(message, Logger.errors.UNSUPPORTED_OPERATION, { operation: operation });
-        });
-    }
-    signMessage(message) {
-        return this._fail("VoidSigner cannot sign messages", "signMessage");
-    }
-    signTransaction(transaction) {
-        return this._fail("VoidSigner cannot sign transactions", "signTransaction");
-    }
-    _signTypedData(domain, types, value) {
-        return this._fail("VoidSigner cannot sign typed data", "signTypedData");
-    }
-    connect(provider) {
-        return new VoidSigner(this.address, provider);
-    }
-}
-//# sourceMappingURL=index.js.map
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
-var bytes_lib_esm = __webpack_require__(75398);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
-var keccak256_lib_esm = __webpack_require__(59256);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/strings/lib.esm/utf8.js + 1 modules
-var utf8 = __webpack_require__(71320);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/message.js
-
-
-
-const messagePrefix = "\x19Ethereum Signed Message:\n";
-function message_hashMessage(message) {
-    if (typeof (message) === "string") {
-        message = (0,utf8/* toUtf8Bytes */.Y0)(message);
-    }
-    return (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([
-        (0,utf8/* toUtf8Bytes */.Y0)(messagePrefix),
-        (0,utf8/* toUtf8Bytes */.Y0)(String(message.length)),
-        message
-    ]));
-}
-//# sourceMappingURL=message.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/_version.js
-const lib_esm_version_version = "hash/5.6.0";
-//# sourceMappingURL=_version.js.map
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/hash/lib.esm/id.js
-var id = __webpack_require__(32235);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/typed-data.js
-var typed_data_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-const typed_data_logger = new logger_lib_esm/* Logger */.Yd(lib_esm_version_version);
-
-const padding = new Uint8Array(32);
-padding.fill(0);
-const NegativeOne = bignumber/* BigNumber.from */.O$.from(-1);
-const Zero = bignumber/* BigNumber.from */.O$.from(0);
-const One = bignumber/* BigNumber.from */.O$.from(1);
-const MaxUint256 = bignumber/* BigNumber.from */.O$.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-function hexPadRight(value) {
-    const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
-    const padOffset = bytes.length % 32;
-    if (padOffset) {
-        return (0,bytes_lib_esm/* hexConcat */.xs)([bytes, padding.slice(padOffset)]);
-    }
-    return (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
-}
-const hexTrue = (0,bytes_lib_esm/* hexZeroPad */.$m)(One.toHexString(), 32);
-const hexFalse = (0,bytes_lib_esm/* hexZeroPad */.$m)(Zero.toHexString(), 32);
-const domainFieldTypes = {
-    name: "string",
-    version: "string",
-    chainId: "uint256",
-    verifyingContract: "address",
-    salt: "bytes32"
-};
-const domainFieldNames = [
-    "name", "version", "chainId", "verifyingContract", "salt"
-];
-function checkString(key) {
-    return function (value) {
-        if (typeof (value) !== "string") {
-            typed_data_logger.throwArgumentError(`invalid domain value for ${JSON.stringify(key)}`, `domain.${key}`, value);
-        }
-        return value;
-    };
-}
-const domainChecks = {
-    name: checkString("name"),
-    version: checkString("version"),
-    chainId: function (value) {
-        try {
-            return bignumber/* BigNumber.from */.O$.from(value).toString();
-        }
-        catch (error) { }
-        return typed_data_logger.throwArgumentError(`invalid domain value for "chainId"`, "domain.chainId", value);
-    },
-    verifyingContract: function (value) {
-        try {
-            return (0,lib_esm/* getAddress */.Kn)(value).toLowerCase();
-        }
-        catch (error) { }
-        return typed_data_logger.throwArgumentError(`invalid domain value "verifyingContract"`, "domain.verifyingContract", value);
-    },
-    salt: function (value) {
-        try {
-            const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
-            if (bytes.length !== 32) {
-                throw new Error("bad length");
-            }
-            return (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
-        }
-        catch (error) { }
-        return typed_data_logger.throwArgumentError(`invalid domain value "salt"`, "domain.salt", value);
-    }
-};
-function getBaseEncoder(type) {
-    // intXX and uintXX
-    {
-        const match = type.match(/^(u?)int(\d*)$/);
-        if (match) {
-            const signed = (match[1] === "");
-            const width = parseInt(match[2] || "256");
-            if (width % 8 !== 0 || width > 256 || (match[2] && match[2] !== String(width))) {
-                typed_data_logger.throwArgumentError("invalid numeric width", "type", type);
-            }
-            const boundsUpper = MaxUint256.mask(signed ? (width - 1) : width);
-            const boundsLower = signed ? boundsUpper.add(One).mul(NegativeOne) : Zero;
-            return function (value) {
-                const v = bignumber/* BigNumber.from */.O$.from(value);
-                if (v.lt(boundsLower) || v.gt(boundsUpper)) {
-                    typed_data_logger.throwArgumentError(`value out-of-bounds for ${type}`, "value", value);
-                }
-                return (0,bytes_lib_esm/* hexZeroPad */.$m)(v.toTwos(256).toHexString(), 32);
-            };
-        }
-    }
-    // bytesXX
-    {
-        const match = type.match(/^bytes(\d+)$/);
-        if (match) {
-            const width = parseInt(match[1]);
-            if (width === 0 || width > 32 || match[1] !== String(width)) {
-                typed_data_logger.throwArgumentError("invalid bytes width", "type", type);
-            }
-            return function (value) {
-                const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
-                if (bytes.length !== width) {
-                    typed_data_logger.throwArgumentError(`invalid length for ${type}`, "value", value);
-                }
-                return hexPadRight(value);
-            };
-        }
-    }
-    switch (type) {
-        case "address": return function (value) {
-            return (0,bytes_lib_esm/* hexZeroPad */.$m)((0,lib_esm/* getAddress */.Kn)(value), 32);
-        };
-        case "bool": return function (value) {
-            return ((!value) ? hexFalse : hexTrue);
-        };
-        case "bytes": return function (value) {
-            return (0,keccak256_lib_esm/* keccak256 */.w)(value);
-        };
-        case "string": return function (value) {
-            return (0,id.id)(value);
-        };
-    }
-    return null;
-}
-function encodeType(name, fields) {
-    return `${name}(${fields.map(({ name, type }) => (type + " " + name)).join(",")})`;
-}
-class TypedDataEncoder {
-    constructor(types) {
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "types", Object.freeze((0,properties_lib_esm/* deepCopy */.p$)(types)));
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_encoderCache", {});
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_types", {});
-        // Link struct types to their direct child structs
-        const links = {};
-        // Link structs to structs which contain them as a child
-        const parents = {};
-        // Link all subtypes within a given struct
-        const subtypes = {};
-        Object.keys(types).forEach((type) => {
-            links[type] = {};
-            parents[type] = [];
-            subtypes[type] = {};
-        });
-        for (const name in types) {
-            const uniqueNames = {};
-            types[name].forEach((field) => {
-                // Check each field has a unique name
-                if (uniqueNames[field.name]) {
-                    typed_data_logger.throwArgumentError(`duplicate variable name ${JSON.stringify(field.name)} in ${JSON.stringify(name)}`, "types", types);
-                }
-                uniqueNames[field.name] = true;
-                // Get the base type (drop any array specifiers)
-                const baseType = field.type.match(/^([^\x5b]*)(\x5b|$)/)[1];
-                if (baseType === name) {
-                    typed_data_logger.throwArgumentError(`circular type reference to ${JSON.stringify(baseType)}`, "types", types);
-                }
-                // Is this a base encoding type?
-                const encoder = getBaseEncoder(baseType);
-                if (encoder) {
-                    return;
-                }
-                if (!parents[baseType]) {
-                    typed_data_logger.throwArgumentError(`unknown type ${JSON.stringify(baseType)}`, "types", types);
-                }
-                // Add linkage
-                parents[baseType].push(name);
-                links[name][baseType] = true;
-            });
-        }
-        // Deduce the primary type
-        const primaryTypes = Object.keys(parents).filter((n) => (parents[n].length === 0));
-        if (primaryTypes.length === 0) {
-            typed_data_logger.throwArgumentError("missing primary type", "types", types);
-        }
-        else if (primaryTypes.length > 1) {
-            typed_data_logger.throwArgumentError(`ambiguous primary types or unused types: ${primaryTypes.map((t) => (JSON.stringify(t))).join(", ")}`, "types", types);
-        }
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "primaryType", primaryTypes[0]);
-        // Check for circular type references
-        function checkCircular(type, found) {
-            if (found[type]) {
-                typed_data_logger.throwArgumentError(`circular type reference to ${JSON.stringify(type)}`, "types", types);
-            }
-            found[type] = true;
-            Object.keys(links[type]).forEach((child) => {
-                if (!parents[child]) {
-                    return;
-                }
-                // Recursively check children
-                checkCircular(child, found);
-                // Mark all ancestors as having this decendant
-                Object.keys(found).forEach((subtype) => {
-                    subtypes[subtype][child] = true;
-                });
-            });
-            delete found[type];
-        }
-        checkCircular(this.primaryType, {});
-        // Compute each fully describe type
-        for (const name in subtypes) {
-            const st = Object.keys(subtypes[name]);
-            st.sort();
-            this._types[name] = encodeType(name, types[name]) + st.map((t) => encodeType(t, types[t])).join("");
-        }
-    }
-    getEncoder(type) {
-        let encoder = this._encoderCache[type];
-        if (!encoder) {
-            encoder = this._encoderCache[type] = this._getEncoder(type);
-        }
-        return encoder;
-    }
-    _getEncoder(type) {
-        // Basic encoder type (address, bool, uint256, etc)
-        {
-            const encoder = getBaseEncoder(type);
-            if (encoder) {
-                return encoder;
-            }
-        }
-        // Array
-        const match = type.match(/^(.*)(\x5b(\d*)\x5d)$/);
-        if (match) {
-            const subtype = match[1];
-            const subEncoder = this.getEncoder(subtype);
-            const length = parseInt(match[3]);
-            return (value) => {
-                if (length >= 0 && value.length !== length) {
-                    typed_data_logger.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
-                }
-                let result = value.map(subEncoder);
-                if (this._types[subtype]) {
-                    result = result.map(keccak256_lib_esm/* keccak256 */.w);
-                }
-                return (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* hexConcat */.xs)(result));
-            };
-        }
-        // Struct
-        const fields = this.types[type];
-        if (fields) {
-            const encodedType = (0,id.id)(this._types[type]);
-            return (value) => {
-                const values = fields.map(({ name, type }) => {
-                    const result = this.getEncoder(type)(value[name]);
-                    if (this._types[type]) {
-                        return (0,keccak256_lib_esm/* keccak256 */.w)(result);
-                    }
-                    return result;
-                });
-                values.unshift(encodedType);
-                return (0,bytes_lib_esm/* hexConcat */.xs)(values);
-            };
-        }
-        return typed_data_logger.throwArgumentError(`unknown type: ${type}`, "type", type);
-    }
-    encodeType(name) {
-        const result = this._types[name];
-        if (!result) {
-            typed_data_logger.throwArgumentError(`unknown type: ${JSON.stringify(name)}`, "name", name);
-        }
-        return result;
-    }
-    encodeData(type, value) {
-        return this.getEncoder(type)(value);
-    }
-    hashStruct(name, value) {
-        return (0,keccak256_lib_esm/* keccak256 */.w)(this.encodeData(name, value));
-    }
-    encode(value) {
-        return this.encodeData(this.primaryType, value);
-    }
-    hash(value) {
-        return this.hashStruct(this.primaryType, value);
-    }
-    _visit(type, value, callback) {
-        // Basic encoder type (address, bool, uint256, etc)
-        {
-            const encoder = getBaseEncoder(type);
-            if (encoder) {
-                return callback(type, value);
-            }
-        }
-        // Array
-        const match = type.match(/^(.*)(\x5b(\d*)\x5d)$/);
-        if (match) {
-            const subtype = match[1];
-            const length = parseInt(match[3]);
-            if (length >= 0 && value.length !== length) {
-                typed_data_logger.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
-            }
-            return value.map((v) => this._visit(subtype, v, callback));
-        }
-        // Struct
-        const fields = this.types[type];
-        if (fields) {
-            return fields.reduce((accum, { name, type }) => {
-                accum[name] = this._visit(type, value[name], callback);
-                return accum;
-            }, {});
-        }
-        return typed_data_logger.throwArgumentError(`unknown type: ${type}`, "type", type);
-    }
-    visit(value, callback) {
-        return this._visit(this.primaryType, value, callback);
-    }
-    static from(types) {
-        return new TypedDataEncoder(types);
-    }
-    static getPrimaryType(types) {
-        return TypedDataEncoder.from(types).primaryType;
-    }
-    static hashStruct(name, types, value) {
-        return TypedDataEncoder.from(types).hashStruct(name, value);
-    }
-    static hashDomain(domain) {
-        const domainFields = [];
-        for (const name in domain) {
-            const type = domainFieldTypes[name];
-            if (!type) {
-                typed_data_logger.throwArgumentError(`invalid typed-data domain key: ${JSON.stringify(name)}`, "domain", domain);
-            }
-            domainFields.push({ name, type });
-        }
-        domainFields.sort((a, b) => {
-            return domainFieldNames.indexOf(a.name) - domainFieldNames.indexOf(b.name);
-        });
-        return TypedDataEncoder.hashStruct("EIP712Domain", { EIP712Domain: domainFields }, domain);
-    }
-    static encode(domain, types, value) {
-        return (0,bytes_lib_esm/* hexConcat */.xs)([
-            "0x1901",
-            TypedDataEncoder.hashDomain(domain),
-            TypedDataEncoder.from(types).hash(value)
-        ]);
-    }
-    static hash(domain, types, value) {
-        return (0,keccak256_lib_esm/* keccak256 */.w)(TypedDataEncoder.encode(domain, types, value));
-    }
-    // Replaces all address types with ENS names with their looked up address
-    static resolveNames(domain, types, value, resolveName) {
-        return typed_data_awaiter(this, void 0, void 0, function* () {
-            // Make a copy to isolate it from the object passed in
-            domain = (0,properties_lib_esm/* shallowCopy */.DC)(domain);
-            // Look up all ENS names
-            const ensCache = {};
-            // Do we need to look up the domain's verifyingContract?
-            if (domain.verifyingContract && !(0,bytes_lib_esm/* isHexString */.A7)(domain.verifyingContract, 20)) {
-                ensCache[domain.verifyingContract] = "0x";
-            }
-            // We are going to use the encoder to visit all the base values
-            const encoder = TypedDataEncoder.from(types);
-            // Get a list of all the addresses
-            encoder.visit(value, (type, value) => {
-                if (type === "address" && !(0,bytes_lib_esm/* isHexString */.A7)(value, 20)) {
-                    ensCache[value] = "0x";
-                }
-                return value;
-            });
-            // Lookup each name
-            for (const name in ensCache) {
-                ensCache[name] = yield resolveName(name);
-            }
-            // Replace the domain verifyingContract if needed
-            if (domain.verifyingContract && ensCache[domain.verifyingContract]) {
-                domain.verifyingContract = ensCache[domain.verifyingContract];
-            }
-            // Replace all ENS names with their address
-            value = encoder.visit(value, (type, value) => {
-                if (type === "address" && ensCache[value]) {
-                    return ensCache[value];
-                }
-                return value;
-            });
-            return { domain, value };
-        });
-    }
-    static getPayload(domain, types, value) {
-        // Validate the domain fields
-        TypedDataEncoder.hashDomain(domain);
-        // Derive the EIP712Domain Struct reference type
-        const domainValues = {};
-        const domainTypes = [];
-        domainFieldNames.forEach((name) => {
-            const value = domain[name];
-            if (value == null) {
-                return;
-            }
-            domainValues[name] = domainChecks[name](value);
-            domainTypes.push({ name, type: domainFieldTypes[name] });
-        });
-        const encoder = TypedDataEncoder.from(types);
-        const typesWithDomain = (0,properties_lib_esm/* shallowCopy */.DC)(types);
-        if (typesWithDomain.EIP712Domain) {
-            typed_data_logger.throwArgumentError("types must not contain EIP712Domain type", "types.EIP712Domain", types);
-        }
-        else {
-            typesWithDomain.EIP712Domain = domainTypes;
-        }
-        // Validate the data structures and types
-        encoder.encode(value);
-        return {
-            types: typesWithDomain,
-            domain: domainValues,
-            primaryType: encoder.primaryType,
-            message: encoder.visit(value, (type, value) => {
-                // bytes
-                if (type.match(/^bytes(\d*)/)) {
-                    return (0,bytes_lib_esm/* hexlify */.Dv)((0,bytes_lib_esm/* arrayify */.lE)(value));
-                }
-                // uint or int
-                if (type.match(/^u?int/)) {
-                    return bignumber/* BigNumber.from */.O$.from(value).toString();
-                }
-                switch (type) {
-                    case "address":
-                        return value.toLowerCase();
-                    case "bool":
-                        return !!value;
-                    case "string":
-                        if (typeof (value) !== "string") {
-                            typed_data_logger.throwArgumentError(`invalid string`, "value", value);
-                        }
-                        return value;
-                }
-                return typed_data_logger.throwArgumentError("unsupported type", "type", type);
-            })
-        };
-    }
-}
-//# sourceMappingURL=typed-data.js.map
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/hdnode/lib.esm/index.js + 6 modules
-var hdnode_lib_esm = __webpack_require__(71173);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/random/lib.esm/random.js + 1 modules
-var random = __webpack_require__(62191);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/signing-key/lib.esm/index.js + 2 modules
-var signing_key_lib_esm = __webpack_require__(3378);
-// EXTERNAL MODULE: ../../node_modules/aes-js/index.js
-var aes_js = __webpack_require__(8202);
-var aes_js_default = /*#__PURE__*/__webpack_require__.n(aes_js);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/pbkdf2/lib.esm/pbkdf2.js
-var pbkdf2 = __webpack_require__(55183);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/_version.js
-const json_wallets_lib_esm_version_version = "json-wallets/5.6.0";
-//# sourceMappingURL=_version.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/utils.js
-
-
-
-function looseArrayify(hexString) {
-    if (typeof (hexString) === 'string' && hexString.substring(0, 2) !== '0x') {
-        hexString = '0x' + hexString;
-    }
-    return (0,bytes_lib_esm/* arrayify */.lE)(hexString);
-}
-function zpad(value, length) {
-    value = String(value);
-    while (value.length < length) {
-        value = '0' + value;
-    }
-    return value;
-}
-function getPassword(password) {
-    if (typeof (password) === 'string') {
-        return (0,utf8/* toUtf8Bytes */.Y0)(password, utf8/* UnicodeNormalizationForm.NFKC */.Uj.NFKC);
-    }
-    return (0,bytes_lib_esm/* arrayify */.lE)(password);
-}
-function searchPath(object, path) {
-    let currentChild = object;
-    const comps = path.toLowerCase().split('/');
-    for (let i = 0; i < comps.length; i++) {
-        // Search for a child object with a case-insensitive matching key
-        let matchingChild = null;
-        for (const key in currentChild) {
-            if (key.toLowerCase() === comps[i]) {
-                matchingChild = currentChild[key];
-                break;
-            }
-        }
-        // Didn't find one. :'(
-        if (matchingChild === null) {
-            return null;
-        }
-        // Now check this child...
-        currentChild = matchingChild;
-    }
-    return currentChild;
-}
-// See: https://www.ietf.org/rfc/rfc4122.txt (Section 4.4)
-function uuidV4(randomBytes) {
-    const bytes = (0,bytes_lib_esm/* arrayify */.lE)(randomBytes);
-    // Section: 4.1.3:
-    // - time_hi_and_version[12:16] = 0b0100
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    // Section 4.4
-    // - clock_seq_hi_and_reserved[6] = 0b0
-    // - clock_seq_hi_and_reserved[7] = 0b1
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const value = (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
-    return [
-        value.substring(2, 10),
-        value.substring(10, 14),
-        value.substring(14, 18),
-        value.substring(18, 22),
-        value.substring(22, 34),
-    ].join("-");
-}
-//# sourceMappingURL=utils.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/crowdsale.js
-
-
-
-
-
-
-
-
-
-
-const crowdsale_logger = new logger_lib_esm/* Logger */.Yd(json_wallets_lib_esm_version_version);
-
-class CrowdsaleAccount extends properties_lib_esm/* Description */.dk {
-    isCrowdsaleAccount(value) {
-        return !!(value && value._isCrowdsaleAccount);
-    }
-}
-// See: https://github.com/ethereum/pyethsaletool
-function decrypt(json, password) {
-    const data = JSON.parse(json);
-    password = getPassword(password);
-    // Ethereum Address
-    const ethaddr = (0,lib_esm/* getAddress */.Kn)(searchPath(data, "ethaddr"));
-    // Encrypted Seed
-    const encseed = looseArrayify(searchPath(data, "encseed"));
-    if (!encseed || (encseed.length % 16) !== 0) {
-        crowdsale_logger.throwArgumentError("invalid encseed", "json", json);
-    }
-    const key = (0,bytes_lib_esm/* arrayify */.lE)((0,pbkdf2/* pbkdf2 */.n)(password, password, 2000, 32, "sha256")).slice(0, 16);
-    const iv = encseed.slice(0, 16);
-    const encryptedSeed = encseed.slice(16);
-    // Decrypt the seed
-    const aesCbc = new (aes_js_default()).ModeOfOperation.cbc(key, iv);
-    const seed = aes_js_default().padding.pkcs7.strip((0,bytes_lib_esm/* arrayify */.lE)(aesCbc.decrypt(encryptedSeed)));
-    // This wallet format is weird... Convert the binary encoded hex to a string.
-    let seedHex = "";
-    for (let i = 0; i < seed.length; i++) {
-        seedHex += String.fromCharCode(seed[i]);
-    }
-    const seedHexBytes = (0,utf8/* toUtf8Bytes */.Y0)(seedHex);
-    const privateKey = (0,keccak256_lib_esm/* keccak256 */.w)(seedHexBytes);
-    return new CrowdsaleAccount({
-        _isCrowdsaleAccount: true,
-        address: ethaddr,
-        privateKey: privateKey
-    });
-}
-//# sourceMappingURL=crowdsale.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/inspect.js
-
-
-function isCrowdsaleWallet(json) {
-    let data = null;
-    try {
-        data = JSON.parse(json);
-    }
-    catch (error) {
-        return false;
-    }
-    return (data.encseed && data.ethaddr);
-}
-function isKeystoreWallet(json) {
-    let data = null;
-    try {
-        data = JSON.parse(json);
-    }
-    catch (error) {
-        return false;
-    }
-    if (!data.version || parseInt(data.version) !== data.version || parseInt(data.version) !== 3) {
-        return false;
-    }
-    // @TODO: Put more checks to make sure it has kdf, iv and all that good stuff
-    return true;
-}
-//export function isJsonWallet(json: string): boolean {
-//    return (isSecretStorageWallet(json) || isCrowdsaleWallet(json));
-//}
-function getJsonWalletAddress(json) {
-    if (isCrowdsaleWallet(json)) {
-        try {
-            return getAddress(JSON.parse(json).ethaddr);
-        }
-        catch (error) {
-            return null;
-        }
-    }
-    if (isKeystoreWallet(json)) {
-        try {
-            return getAddress(JSON.parse(json).address);
-        }
-        catch (error) {
-            return null;
-        }
-    }
-    return null;
-}
-//# sourceMappingURL=inspect.js.map
-// EXTERNAL MODULE: ../../node_modules/scrypt-js/scrypt.js
-var scrypt = __webpack_require__(14689);
-var scrypt_default = /*#__PURE__*/__webpack_require__.n(scrypt);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/transactions/lib.esm/index.js + 3 modules
-var transactions_lib_esm = __webpack_require__(11482);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/keystore.js
-
-var keystore_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-const keystore_logger = new logger_lib_esm/* Logger */.Yd(json_wallets_lib_esm_version_version);
-// Exported Types
-function hasMnemonic(value) {
-    return (value != null && value.mnemonic && value.mnemonic.phrase);
-}
-class KeystoreAccount extends properties_lib_esm/* Description */.dk {
-    isKeystoreAccount(value) {
-        return !!(value && value._isKeystoreAccount);
-    }
-}
-function _decrypt(data, key, ciphertext) {
-    const cipher = searchPath(data, "crypto/cipher");
-    if (cipher === "aes-128-ctr") {
-        const iv = looseArrayify(searchPath(data, "crypto/cipherparams/iv"));
-        const counter = new (aes_js_default()).Counter(iv);
-        const aesCtr = new (aes_js_default()).ModeOfOperation.ctr(key, counter);
-        return (0,bytes_lib_esm/* arrayify */.lE)(aesCtr.decrypt(ciphertext));
-    }
-    return null;
-}
-function _getAccount(data, key) {
-    const ciphertext = looseArrayify(searchPath(data, "crypto/ciphertext"));
-    const computedMAC = (0,bytes_lib_esm/* hexlify */.Dv)((0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([key.slice(16, 32), ciphertext]))).substring(2);
-    if (computedMAC !== searchPath(data, "crypto/mac").toLowerCase()) {
-        throw new Error("invalid password");
-    }
-    const privateKey = _decrypt(data, key.slice(0, 16), ciphertext);
-    if (!privateKey) {
-        keystore_logger.throwError("unsupported cipher", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
-            operation: "decrypt"
-        });
-    }
-    const mnemonicKey = key.slice(32, 64);
-    const address = (0,transactions_lib_esm/* computeAddress */.db)(privateKey);
-    if (data.address) {
-        let check = data.address.toLowerCase();
-        if (check.substring(0, 2) !== "0x") {
-            check = "0x" + check;
-        }
-        if ((0,lib_esm/* getAddress */.Kn)(check) !== address) {
-            throw new Error("address mismatch");
-        }
-    }
-    const account = {
-        _isKeystoreAccount: true,
-        address: address,
-        privateKey: (0,bytes_lib_esm/* hexlify */.Dv)(privateKey)
-    };
-    // Version 0.1 x-ethers metadata must contain an encrypted mnemonic phrase
-    if (searchPath(data, "x-ethers/version") === "0.1") {
-        const mnemonicCiphertext = looseArrayify(searchPath(data, "x-ethers/mnemonicCiphertext"));
-        const mnemonicIv = looseArrayify(searchPath(data, "x-ethers/mnemonicCounter"));
-        const mnemonicCounter = new (aes_js_default()).Counter(mnemonicIv);
-        const mnemonicAesCtr = new (aes_js_default()).ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
-        const path = searchPath(data, "x-ethers/path") || hdnode_lib_esm/* defaultPath */.cD;
-        const locale = searchPath(data, "x-ethers/locale") || "en";
-        const entropy = (0,bytes_lib_esm/* arrayify */.lE)(mnemonicAesCtr.decrypt(mnemonicCiphertext));
-        try {
-            const mnemonic = (0,hdnode_lib_esm/* entropyToMnemonic */.JJ)(entropy, locale);
-            const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic, null, locale).derivePath(path);
-            if (node.privateKey != account.privateKey) {
-                throw new Error("mnemonic mismatch");
-            }
-            account.mnemonic = node.mnemonic;
-        }
-        catch (error) {
-            // If we don't have the locale wordlist installed to
-            // read this mnemonic, just bail and don't set the
-            // mnemonic
-            if (error.code !== logger_lib_esm/* Logger.errors.INVALID_ARGUMENT */.Yd.errors.INVALID_ARGUMENT || error.argument !== "wordlist") {
-                throw error;
-            }
-        }
-    }
-    return new KeystoreAccount(account);
-}
-function pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc) {
-    return (0,bytes_lib_esm/* arrayify */.lE)((0,pbkdf2/* pbkdf2 */.n)(passwordBytes, salt, count, dkLen, prfFunc));
-}
-function keystore_pbkdf2(passwordBytes, salt, count, dkLen, prfFunc) {
-    return Promise.resolve(pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc));
-}
-function _computeKdfKey(data, password, pbkdf2Func, scryptFunc, progressCallback) {
-    const passwordBytes = getPassword(password);
-    const kdf = searchPath(data, "crypto/kdf");
-    if (kdf && typeof (kdf) === "string") {
-        const throwError = function (name, value) {
-            return keystore_logger.throwArgumentError("invalid key-derivation function parameters", name, value);
-        };
-        if (kdf.toLowerCase() === "scrypt") {
-            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
-            const N = parseInt(searchPath(data, "crypto/kdfparams/n"));
-            const r = parseInt(searchPath(data, "crypto/kdfparams/r"));
-            const p = parseInt(searchPath(data, "crypto/kdfparams/p"));
-            // Check for all required parameters
-            if (!N || !r || !p) {
-                throwError("kdf", kdf);
-            }
-            // Make sure N is a power of 2
-            if ((N & (N - 1)) !== 0) {
-                throwError("N", N);
-            }
-            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
-            if (dkLen !== 32) {
-                throwError("dklen", dkLen);
-            }
-            return scryptFunc(passwordBytes, salt, N, r, p, 64, progressCallback);
-        }
-        else if (kdf.toLowerCase() === "pbkdf2") {
-            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
-            let prfFunc = null;
-            const prf = searchPath(data, "crypto/kdfparams/prf");
-            if (prf === "hmac-sha256") {
-                prfFunc = "sha256";
-            }
-            else if (prf === "hmac-sha512") {
-                prfFunc = "sha512";
-            }
-            else {
-                throwError("prf", prf);
-            }
-            const count = parseInt(searchPath(data, "crypto/kdfparams/c"));
-            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
-            if (dkLen !== 32) {
-                throwError("dklen", dkLen);
-            }
-            return pbkdf2Func(passwordBytes, salt, count, dkLen, prfFunc);
-        }
-    }
-    return keystore_logger.throwArgumentError("unsupported key-derivation function", "kdf", kdf);
-}
-function decryptSync(json, password) {
-    const data = JSON.parse(json);
-    const key = _computeKdfKey(data, password, pbkdf2Sync, (scrypt_default()).syncScrypt);
-    return _getAccount(data, key);
-}
-function keystore_decrypt(json, password, progressCallback) {
-    return keystore_awaiter(this, void 0, void 0, function* () {
-        const data = JSON.parse(json);
-        const key = yield _computeKdfKey(data, password, keystore_pbkdf2, (scrypt_default()).scrypt, progressCallback);
-        return _getAccount(data, key);
-    });
-}
-function encrypt(account, password, options, progressCallback) {
-    try {
-        // Check the address matches the private key
-        if ((0,lib_esm/* getAddress */.Kn)(account.address) !== (0,transactions_lib_esm/* computeAddress */.db)(account.privateKey)) {
-            throw new Error("address/privateKey mismatch");
-        }
-        // Check the mnemonic (if any) matches the private key
-        if (hasMnemonic(account)) {
-            const mnemonic = account.mnemonic;
-            const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic.phrase, null, mnemonic.locale).derivePath(mnemonic.path || hdnode_lib_esm/* defaultPath */.cD);
-            if (node.privateKey != account.privateKey) {
-                throw new Error("mnemonic mismatch");
-            }
-        }
-    }
-    catch (e) {
-        return Promise.reject(e);
-    }
-    // The options are optional, so adjust the call as needed
-    if (typeof (options) === "function" && !progressCallback) {
-        progressCallback = options;
-        options = {};
-    }
-    if (!options) {
-        options = {};
-    }
-    const privateKey = (0,bytes_lib_esm/* arrayify */.lE)(account.privateKey);
-    const passwordBytes = getPassword(password);
-    let entropy = null;
-    let path = null;
-    let locale = null;
-    if (hasMnemonic(account)) {
-        const srcMnemonic = account.mnemonic;
-        entropy = (0,bytes_lib_esm/* arrayify */.lE)((0,hdnode_lib_esm/* mnemonicToEntropy */.oy)(srcMnemonic.phrase, srcMnemonic.locale || "en"));
-        path = srcMnemonic.path || hdnode_lib_esm/* defaultPath */.cD;
-        locale = srcMnemonic.locale || "en";
-    }
-    let client = options.client;
-    if (!client) {
-        client = "ethers.js";
-    }
-    // Check/generate the salt
-    let salt = null;
-    if (options.salt) {
-        salt = (0,bytes_lib_esm/* arrayify */.lE)(options.salt);
-    }
-    else {
-        salt = (0,random/* randomBytes */.O)(32);
-        ;
-    }
-    // Override initialization vector
-    let iv = null;
-    if (options.iv) {
-        iv = (0,bytes_lib_esm/* arrayify */.lE)(options.iv);
-        if (iv.length !== 16) {
-            throw new Error("invalid iv");
-        }
-    }
-    else {
-        iv = (0,random/* randomBytes */.O)(16);
-    }
-    // Override the uuid
-    let uuidRandom = null;
-    if (options.uuid) {
-        uuidRandom = (0,bytes_lib_esm/* arrayify */.lE)(options.uuid);
-        if (uuidRandom.length !== 16) {
-            throw new Error("invalid uuid");
-        }
-    }
-    else {
-        uuidRandom = (0,random/* randomBytes */.O)(16);
-    }
-    // Override the scrypt password-based key derivation function parameters
-    let N = (1 << 17), r = 8, p = 1;
-    if (options.scrypt) {
-        if (options.scrypt.N) {
-            N = options.scrypt.N;
-        }
-        if (options.scrypt.r) {
-            r = options.scrypt.r;
-        }
-        if (options.scrypt.p) {
-            p = options.scrypt.p;
-        }
-    }
-    // We take 64 bytes:
-    //   - 32 bytes   As normal for the Web3 secret storage (derivedKey, macPrefix)
-    //   - 32 bytes   AES key to encrypt mnemonic with (required here to be Ethers Wallet)
-    return scrypt_default().scrypt(passwordBytes, salt, N, r, p, 64, progressCallback).then((key) => {
-        key = (0,bytes_lib_esm/* arrayify */.lE)(key);
-        // This will be used to encrypt the wallet (as per Web3 secret storage)
-        const derivedKey = key.slice(0, 16);
-        const macPrefix = key.slice(16, 32);
-        // This will be used to encrypt the mnemonic phrase (if any)
-        const mnemonicKey = key.slice(32, 64);
-        // Encrypt the private key
-        const counter = new (aes_js_default()).Counter(iv);
-        const aesCtr = new (aes_js_default()).ModeOfOperation.ctr(derivedKey, counter);
-        const ciphertext = (0,bytes_lib_esm/* arrayify */.lE)(aesCtr.encrypt(privateKey));
-        // Compute the message authentication code, used to check the password
-        const mac = (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([macPrefix, ciphertext]));
-        // See: https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition
-        const data = {
-            address: account.address.substring(2).toLowerCase(),
-            id: uuidV4(uuidRandom),
-            version: 3,
-            Crypto: {
-                cipher: "aes-128-ctr",
-                cipherparams: {
-                    iv: (0,bytes_lib_esm/* hexlify */.Dv)(iv).substring(2),
-                },
-                ciphertext: (0,bytes_lib_esm/* hexlify */.Dv)(ciphertext).substring(2),
-                kdf: "scrypt",
-                kdfparams: {
-                    salt: (0,bytes_lib_esm/* hexlify */.Dv)(salt).substring(2),
-                    n: N,
-                    dklen: 32,
-                    p: p,
-                    r: r
-                },
-                mac: mac.substring(2)
-            }
-        };
-        // If we have a mnemonic, encrypt it into the JSON wallet
-        if (entropy) {
-            const mnemonicIv = (0,random/* randomBytes */.O)(16);
-            const mnemonicCounter = new (aes_js_default()).Counter(mnemonicIv);
-            const mnemonicAesCtr = new (aes_js_default()).ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
-            const mnemonicCiphertext = (0,bytes_lib_esm/* arrayify */.lE)(mnemonicAesCtr.encrypt(entropy));
-            const now = new Date();
-            const timestamp = (now.getUTCFullYear() + "-" +
-                zpad(now.getUTCMonth() + 1, 2) + "-" +
-                zpad(now.getUTCDate(), 2) + "T" +
-                zpad(now.getUTCHours(), 2) + "-" +
-                zpad(now.getUTCMinutes(), 2) + "-" +
-                zpad(now.getUTCSeconds(), 2) + ".0Z");
-            data["x-ethers"] = {
-                client: client,
-                gethFilename: ("UTC--" + timestamp + "--" + data.address),
-                mnemonicCounter: (0,bytes_lib_esm/* hexlify */.Dv)(mnemonicIv).substring(2),
-                mnemonicCiphertext: (0,bytes_lib_esm/* hexlify */.Dv)(mnemonicCiphertext).substring(2),
-                path: path,
-                locale: locale,
-                version: "0.1"
-            };
-        }
-        return JSON.stringify(data);
-    });
-}
-//# sourceMappingURL=keystore.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/index.js
-
-
-
-
-function decryptJsonWallet(json, password, progressCallback) {
-    if (isCrowdsaleWallet(json)) {
-        if (progressCallback) {
-            progressCallback(0);
-        }
-        const account = decrypt(json, password);
-        if (progressCallback) {
-            progressCallback(1);
-        }
-        return Promise.resolve(account);
-    }
-    if (isKeystoreWallet(json)) {
-        return keystore_decrypt(json, password, progressCallback);
-    }
-    return Promise.reject(new Error("invalid JSON wallet"));
-}
-function decryptJsonWalletSync(json, password) {
-    if (isCrowdsaleWallet(json)) {
-        return decrypt(json, password);
-    }
-    if (isKeystoreWallet(json)) {
-        return decryptSync(json, password);
-    }
-    throw new Error("invalid JSON wallet");
-}
-
-//# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/_version.js
-const wallet_lib_esm_version_version = "wallet/5.6.0";
-//# sourceMappingURL=_version.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/index.js
-
-var wallet_lib_esm_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const wallet_lib_esm_logger = new logger_lib_esm/* Logger */.Yd(wallet_lib_esm_version_version);
-function isAccount(value) {
-    return (value != null && (0,bytes_lib_esm/* isHexString */.A7)(value.privateKey, 32) && value.address != null);
-}
-function lib_esm_hasMnemonic(value) {
-    const mnemonic = value.mnemonic;
-    return (mnemonic && mnemonic.phrase);
-}
-class Wallet extends Signer {
-    constructor(privateKey, provider) {
-        wallet_lib_esm_logger.checkNew(new.target, Wallet);
-        super();
-        if (isAccount(privateKey)) {
-            const signingKey = new signing_key_lib_esm/* SigningKey */.Et(privateKey.privateKey);
-            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => signingKey);
-            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "address", (0,transactions_lib_esm/* computeAddress */.db)(this.publicKey));
-            if (this.address !== (0,lib_esm/* getAddress */.Kn)(privateKey.address)) {
-                wallet_lib_esm_logger.throwArgumentError("privateKey/address mismatch", "privateKey", "[REDACTED]");
-            }
-            if (lib_esm_hasMnemonic(privateKey)) {
-                const srcMnemonic = privateKey.mnemonic;
-                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => ({
-                    phrase: srcMnemonic.phrase,
-                    path: srcMnemonic.path || hdnode_lib_esm/* defaultPath */.cD,
-                    locale: srcMnemonic.locale || "en"
-                }));
-                const mnemonic = this.mnemonic;
-                const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic.phrase, null, mnemonic.locale).derivePath(mnemonic.path);
-                if ((0,transactions_lib_esm/* computeAddress */.db)(node.privateKey) !== this.address) {
-                    wallet_lib_esm_logger.throwArgumentError("mnemonic/address mismatch", "privateKey", "[REDACTED]");
-                }
-            }
-            else {
-                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => null);
-            }
-        }
-        else {
-            if (signing_key_lib_esm/* SigningKey.isSigningKey */.Et.isSigningKey(privateKey)) {
-                /* istanbul ignore if */
-                if (privateKey.curve !== "secp256k1") {
-                    wallet_lib_esm_logger.throwArgumentError("unsupported curve; must be secp256k1", "privateKey", "[REDACTED]");
-                }
-                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => privateKey);
-            }
-            else {
-                // A lot of common tools do not prefix private keys with a 0x (see: #1166)
-                if (typeof (privateKey) === "string") {
-                    if (privateKey.match(/^[0-9a-f]*$/i) && privateKey.length === 64) {
-                        privateKey = "0x" + privateKey;
-                    }
-                }
-                const signingKey = new signing_key_lib_esm/* SigningKey */.Et(privateKey);
-                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => signingKey);
-            }
-            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => null);
-            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "address", (0,transactions_lib_esm/* computeAddress */.db)(this.publicKey));
-        }
-        /* istanbul ignore if */
-        if (provider && !Provider.isProvider(provider)) {
-            wallet_lib_esm_logger.throwArgumentError("invalid provider", "provider", provider);
-        }
-        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "provider", provider || null);
-    }
-    get mnemonic() { return this._mnemonic(); }
-    get privateKey() { return this._signingKey().privateKey; }
-    get publicKey() { return this._signingKey().publicKey; }
-    getAddress() {
-        return Promise.resolve(this.address);
-    }
-    connect(provider) {
-        return new Wallet(this, provider);
-    }
-    signTransaction(transaction) {
-        return (0,properties_lib_esm/* resolveProperties */.mE)(transaction).then((tx) => {
-            if (tx.from != null) {
-                if ((0,lib_esm/* getAddress */.Kn)(tx.from) !== this.address) {
-                    wallet_lib_esm_logger.throwArgumentError("transaction from address mismatch", "transaction.from", transaction.from);
-                }
-                delete tx.from;
-            }
-            const signature = this._signingKey().signDigest((0,keccak256_lib_esm/* keccak256 */.w)((0,transactions_lib_esm/* serialize */.qC)(tx)));
-            return (0,transactions_lib_esm/* serialize */.qC)(tx, signature);
-        });
-    }
-    signMessage(message) {
-        return wallet_lib_esm_awaiter(this, void 0, void 0, function* () {
-            return (0,bytes_lib_esm/* joinSignature */.gV)(this._signingKey().signDigest(message_hashMessage(message)));
-        });
-    }
-    _signTypedData(domain, types, value) {
-        return wallet_lib_esm_awaiter(this, void 0, void 0, function* () {
-            // Populate any ENS names
-            const populated = yield TypedDataEncoder.resolveNames(domain, types, value, (name) => {
-                if (this.provider == null) {
-                    wallet_lib_esm_logger.throwError("cannot resolve ENS names without a provider", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
-                        operation: "resolveName",
-                        value: name
-                    });
-                }
-                return this.provider.resolveName(name);
-            });
-            return (0,bytes_lib_esm/* joinSignature */.gV)(this._signingKey().signDigest(TypedDataEncoder.hash(populated.domain, types, populated.value)));
-        });
-    }
-    encrypt(password, options, progressCallback) {
-        if (typeof (options) === "function" && !progressCallback) {
-            progressCallback = options;
-            options = {};
-        }
-        if (progressCallback && typeof (progressCallback) !== "function") {
-            throw new Error("invalid callback");
-        }
-        if (!options) {
-            options = {};
-        }
-        return encrypt(this, password, options, progressCallback);
-    }
-    /**
-     *  Static methods to create Wallet instances.
-     */
-    static createRandom(options) {
-        let entropy = (0,random/* randomBytes */.O)(16);
-        if (!options) {
-            options = {};
-        }
-        if (options.extraEntropy) {
-            entropy = (0,bytes_lib_esm/* arrayify */.lE)((0,bytes_lib_esm/* hexDataSlice */.p3)((0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([entropy, options.extraEntropy])), 0, 16));
-        }
-        const mnemonic = (0,hdnode_lib_esm/* entropyToMnemonic */.JJ)(entropy, options.locale);
-        return Wallet.fromMnemonic(mnemonic, options.path, options.locale);
-    }
-    static fromEncryptedJson(json, password, progressCallback) {
-        return decryptJsonWallet(json, password, progressCallback).then((account) => {
-            return new Wallet(account);
-        });
-    }
-    static fromEncryptedJsonSync(json, password) {
-        return new Wallet(decryptJsonWalletSync(json, password));
-    }
-    static fromMnemonic(mnemonic, path, wordlist) {
-        if (!path) {
-            path = hdnode_lib_esm/* defaultPath */.cD;
-        }
-        return new Wallet(hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic, null, wordlist).derivePath(path));
-    }
-}
-function verifyMessage(message, signature) {
-    return recoverAddress(hashMessage(message), signature);
-}
-function verifyTypedData(domain, types, value, signature) {
-    return recoverAddress(_TypedDataEncoder.hash(domain, types, value), signature);
-}
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
 /***/ 15842:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -60133,7 +58507,7 @@ try {
 
 /***/ }),
 
-/***/ 99855:
+/***/ 11239:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -60156,8 +58530,1613 @@ __webpack_require__.d(__webpack_exports__, {
 var lib_esm = __webpack_require__(58194);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/transactions/lib.esm/index.js + 3 modules
 var transactions_lib_esm = __webpack_require__(11482);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/index.js + 14 modules
-var wallet_lib_esm = __webpack_require__(32569);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
+var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/properties/lib.esm/index.js + 1 modules
+var properties_lib_esm = __webpack_require__(84427);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
+var logger_lib_esm = __webpack_require__(57036);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-provider/lib.esm/_version.js
+const version = "abstract-provider/5.6.0";
+//# sourceMappingURL=_version.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-provider/lib.esm/index.js
+
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+const logger = new logger_lib_esm/* Logger */.Yd(version);
+;
+;
+//export type CallTransactionable = {
+//    call(transaction: TransactionRequest): Promise<TransactionResponse>;
+//};
+class ForkEvent extends (/* unused pure expression or super */ null && (Description)) {
+    static isForkEvent(value) {
+        return !!(value && value._isForkEvent);
+    }
+}
+class BlockForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
+    constructor(blockHash, expiry) {
+        if (!isHexString(blockHash, 32)) {
+            logger.throwArgumentError("invalid blockHash", "blockHash", blockHash);
+        }
+        super({
+            _isForkEvent: true,
+            _isBlockForkEvent: true,
+            expiry: (expiry || 0),
+            blockHash: blockHash
+        });
+    }
+}
+class TransactionForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
+    constructor(hash, expiry) {
+        if (!isHexString(hash, 32)) {
+            logger.throwArgumentError("invalid transaction hash", "hash", hash);
+        }
+        super({
+            _isForkEvent: true,
+            _isTransactionForkEvent: true,
+            expiry: (expiry || 0),
+            hash: hash
+        });
+    }
+}
+class TransactionOrderForkEvent extends (/* unused pure expression or super */ null && (ForkEvent)) {
+    constructor(beforeHash, afterHash, expiry) {
+        if (!isHexString(beforeHash, 32)) {
+            logger.throwArgumentError("invalid transaction hash", "beforeHash", beforeHash);
+        }
+        if (!isHexString(afterHash, 32)) {
+            logger.throwArgumentError("invalid transaction hash", "afterHash", afterHash);
+        }
+        super({
+            _isForkEvent: true,
+            _isTransactionOrderForkEvent: true,
+            expiry: (expiry || 0),
+            beforeHash: beforeHash,
+            afterHash: afterHash
+        });
+    }
+}
+///////////////////////////////
+// Exported Abstracts
+class Provider {
+    constructor() {
+        logger.checkAbstract(new.target, Provider);
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_isProvider", true);
+    }
+    getFeeData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { block, gasPrice } = yield (0,properties_lib_esm/* resolveProperties */.mE)({
+                block: this.getBlock("latest"),
+                gasPrice: this.getGasPrice().catch((error) => {
+                    // @TODO: Why is this now failing on Calaveras?
+                    //console.log(error);
+                    return null;
+                })
+            });
+            let maxFeePerGas = null, maxPriorityFeePerGas = null;
+            if (block && block.baseFeePerGas) {
+                // We may want to compute this more accurately in the future,
+                // using the formula "check if the base fee is correct".
+                // See: https://eips.ethereum.org/EIPS/eip-1559
+                maxPriorityFeePerGas = bignumber/* BigNumber.from */.O$.from("1500000000");
+                maxFeePerGas = block.baseFeePerGas.mul(2).add(maxPriorityFeePerGas);
+            }
+            return { maxFeePerGas, maxPriorityFeePerGas, gasPrice };
+        });
+    }
+    // Alias for "on"
+    addListener(eventName, listener) {
+        return this.on(eventName, listener);
+    }
+    // Alias for "off"
+    removeListener(eventName, listener) {
+        return this.off(eventName, listener);
+    }
+    static isProvider(value) {
+        return !!(value && value._isProvider);
+    }
+}
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-signer/lib.esm/_version.js
+const _version_version = "abstract-signer/5.6.0";
+//# sourceMappingURL=_version.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/abstract-signer/lib.esm/index.js
+
+var lib_esm_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+const lib_esm_logger = new logger_lib_esm/* Logger */.Yd(_version_version);
+const allowedTransactionKeys = [
+    "accessList", "ccipReadEnabled", "chainId", "customData", "data", "from", "gasLimit", "gasPrice", "maxFeePerGas", "maxPriorityFeePerGas", "nonce", "to", "type", "value"
+];
+const forwardErrors = [
+    logger_lib_esm/* Logger.errors.INSUFFICIENT_FUNDS */.Yd.errors.INSUFFICIENT_FUNDS,
+    logger_lib_esm/* Logger.errors.NONCE_EXPIRED */.Yd.errors.NONCE_EXPIRED,
+    logger_lib_esm/* Logger.errors.REPLACEMENT_UNDERPRICED */.Yd.errors.REPLACEMENT_UNDERPRICED,
+];
+;
+;
+class Signer {
+    ///////////////////
+    // Sub-classes MUST call super
+    constructor() {
+        lib_esm_logger.checkAbstract(new.target, Signer);
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_isSigner", true);
+    }
+    ///////////////////
+    // Sub-classes MAY override these
+    getBalance(blockTag) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("getBalance");
+            return yield this.provider.getBalance(this.getAddress(), blockTag);
+        });
+    }
+    getTransactionCount(blockTag) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("getTransactionCount");
+            return yield this.provider.getTransactionCount(this.getAddress(), blockTag);
+        });
+    }
+    // Populates "from" if unspecified, and estimates the gas for the transaction
+    estimateGas(transaction) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("estimateGas");
+            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
+            return yield this.provider.estimateGas(tx);
+        });
+    }
+    // Populates "from" if unspecified, and calls with the transaction
+    call(transaction, blockTag) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("call");
+            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
+            return yield this.provider.call(tx, blockTag);
+        });
+    }
+    // Populates all fields in a transaction, signs it and sends it to the network
+    sendTransaction(transaction) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("sendTransaction");
+            const tx = yield this.populateTransaction(transaction);
+            const signedTx = yield this.signTransaction(tx);
+            return yield this.provider.sendTransaction(signedTx);
+        });
+    }
+    getChainId() {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("getChainId");
+            const network = yield this.provider.getNetwork();
+            return network.chainId;
+        });
+    }
+    getGasPrice() {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("getGasPrice");
+            return yield this.provider.getGasPrice();
+        });
+    }
+    getFeeData() {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("getFeeData");
+            return yield this.provider.getFeeData();
+        });
+    }
+    resolveName(name) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            this._checkProvider("resolveName");
+            return yield this.provider.resolveName(name);
+        });
+    }
+    // Checks a transaction does not contain invalid keys and if
+    // no "from" is provided, populates it.
+    // - does NOT require a provider
+    // - adds "from" is not present
+    // - returns a COPY (safe to mutate the result)
+    // By default called from: (overriding these prevents it)
+    //   - call
+    //   - estimateGas
+    //   - populateTransaction (and therefor sendTransaction)
+    checkTransaction(transaction) {
+        for (const key in transaction) {
+            if (allowedTransactionKeys.indexOf(key) === -1) {
+                lib_esm_logger.throwArgumentError("invalid transaction key: " + key, "transaction", transaction);
+            }
+        }
+        const tx = (0,properties_lib_esm/* shallowCopy */.DC)(transaction);
+        if (tx.from == null) {
+            tx.from = this.getAddress();
+        }
+        else {
+            // Make sure any provided address matches this signer
+            tx.from = Promise.all([
+                Promise.resolve(tx.from),
+                this.getAddress()
+            ]).then((result) => {
+                if (result[0].toLowerCase() !== result[1].toLowerCase()) {
+                    lib_esm_logger.throwArgumentError("from address mismatch", "transaction", transaction);
+                }
+                return result[0];
+            });
+        }
+        return tx;
+    }
+    // Populates ALL keys for a transaction and checks that "from" matches
+    // this Signer. Should be used by sendTransaction but NOT by signTransaction.
+    // By default called from: (overriding these prevents it)
+    //   - sendTransaction
+    //
+    // Notes:
+    //  - We allow gasPrice for EIP-1559 as long as it matches maxFeePerGas
+    populateTransaction(transaction) {
+        return lib_esm_awaiter(this, void 0, void 0, function* () {
+            const tx = yield (0,properties_lib_esm/* resolveProperties */.mE)(this.checkTransaction(transaction));
+            if (tx.to != null) {
+                tx.to = Promise.resolve(tx.to).then((to) => lib_esm_awaiter(this, void 0, void 0, function* () {
+                    if (to == null) {
+                        return null;
+                    }
+                    const address = yield this.resolveName(to);
+                    if (address == null) {
+                        lib_esm_logger.throwArgumentError("provided ENS name resolves to null", "tx.to", to);
+                    }
+                    return address;
+                }));
+                // Prevent this error from causing an UnhandledPromiseException
+                tx.to.catch((error) => { });
+            }
+            // Do not allow mixing pre-eip-1559 and eip-1559 properties
+            const hasEip1559 = (tx.maxFeePerGas != null || tx.maxPriorityFeePerGas != null);
+            if (tx.gasPrice != null && (tx.type === 2 || hasEip1559)) {
+                lib_esm_logger.throwArgumentError("eip-1559 transaction do not support gasPrice", "transaction", transaction);
+            }
+            else if ((tx.type === 0 || tx.type === 1) && hasEip1559) {
+                lib_esm_logger.throwArgumentError("pre-eip-1559 transaction do not support maxFeePerGas/maxPriorityFeePerGas", "transaction", transaction);
+            }
+            if ((tx.type === 2 || tx.type == null) && (tx.maxFeePerGas != null && tx.maxPriorityFeePerGas != null)) {
+                // Fully-formed EIP-1559 transaction (skip getFeeData)
+                tx.type = 2;
+            }
+            else if (tx.type === 0 || tx.type === 1) {
+                // Explicit Legacy or EIP-2930 transaction
+                // Populate missing gasPrice
+                if (tx.gasPrice == null) {
+                    tx.gasPrice = this.getGasPrice();
+                }
+            }
+            else {
+                // We need to get fee data to determine things
+                const feeData = yield this.getFeeData();
+                if (tx.type == null) {
+                    // We need to auto-detect the intended type of this transaction...
+                    if (feeData.maxFeePerGas != null && feeData.maxPriorityFeePerGas != null) {
+                        // The network supports EIP-1559!
+                        // Upgrade transaction from null to eip-1559
+                        tx.type = 2;
+                        if (tx.gasPrice != null) {
+                            // Using legacy gasPrice property on an eip-1559 network,
+                            // so use gasPrice as both fee properties
+                            const gasPrice = tx.gasPrice;
+                            delete tx.gasPrice;
+                            tx.maxFeePerGas = gasPrice;
+                            tx.maxPriorityFeePerGas = gasPrice;
+                        }
+                        else {
+                            // Populate missing fee data
+                            if (tx.maxFeePerGas == null) {
+                                tx.maxFeePerGas = feeData.maxFeePerGas;
+                            }
+                            if (tx.maxPriorityFeePerGas == null) {
+                                tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+                            }
+                        }
+                    }
+                    else if (feeData.gasPrice != null) {
+                        // Network doesn't support EIP-1559...
+                        // ...but they are trying to use EIP-1559 properties
+                        if (hasEip1559) {
+                            lib_esm_logger.throwError("network does not support EIP-1559", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                                operation: "populateTransaction"
+                            });
+                        }
+                        // Populate missing fee data
+                        if (tx.gasPrice == null) {
+                            tx.gasPrice = feeData.gasPrice;
+                        }
+                        // Explicitly set untyped transaction to legacy
+                        tx.type = 0;
+                    }
+                    else {
+                        // getFeeData has failed us.
+                        lib_esm_logger.throwError("failed to get consistent fee data", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                            operation: "signer.getFeeData"
+                        });
+                    }
+                }
+                else if (tx.type === 2) {
+                    // Explicitly using EIP-1559
+                    // Populate missing fee data
+                    if (tx.maxFeePerGas == null) {
+                        tx.maxFeePerGas = feeData.maxFeePerGas;
+                    }
+                    if (tx.maxPriorityFeePerGas == null) {
+                        tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+                    }
+                }
+            }
+            if (tx.nonce == null) {
+                tx.nonce = this.getTransactionCount("pending");
+            }
+            if (tx.gasLimit == null) {
+                tx.gasLimit = this.estimateGas(tx).catch((error) => {
+                    if (forwardErrors.indexOf(error.code) >= 0) {
+                        throw error;
+                    }
+                    return lib_esm_logger.throwError("cannot estimate gas; transaction may fail or may require manual gas limit", logger_lib_esm/* Logger.errors.UNPREDICTABLE_GAS_LIMIT */.Yd.errors.UNPREDICTABLE_GAS_LIMIT, {
+                        error: error,
+                        tx: tx
+                    });
+                });
+            }
+            if (tx.chainId == null) {
+                tx.chainId = this.getChainId();
+            }
+            else {
+                tx.chainId = Promise.all([
+                    Promise.resolve(tx.chainId),
+                    this.getChainId()
+                ]).then((results) => {
+                    if (results[1] !== 0 && results[0] !== results[1]) {
+                        lib_esm_logger.throwArgumentError("chainId address mismatch", "transaction", transaction);
+                    }
+                    return results[0];
+                });
+            }
+            return yield (0,properties_lib_esm/* resolveProperties */.mE)(tx);
+        });
+    }
+    ///////////////////
+    // Sub-classes SHOULD leave these alone
+    _checkProvider(operation) {
+        if (!this.provider) {
+            lib_esm_logger.throwError("missing provider", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                operation: (operation || "_checkProvider")
+            });
+        }
+    }
+    static isSigner(value) {
+        return !!(value && value._isSigner);
+    }
+}
+class VoidSigner extends (/* unused pure expression or super */ null && (Signer)) {
+    constructor(address, provider) {
+        lib_esm_logger.checkNew(new.target, VoidSigner);
+        super();
+        defineReadOnly(this, "address", address);
+        defineReadOnly(this, "provider", provider || null);
+    }
+    getAddress() {
+        return Promise.resolve(this.address);
+    }
+    _fail(message, operation) {
+        return Promise.resolve().then(() => {
+            lib_esm_logger.throwError(message, Logger.errors.UNSUPPORTED_OPERATION, { operation: operation });
+        });
+    }
+    signMessage(message) {
+        return this._fail("VoidSigner cannot sign messages", "signMessage");
+    }
+    signTransaction(transaction) {
+        return this._fail("VoidSigner cannot sign transactions", "signTransaction");
+    }
+    _signTypedData(domain, types, value) {
+        return this._fail("VoidSigner cannot sign typed data", "signTypedData");
+    }
+    connect(provider) {
+        return new VoidSigner(this.address, provider);
+    }
+}
+//# sourceMappingURL=index.js.map
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
+var bytes_lib_esm = __webpack_require__(75398);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
+var keccak256_lib_esm = __webpack_require__(59256);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/strings/lib.esm/utf8.js + 1 modules
+var utf8 = __webpack_require__(71320);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/message.js
+
+
+
+const messagePrefix = "\x19Ethereum Signed Message:\n";
+function message_hashMessage(message) {
+    if (typeof (message) === "string") {
+        message = (0,utf8/* toUtf8Bytes */.Y0)(message);
+    }
+    return (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([
+        (0,utf8/* toUtf8Bytes */.Y0)(messagePrefix),
+        (0,utf8/* toUtf8Bytes */.Y0)(String(message.length)),
+        message
+    ]));
+}
+//# sourceMappingURL=message.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/_version.js
+const lib_esm_version_version = "hash/5.6.0";
+//# sourceMappingURL=_version.js.map
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/hash/lib.esm/id.js
+var id = __webpack_require__(32235);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/hash/lib.esm/typed-data.js
+var typed_data_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+const typed_data_logger = new logger_lib_esm/* Logger */.Yd(lib_esm_version_version);
+
+const padding = new Uint8Array(32);
+padding.fill(0);
+const NegativeOne = bignumber/* BigNumber.from */.O$.from(-1);
+const Zero = bignumber/* BigNumber.from */.O$.from(0);
+const One = bignumber/* BigNumber.from */.O$.from(1);
+const MaxUint256 = bignumber/* BigNumber.from */.O$.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+function hexPadRight(value) {
+    const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
+    const padOffset = bytes.length % 32;
+    if (padOffset) {
+        return (0,bytes_lib_esm/* hexConcat */.xs)([bytes, padding.slice(padOffset)]);
+    }
+    return (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
+}
+const hexTrue = (0,bytes_lib_esm/* hexZeroPad */.$m)(One.toHexString(), 32);
+const hexFalse = (0,bytes_lib_esm/* hexZeroPad */.$m)(Zero.toHexString(), 32);
+const domainFieldTypes = {
+    name: "string",
+    version: "string",
+    chainId: "uint256",
+    verifyingContract: "address",
+    salt: "bytes32"
+};
+const domainFieldNames = [
+    "name", "version", "chainId", "verifyingContract", "salt"
+];
+function checkString(key) {
+    return function (value) {
+        if (typeof (value) !== "string") {
+            typed_data_logger.throwArgumentError(`invalid domain value for ${JSON.stringify(key)}`, `domain.${key}`, value);
+        }
+        return value;
+    };
+}
+const domainChecks = {
+    name: checkString("name"),
+    version: checkString("version"),
+    chainId: function (value) {
+        try {
+            return bignumber/* BigNumber.from */.O$.from(value).toString();
+        }
+        catch (error) { }
+        return typed_data_logger.throwArgumentError(`invalid domain value for "chainId"`, "domain.chainId", value);
+    },
+    verifyingContract: function (value) {
+        try {
+            return (0,lib_esm/* getAddress */.Kn)(value).toLowerCase();
+        }
+        catch (error) { }
+        return typed_data_logger.throwArgumentError(`invalid domain value "verifyingContract"`, "domain.verifyingContract", value);
+    },
+    salt: function (value) {
+        try {
+            const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
+            if (bytes.length !== 32) {
+                throw new Error("bad length");
+            }
+            return (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
+        }
+        catch (error) { }
+        return typed_data_logger.throwArgumentError(`invalid domain value "salt"`, "domain.salt", value);
+    }
+};
+function getBaseEncoder(type) {
+    // intXX and uintXX
+    {
+        const match = type.match(/^(u?)int(\d*)$/);
+        if (match) {
+            const signed = (match[1] === "");
+            const width = parseInt(match[2] || "256");
+            if (width % 8 !== 0 || width > 256 || (match[2] && match[2] !== String(width))) {
+                typed_data_logger.throwArgumentError("invalid numeric width", "type", type);
+            }
+            const boundsUpper = MaxUint256.mask(signed ? (width - 1) : width);
+            const boundsLower = signed ? boundsUpper.add(One).mul(NegativeOne) : Zero;
+            return function (value) {
+                const v = bignumber/* BigNumber.from */.O$.from(value);
+                if (v.lt(boundsLower) || v.gt(boundsUpper)) {
+                    typed_data_logger.throwArgumentError(`value out-of-bounds for ${type}`, "value", value);
+                }
+                return (0,bytes_lib_esm/* hexZeroPad */.$m)(v.toTwos(256).toHexString(), 32);
+            };
+        }
+    }
+    // bytesXX
+    {
+        const match = type.match(/^bytes(\d+)$/);
+        if (match) {
+            const width = parseInt(match[1]);
+            if (width === 0 || width > 32 || match[1] !== String(width)) {
+                typed_data_logger.throwArgumentError("invalid bytes width", "type", type);
+            }
+            return function (value) {
+                const bytes = (0,bytes_lib_esm/* arrayify */.lE)(value);
+                if (bytes.length !== width) {
+                    typed_data_logger.throwArgumentError(`invalid length for ${type}`, "value", value);
+                }
+                return hexPadRight(value);
+            };
+        }
+    }
+    switch (type) {
+        case "address": return function (value) {
+            return (0,bytes_lib_esm/* hexZeroPad */.$m)((0,lib_esm/* getAddress */.Kn)(value), 32);
+        };
+        case "bool": return function (value) {
+            return ((!value) ? hexFalse : hexTrue);
+        };
+        case "bytes": return function (value) {
+            return (0,keccak256_lib_esm/* keccak256 */.w)(value);
+        };
+        case "string": return function (value) {
+            return (0,id.id)(value);
+        };
+    }
+    return null;
+}
+function encodeType(name, fields) {
+    return `${name}(${fields.map(({ name, type }) => (type + " " + name)).join(",")})`;
+}
+class TypedDataEncoder {
+    constructor(types) {
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "types", Object.freeze((0,properties_lib_esm/* deepCopy */.p$)(types)));
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_encoderCache", {});
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_types", {});
+        // Link struct types to their direct child structs
+        const links = {};
+        // Link structs to structs which contain them as a child
+        const parents = {};
+        // Link all subtypes within a given struct
+        const subtypes = {};
+        Object.keys(types).forEach((type) => {
+            links[type] = {};
+            parents[type] = [];
+            subtypes[type] = {};
+        });
+        for (const name in types) {
+            const uniqueNames = {};
+            types[name].forEach((field) => {
+                // Check each field has a unique name
+                if (uniqueNames[field.name]) {
+                    typed_data_logger.throwArgumentError(`duplicate variable name ${JSON.stringify(field.name)} in ${JSON.stringify(name)}`, "types", types);
+                }
+                uniqueNames[field.name] = true;
+                // Get the base type (drop any array specifiers)
+                const baseType = field.type.match(/^([^\x5b]*)(\x5b|$)/)[1];
+                if (baseType === name) {
+                    typed_data_logger.throwArgumentError(`circular type reference to ${JSON.stringify(baseType)}`, "types", types);
+                }
+                // Is this a base encoding type?
+                const encoder = getBaseEncoder(baseType);
+                if (encoder) {
+                    return;
+                }
+                if (!parents[baseType]) {
+                    typed_data_logger.throwArgumentError(`unknown type ${JSON.stringify(baseType)}`, "types", types);
+                }
+                // Add linkage
+                parents[baseType].push(name);
+                links[name][baseType] = true;
+            });
+        }
+        // Deduce the primary type
+        const primaryTypes = Object.keys(parents).filter((n) => (parents[n].length === 0));
+        if (primaryTypes.length === 0) {
+            typed_data_logger.throwArgumentError("missing primary type", "types", types);
+        }
+        else if (primaryTypes.length > 1) {
+            typed_data_logger.throwArgumentError(`ambiguous primary types or unused types: ${primaryTypes.map((t) => (JSON.stringify(t))).join(", ")}`, "types", types);
+        }
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "primaryType", primaryTypes[0]);
+        // Check for circular type references
+        function checkCircular(type, found) {
+            if (found[type]) {
+                typed_data_logger.throwArgumentError(`circular type reference to ${JSON.stringify(type)}`, "types", types);
+            }
+            found[type] = true;
+            Object.keys(links[type]).forEach((child) => {
+                if (!parents[child]) {
+                    return;
+                }
+                // Recursively check children
+                checkCircular(child, found);
+                // Mark all ancestors as having this decendant
+                Object.keys(found).forEach((subtype) => {
+                    subtypes[subtype][child] = true;
+                });
+            });
+            delete found[type];
+        }
+        checkCircular(this.primaryType, {});
+        // Compute each fully describe type
+        for (const name in subtypes) {
+            const st = Object.keys(subtypes[name]);
+            st.sort();
+            this._types[name] = encodeType(name, types[name]) + st.map((t) => encodeType(t, types[t])).join("");
+        }
+    }
+    getEncoder(type) {
+        let encoder = this._encoderCache[type];
+        if (!encoder) {
+            encoder = this._encoderCache[type] = this._getEncoder(type);
+        }
+        return encoder;
+    }
+    _getEncoder(type) {
+        // Basic encoder type (address, bool, uint256, etc)
+        {
+            const encoder = getBaseEncoder(type);
+            if (encoder) {
+                return encoder;
+            }
+        }
+        // Array
+        const match = type.match(/^(.*)(\x5b(\d*)\x5d)$/);
+        if (match) {
+            const subtype = match[1];
+            const subEncoder = this.getEncoder(subtype);
+            const length = parseInt(match[3]);
+            return (value) => {
+                if (length >= 0 && value.length !== length) {
+                    typed_data_logger.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
+                }
+                let result = value.map(subEncoder);
+                if (this._types[subtype]) {
+                    result = result.map(keccak256_lib_esm/* keccak256 */.w);
+                }
+                return (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* hexConcat */.xs)(result));
+            };
+        }
+        // Struct
+        const fields = this.types[type];
+        if (fields) {
+            const encodedType = (0,id.id)(this._types[type]);
+            return (value) => {
+                const values = fields.map(({ name, type }) => {
+                    const result = this.getEncoder(type)(value[name]);
+                    if (this._types[type]) {
+                        return (0,keccak256_lib_esm/* keccak256 */.w)(result);
+                    }
+                    return result;
+                });
+                values.unshift(encodedType);
+                return (0,bytes_lib_esm/* hexConcat */.xs)(values);
+            };
+        }
+        return typed_data_logger.throwArgumentError(`unknown type: ${type}`, "type", type);
+    }
+    encodeType(name) {
+        const result = this._types[name];
+        if (!result) {
+            typed_data_logger.throwArgumentError(`unknown type: ${JSON.stringify(name)}`, "name", name);
+        }
+        return result;
+    }
+    encodeData(type, value) {
+        return this.getEncoder(type)(value);
+    }
+    hashStruct(name, value) {
+        return (0,keccak256_lib_esm/* keccak256 */.w)(this.encodeData(name, value));
+    }
+    encode(value) {
+        return this.encodeData(this.primaryType, value);
+    }
+    hash(value) {
+        return this.hashStruct(this.primaryType, value);
+    }
+    _visit(type, value, callback) {
+        // Basic encoder type (address, bool, uint256, etc)
+        {
+            const encoder = getBaseEncoder(type);
+            if (encoder) {
+                return callback(type, value);
+            }
+        }
+        // Array
+        const match = type.match(/^(.*)(\x5b(\d*)\x5d)$/);
+        if (match) {
+            const subtype = match[1];
+            const length = parseInt(match[3]);
+            if (length >= 0 && value.length !== length) {
+                typed_data_logger.throwArgumentError("array length mismatch; expected length ${ arrayLength }", "value", value);
+            }
+            return value.map((v) => this._visit(subtype, v, callback));
+        }
+        // Struct
+        const fields = this.types[type];
+        if (fields) {
+            return fields.reduce((accum, { name, type }) => {
+                accum[name] = this._visit(type, value[name], callback);
+                return accum;
+            }, {});
+        }
+        return typed_data_logger.throwArgumentError(`unknown type: ${type}`, "type", type);
+    }
+    visit(value, callback) {
+        return this._visit(this.primaryType, value, callback);
+    }
+    static from(types) {
+        return new TypedDataEncoder(types);
+    }
+    static getPrimaryType(types) {
+        return TypedDataEncoder.from(types).primaryType;
+    }
+    static hashStruct(name, types, value) {
+        return TypedDataEncoder.from(types).hashStruct(name, value);
+    }
+    static hashDomain(domain) {
+        const domainFields = [];
+        for (const name in domain) {
+            const type = domainFieldTypes[name];
+            if (!type) {
+                typed_data_logger.throwArgumentError(`invalid typed-data domain key: ${JSON.stringify(name)}`, "domain", domain);
+            }
+            domainFields.push({ name, type });
+        }
+        domainFields.sort((a, b) => {
+            return domainFieldNames.indexOf(a.name) - domainFieldNames.indexOf(b.name);
+        });
+        return TypedDataEncoder.hashStruct("EIP712Domain", { EIP712Domain: domainFields }, domain);
+    }
+    static encode(domain, types, value) {
+        return (0,bytes_lib_esm/* hexConcat */.xs)([
+            "0x1901",
+            TypedDataEncoder.hashDomain(domain),
+            TypedDataEncoder.from(types).hash(value)
+        ]);
+    }
+    static hash(domain, types, value) {
+        return (0,keccak256_lib_esm/* keccak256 */.w)(TypedDataEncoder.encode(domain, types, value));
+    }
+    // Replaces all address types with ENS names with their looked up address
+    static resolveNames(domain, types, value, resolveName) {
+        return typed_data_awaiter(this, void 0, void 0, function* () {
+            // Make a copy to isolate it from the object passed in
+            domain = (0,properties_lib_esm/* shallowCopy */.DC)(domain);
+            // Look up all ENS names
+            const ensCache = {};
+            // Do we need to look up the domain's verifyingContract?
+            if (domain.verifyingContract && !(0,bytes_lib_esm/* isHexString */.A7)(domain.verifyingContract, 20)) {
+                ensCache[domain.verifyingContract] = "0x";
+            }
+            // We are going to use the encoder to visit all the base values
+            const encoder = TypedDataEncoder.from(types);
+            // Get a list of all the addresses
+            encoder.visit(value, (type, value) => {
+                if (type === "address" && !(0,bytes_lib_esm/* isHexString */.A7)(value, 20)) {
+                    ensCache[value] = "0x";
+                }
+                return value;
+            });
+            // Lookup each name
+            for (const name in ensCache) {
+                ensCache[name] = yield resolveName(name);
+            }
+            // Replace the domain verifyingContract if needed
+            if (domain.verifyingContract && ensCache[domain.verifyingContract]) {
+                domain.verifyingContract = ensCache[domain.verifyingContract];
+            }
+            // Replace all ENS names with their address
+            value = encoder.visit(value, (type, value) => {
+                if (type === "address" && ensCache[value]) {
+                    return ensCache[value];
+                }
+                return value;
+            });
+            return { domain, value };
+        });
+    }
+    static getPayload(domain, types, value) {
+        // Validate the domain fields
+        TypedDataEncoder.hashDomain(domain);
+        // Derive the EIP712Domain Struct reference type
+        const domainValues = {};
+        const domainTypes = [];
+        domainFieldNames.forEach((name) => {
+            const value = domain[name];
+            if (value == null) {
+                return;
+            }
+            domainValues[name] = domainChecks[name](value);
+            domainTypes.push({ name, type: domainFieldTypes[name] });
+        });
+        const encoder = TypedDataEncoder.from(types);
+        const typesWithDomain = (0,properties_lib_esm/* shallowCopy */.DC)(types);
+        if (typesWithDomain.EIP712Domain) {
+            typed_data_logger.throwArgumentError("types must not contain EIP712Domain type", "types.EIP712Domain", types);
+        }
+        else {
+            typesWithDomain.EIP712Domain = domainTypes;
+        }
+        // Validate the data structures and types
+        encoder.encode(value);
+        return {
+            types: typesWithDomain,
+            domain: domainValues,
+            primaryType: encoder.primaryType,
+            message: encoder.visit(value, (type, value) => {
+                // bytes
+                if (type.match(/^bytes(\d*)/)) {
+                    return (0,bytes_lib_esm/* hexlify */.Dv)((0,bytes_lib_esm/* arrayify */.lE)(value));
+                }
+                // uint or int
+                if (type.match(/^u?int/)) {
+                    return bignumber/* BigNumber.from */.O$.from(value).toString();
+                }
+                switch (type) {
+                    case "address":
+                        return value.toLowerCase();
+                    case "bool":
+                        return !!value;
+                    case "string":
+                        if (typeof (value) !== "string") {
+                            typed_data_logger.throwArgumentError(`invalid string`, "value", value);
+                        }
+                        return value;
+                }
+                return typed_data_logger.throwArgumentError("unsupported type", "type", type);
+            })
+        };
+    }
+}
+//# sourceMappingURL=typed-data.js.map
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/hdnode/lib.esm/index.js + 6 modules
+var hdnode_lib_esm = __webpack_require__(71173);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/random/lib.esm/random.js + 1 modules
+var random = __webpack_require__(62191);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/signing-key/lib.esm/index.js + 2 modules
+var signing_key_lib_esm = __webpack_require__(3378);
+// EXTERNAL MODULE: ../../node_modules/aes-js/index.js
+var aes_js = __webpack_require__(8202);
+var aes_js_default = /*#__PURE__*/__webpack_require__.n(aes_js);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/pbkdf2/lib.esm/pbkdf2.js
+var pbkdf2 = __webpack_require__(55183);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/_version.js
+const json_wallets_lib_esm_version_version = "json-wallets/5.6.0";
+//# sourceMappingURL=_version.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/utils.js
+
+
+
+function looseArrayify(hexString) {
+    if (typeof (hexString) === 'string' && hexString.substring(0, 2) !== '0x') {
+        hexString = '0x' + hexString;
+    }
+    return (0,bytes_lib_esm/* arrayify */.lE)(hexString);
+}
+function zpad(value, length) {
+    value = String(value);
+    while (value.length < length) {
+        value = '0' + value;
+    }
+    return value;
+}
+function getPassword(password) {
+    if (typeof (password) === 'string') {
+        return (0,utf8/* toUtf8Bytes */.Y0)(password, utf8/* UnicodeNormalizationForm.NFKC */.Uj.NFKC);
+    }
+    return (0,bytes_lib_esm/* arrayify */.lE)(password);
+}
+function searchPath(object, path) {
+    let currentChild = object;
+    const comps = path.toLowerCase().split('/');
+    for (let i = 0; i < comps.length; i++) {
+        // Search for a child object with a case-insensitive matching key
+        let matchingChild = null;
+        for (const key in currentChild) {
+            if (key.toLowerCase() === comps[i]) {
+                matchingChild = currentChild[key];
+                break;
+            }
+        }
+        // Didn't find one. :'(
+        if (matchingChild === null) {
+            return null;
+        }
+        // Now check this child...
+        currentChild = matchingChild;
+    }
+    return currentChild;
+}
+// See: https://www.ietf.org/rfc/rfc4122.txt (Section 4.4)
+function uuidV4(randomBytes) {
+    const bytes = (0,bytes_lib_esm/* arrayify */.lE)(randomBytes);
+    // Section: 4.1.3:
+    // - time_hi_and_version[12:16] = 0b0100
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    // Section 4.4
+    // - clock_seq_hi_and_reserved[6] = 0b0
+    // - clock_seq_hi_and_reserved[7] = 0b1
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const value = (0,bytes_lib_esm/* hexlify */.Dv)(bytes);
+    return [
+        value.substring(2, 10),
+        value.substring(10, 14),
+        value.substring(14, 18),
+        value.substring(18, 22),
+        value.substring(22, 34),
+    ].join("-");
+}
+//# sourceMappingURL=utils.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/crowdsale.js
+
+
+
+
+
+
+
+
+
+
+const crowdsale_logger = new logger_lib_esm/* Logger */.Yd(json_wallets_lib_esm_version_version);
+
+class CrowdsaleAccount extends properties_lib_esm/* Description */.dk {
+    isCrowdsaleAccount(value) {
+        return !!(value && value._isCrowdsaleAccount);
+    }
+}
+// See: https://github.com/ethereum/pyethsaletool
+function decrypt(json, password) {
+    const data = JSON.parse(json);
+    password = getPassword(password);
+    // Ethereum Address
+    const ethaddr = (0,lib_esm/* getAddress */.Kn)(searchPath(data, "ethaddr"));
+    // Encrypted Seed
+    const encseed = looseArrayify(searchPath(data, "encseed"));
+    if (!encseed || (encseed.length % 16) !== 0) {
+        crowdsale_logger.throwArgumentError("invalid encseed", "json", json);
+    }
+    const key = (0,bytes_lib_esm/* arrayify */.lE)((0,pbkdf2/* pbkdf2 */.n)(password, password, 2000, 32, "sha256")).slice(0, 16);
+    const iv = encseed.slice(0, 16);
+    const encryptedSeed = encseed.slice(16);
+    // Decrypt the seed
+    const aesCbc = new (aes_js_default()).ModeOfOperation.cbc(key, iv);
+    const seed = aes_js_default().padding.pkcs7.strip((0,bytes_lib_esm/* arrayify */.lE)(aesCbc.decrypt(encryptedSeed)));
+    // This wallet format is weird... Convert the binary encoded hex to a string.
+    let seedHex = "";
+    for (let i = 0; i < seed.length; i++) {
+        seedHex += String.fromCharCode(seed[i]);
+    }
+    const seedHexBytes = (0,utf8/* toUtf8Bytes */.Y0)(seedHex);
+    const privateKey = (0,keccak256_lib_esm/* keccak256 */.w)(seedHexBytes);
+    return new CrowdsaleAccount({
+        _isCrowdsaleAccount: true,
+        address: ethaddr,
+        privateKey: privateKey
+    });
+}
+//# sourceMappingURL=crowdsale.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/inspect.js
+
+
+function isCrowdsaleWallet(json) {
+    let data = null;
+    try {
+        data = JSON.parse(json);
+    }
+    catch (error) {
+        return false;
+    }
+    return (data.encseed && data.ethaddr);
+}
+function isKeystoreWallet(json) {
+    let data = null;
+    try {
+        data = JSON.parse(json);
+    }
+    catch (error) {
+        return false;
+    }
+    if (!data.version || parseInt(data.version) !== data.version || parseInt(data.version) !== 3) {
+        return false;
+    }
+    // @TODO: Put more checks to make sure it has kdf, iv and all that good stuff
+    return true;
+}
+//export function isJsonWallet(json: string): boolean {
+//    return (isSecretStorageWallet(json) || isCrowdsaleWallet(json));
+//}
+function getJsonWalletAddress(json) {
+    if (isCrowdsaleWallet(json)) {
+        try {
+            return getAddress(JSON.parse(json).ethaddr);
+        }
+        catch (error) {
+            return null;
+        }
+    }
+    if (isKeystoreWallet(json)) {
+        try {
+            return getAddress(JSON.parse(json).address);
+        }
+        catch (error) {
+            return null;
+        }
+    }
+    return null;
+}
+//# sourceMappingURL=inspect.js.map
+// EXTERNAL MODULE: ../../node_modules/scrypt-js/scrypt.js
+var scrypt = __webpack_require__(14689);
+var scrypt_default = /*#__PURE__*/__webpack_require__.n(scrypt);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/keystore.js
+
+var keystore_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+const keystore_logger = new logger_lib_esm/* Logger */.Yd(json_wallets_lib_esm_version_version);
+// Exported Types
+function hasMnemonic(value) {
+    return (value != null && value.mnemonic && value.mnemonic.phrase);
+}
+class KeystoreAccount extends properties_lib_esm/* Description */.dk {
+    isKeystoreAccount(value) {
+        return !!(value && value._isKeystoreAccount);
+    }
+}
+function _decrypt(data, key, ciphertext) {
+    const cipher = searchPath(data, "crypto/cipher");
+    if (cipher === "aes-128-ctr") {
+        const iv = looseArrayify(searchPath(data, "crypto/cipherparams/iv"));
+        const counter = new (aes_js_default()).Counter(iv);
+        const aesCtr = new (aes_js_default()).ModeOfOperation.ctr(key, counter);
+        return (0,bytes_lib_esm/* arrayify */.lE)(aesCtr.decrypt(ciphertext));
+    }
+    return null;
+}
+function _getAccount(data, key) {
+    const ciphertext = looseArrayify(searchPath(data, "crypto/ciphertext"));
+    const computedMAC = (0,bytes_lib_esm/* hexlify */.Dv)((0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([key.slice(16, 32), ciphertext]))).substring(2);
+    if (computedMAC !== searchPath(data, "crypto/mac").toLowerCase()) {
+        throw new Error("invalid password");
+    }
+    const privateKey = _decrypt(data, key.slice(0, 16), ciphertext);
+    if (!privateKey) {
+        keystore_logger.throwError("unsupported cipher", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+            operation: "decrypt"
+        });
+    }
+    const mnemonicKey = key.slice(32, 64);
+    const address = (0,transactions_lib_esm/* computeAddress */.db)(privateKey);
+    if (data.address) {
+        let check = data.address.toLowerCase();
+        if (check.substring(0, 2) !== "0x") {
+            check = "0x" + check;
+        }
+        if ((0,lib_esm/* getAddress */.Kn)(check) !== address) {
+            throw new Error("address mismatch");
+        }
+    }
+    const account = {
+        _isKeystoreAccount: true,
+        address: address,
+        privateKey: (0,bytes_lib_esm/* hexlify */.Dv)(privateKey)
+    };
+    // Version 0.1 x-ethers metadata must contain an encrypted mnemonic phrase
+    if (searchPath(data, "x-ethers/version") === "0.1") {
+        const mnemonicCiphertext = looseArrayify(searchPath(data, "x-ethers/mnemonicCiphertext"));
+        const mnemonicIv = looseArrayify(searchPath(data, "x-ethers/mnemonicCounter"));
+        const mnemonicCounter = new (aes_js_default()).Counter(mnemonicIv);
+        const mnemonicAesCtr = new (aes_js_default()).ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
+        const path = searchPath(data, "x-ethers/path") || hdnode_lib_esm/* defaultPath */.cD;
+        const locale = searchPath(data, "x-ethers/locale") || "en";
+        const entropy = (0,bytes_lib_esm/* arrayify */.lE)(mnemonicAesCtr.decrypt(mnemonicCiphertext));
+        try {
+            const mnemonic = (0,hdnode_lib_esm/* entropyToMnemonic */.JJ)(entropy, locale);
+            const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic, null, locale).derivePath(path);
+            if (node.privateKey != account.privateKey) {
+                throw new Error("mnemonic mismatch");
+            }
+            account.mnemonic = node.mnemonic;
+        }
+        catch (error) {
+            // If we don't have the locale wordlist installed to
+            // read this mnemonic, just bail and don't set the
+            // mnemonic
+            if (error.code !== logger_lib_esm/* Logger.errors.INVALID_ARGUMENT */.Yd.errors.INVALID_ARGUMENT || error.argument !== "wordlist") {
+                throw error;
+            }
+        }
+    }
+    return new KeystoreAccount(account);
+}
+function pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc) {
+    return (0,bytes_lib_esm/* arrayify */.lE)((0,pbkdf2/* pbkdf2 */.n)(passwordBytes, salt, count, dkLen, prfFunc));
+}
+function keystore_pbkdf2(passwordBytes, salt, count, dkLen, prfFunc) {
+    return Promise.resolve(pbkdf2Sync(passwordBytes, salt, count, dkLen, prfFunc));
+}
+function _computeKdfKey(data, password, pbkdf2Func, scryptFunc, progressCallback) {
+    const passwordBytes = getPassword(password);
+    const kdf = searchPath(data, "crypto/kdf");
+    if (kdf && typeof (kdf) === "string") {
+        const throwError = function (name, value) {
+            return keystore_logger.throwArgumentError("invalid key-derivation function parameters", name, value);
+        };
+        if (kdf.toLowerCase() === "scrypt") {
+            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
+            const N = parseInt(searchPath(data, "crypto/kdfparams/n"));
+            const r = parseInt(searchPath(data, "crypto/kdfparams/r"));
+            const p = parseInt(searchPath(data, "crypto/kdfparams/p"));
+            // Check for all required parameters
+            if (!N || !r || !p) {
+                throwError("kdf", kdf);
+            }
+            // Make sure N is a power of 2
+            if ((N & (N - 1)) !== 0) {
+                throwError("N", N);
+            }
+            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
+            if (dkLen !== 32) {
+                throwError("dklen", dkLen);
+            }
+            return scryptFunc(passwordBytes, salt, N, r, p, 64, progressCallback);
+        }
+        else if (kdf.toLowerCase() === "pbkdf2") {
+            const salt = looseArrayify(searchPath(data, "crypto/kdfparams/salt"));
+            let prfFunc = null;
+            const prf = searchPath(data, "crypto/kdfparams/prf");
+            if (prf === "hmac-sha256") {
+                prfFunc = "sha256";
+            }
+            else if (prf === "hmac-sha512") {
+                prfFunc = "sha512";
+            }
+            else {
+                throwError("prf", prf);
+            }
+            const count = parseInt(searchPath(data, "crypto/kdfparams/c"));
+            const dkLen = parseInt(searchPath(data, "crypto/kdfparams/dklen"));
+            if (dkLen !== 32) {
+                throwError("dklen", dkLen);
+            }
+            return pbkdf2Func(passwordBytes, salt, count, dkLen, prfFunc);
+        }
+    }
+    return keystore_logger.throwArgumentError("unsupported key-derivation function", "kdf", kdf);
+}
+function decryptSync(json, password) {
+    const data = JSON.parse(json);
+    const key = _computeKdfKey(data, password, pbkdf2Sync, (scrypt_default()).syncScrypt);
+    return _getAccount(data, key);
+}
+function keystore_decrypt(json, password, progressCallback) {
+    return keystore_awaiter(this, void 0, void 0, function* () {
+        const data = JSON.parse(json);
+        const key = yield _computeKdfKey(data, password, keystore_pbkdf2, (scrypt_default()).scrypt, progressCallback);
+        return _getAccount(data, key);
+    });
+}
+function encrypt(account, password, options, progressCallback) {
+    try {
+        // Check the address matches the private key
+        if ((0,lib_esm/* getAddress */.Kn)(account.address) !== (0,transactions_lib_esm/* computeAddress */.db)(account.privateKey)) {
+            throw new Error("address/privateKey mismatch");
+        }
+        // Check the mnemonic (if any) matches the private key
+        if (hasMnemonic(account)) {
+            const mnemonic = account.mnemonic;
+            const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic.phrase, null, mnemonic.locale).derivePath(mnemonic.path || hdnode_lib_esm/* defaultPath */.cD);
+            if (node.privateKey != account.privateKey) {
+                throw new Error("mnemonic mismatch");
+            }
+        }
+    }
+    catch (e) {
+        return Promise.reject(e);
+    }
+    // The options are optional, so adjust the call as needed
+    if (typeof (options) === "function" && !progressCallback) {
+        progressCallback = options;
+        options = {};
+    }
+    if (!options) {
+        options = {};
+    }
+    const privateKey = (0,bytes_lib_esm/* arrayify */.lE)(account.privateKey);
+    const passwordBytes = getPassword(password);
+    let entropy = null;
+    let path = null;
+    let locale = null;
+    if (hasMnemonic(account)) {
+        const srcMnemonic = account.mnemonic;
+        entropy = (0,bytes_lib_esm/* arrayify */.lE)((0,hdnode_lib_esm/* mnemonicToEntropy */.oy)(srcMnemonic.phrase, srcMnemonic.locale || "en"));
+        path = srcMnemonic.path || hdnode_lib_esm/* defaultPath */.cD;
+        locale = srcMnemonic.locale || "en";
+    }
+    let client = options.client;
+    if (!client) {
+        client = "ethers.js";
+    }
+    // Check/generate the salt
+    let salt = null;
+    if (options.salt) {
+        salt = (0,bytes_lib_esm/* arrayify */.lE)(options.salt);
+    }
+    else {
+        salt = (0,random/* randomBytes */.O)(32);
+        ;
+    }
+    // Override initialization vector
+    let iv = null;
+    if (options.iv) {
+        iv = (0,bytes_lib_esm/* arrayify */.lE)(options.iv);
+        if (iv.length !== 16) {
+            throw new Error("invalid iv");
+        }
+    }
+    else {
+        iv = (0,random/* randomBytes */.O)(16);
+    }
+    // Override the uuid
+    let uuidRandom = null;
+    if (options.uuid) {
+        uuidRandom = (0,bytes_lib_esm/* arrayify */.lE)(options.uuid);
+        if (uuidRandom.length !== 16) {
+            throw new Error("invalid uuid");
+        }
+    }
+    else {
+        uuidRandom = (0,random/* randomBytes */.O)(16);
+    }
+    // Override the scrypt password-based key derivation function parameters
+    let N = (1 << 17), r = 8, p = 1;
+    if (options.scrypt) {
+        if (options.scrypt.N) {
+            N = options.scrypt.N;
+        }
+        if (options.scrypt.r) {
+            r = options.scrypt.r;
+        }
+        if (options.scrypt.p) {
+            p = options.scrypt.p;
+        }
+    }
+    // We take 64 bytes:
+    //   - 32 bytes   As normal for the Web3 secret storage (derivedKey, macPrefix)
+    //   - 32 bytes   AES key to encrypt mnemonic with (required here to be Ethers Wallet)
+    return scrypt_default().scrypt(passwordBytes, salt, N, r, p, 64, progressCallback).then((key) => {
+        key = (0,bytes_lib_esm/* arrayify */.lE)(key);
+        // This will be used to encrypt the wallet (as per Web3 secret storage)
+        const derivedKey = key.slice(0, 16);
+        const macPrefix = key.slice(16, 32);
+        // This will be used to encrypt the mnemonic phrase (if any)
+        const mnemonicKey = key.slice(32, 64);
+        // Encrypt the private key
+        const counter = new (aes_js_default()).Counter(iv);
+        const aesCtr = new (aes_js_default()).ModeOfOperation.ctr(derivedKey, counter);
+        const ciphertext = (0,bytes_lib_esm/* arrayify */.lE)(aesCtr.encrypt(privateKey));
+        // Compute the message authentication code, used to check the password
+        const mac = (0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([macPrefix, ciphertext]));
+        // See: https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition
+        const data = {
+            address: account.address.substring(2).toLowerCase(),
+            id: uuidV4(uuidRandom),
+            version: 3,
+            Crypto: {
+                cipher: "aes-128-ctr",
+                cipherparams: {
+                    iv: (0,bytes_lib_esm/* hexlify */.Dv)(iv).substring(2),
+                },
+                ciphertext: (0,bytes_lib_esm/* hexlify */.Dv)(ciphertext).substring(2),
+                kdf: "scrypt",
+                kdfparams: {
+                    salt: (0,bytes_lib_esm/* hexlify */.Dv)(salt).substring(2),
+                    n: N,
+                    dklen: 32,
+                    p: p,
+                    r: r
+                },
+                mac: mac.substring(2)
+            }
+        };
+        // If we have a mnemonic, encrypt it into the JSON wallet
+        if (entropy) {
+            const mnemonicIv = (0,random/* randomBytes */.O)(16);
+            const mnemonicCounter = new (aes_js_default()).Counter(mnemonicIv);
+            const mnemonicAesCtr = new (aes_js_default()).ModeOfOperation.ctr(mnemonicKey, mnemonicCounter);
+            const mnemonicCiphertext = (0,bytes_lib_esm/* arrayify */.lE)(mnemonicAesCtr.encrypt(entropy));
+            const now = new Date();
+            const timestamp = (now.getUTCFullYear() + "-" +
+                zpad(now.getUTCMonth() + 1, 2) + "-" +
+                zpad(now.getUTCDate(), 2) + "T" +
+                zpad(now.getUTCHours(), 2) + "-" +
+                zpad(now.getUTCMinutes(), 2) + "-" +
+                zpad(now.getUTCSeconds(), 2) + ".0Z");
+            data["x-ethers"] = {
+                client: client,
+                gethFilename: ("UTC--" + timestamp + "--" + data.address),
+                mnemonicCounter: (0,bytes_lib_esm/* hexlify */.Dv)(mnemonicIv).substring(2),
+                mnemonicCiphertext: (0,bytes_lib_esm/* hexlify */.Dv)(mnemonicCiphertext).substring(2),
+                path: path,
+                locale: locale,
+                version: "0.1"
+            };
+        }
+        return JSON.stringify(data);
+    });
+}
+//# sourceMappingURL=keystore.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/json-wallets/lib.esm/index.js
+
+
+
+
+function decryptJsonWallet(json, password, progressCallback) {
+    if (isCrowdsaleWallet(json)) {
+        if (progressCallback) {
+            progressCallback(0);
+        }
+        const account = decrypt(json, password);
+        if (progressCallback) {
+            progressCallback(1);
+        }
+        return Promise.resolve(account);
+    }
+    if (isKeystoreWallet(json)) {
+        return keystore_decrypt(json, password, progressCallback);
+    }
+    return Promise.reject(new Error("invalid JSON wallet"));
+}
+function decryptJsonWalletSync(json, password) {
+    if (isCrowdsaleWallet(json)) {
+        return decrypt(json, password);
+    }
+    if (isKeystoreWallet(json)) {
+        return decryptSync(json, password);
+    }
+    throw new Error("invalid JSON wallet");
+}
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/_version.js
+const wallet_lib_esm_version_version = "wallet/5.6.0";
+//# sourceMappingURL=_version.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/index.js
+
+var wallet_lib_esm_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const wallet_lib_esm_logger = new logger_lib_esm/* Logger */.Yd(wallet_lib_esm_version_version);
+function isAccount(value) {
+    return (value != null && (0,bytes_lib_esm/* isHexString */.A7)(value.privateKey, 32) && value.address != null);
+}
+function lib_esm_hasMnemonic(value) {
+    const mnemonic = value.mnemonic;
+    return (mnemonic && mnemonic.phrase);
+}
+class Wallet extends Signer {
+    constructor(privateKey, provider) {
+        wallet_lib_esm_logger.checkNew(new.target, Wallet);
+        super();
+        if (isAccount(privateKey)) {
+            const signingKey = new signing_key_lib_esm/* SigningKey */.Et(privateKey.privateKey);
+            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => signingKey);
+            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "address", (0,transactions_lib_esm/* computeAddress */.db)(this.publicKey));
+            if (this.address !== (0,lib_esm/* getAddress */.Kn)(privateKey.address)) {
+                wallet_lib_esm_logger.throwArgumentError("privateKey/address mismatch", "privateKey", "[REDACTED]");
+            }
+            if (lib_esm_hasMnemonic(privateKey)) {
+                const srcMnemonic = privateKey.mnemonic;
+                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => ({
+                    phrase: srcMnemonic.phrase,
+                    path: srcMnemonic.path || hdnode_lib_esm/* defaultPath */.cD,
+                    locale: srcMnemonic.locale || "en"
+                }));
+                const mnemonic = this.mnemonic;
+                const node = hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic.phrase, null, mnemonic.locale).derivePath(mnemonic.path);
+                if ((0,transactions_lib_esm/* computeAddress */.db)(node.privateKey) !== this.address) {
+                    wallet_lib_esm_logger.throwArgumentError("mnemonic/address mismatch", "privateKey", "[REDACTED]");
+                }
+            }
+            else {
+                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => null);
+            }
+        }
+        else {
+            if (signing_key_lib_esm/* SigningKey.isSigningKey */.Et.isSigningKey(privateKey)) {
+                /* istanbul ignore if */
+                if (privateKey.curve !== "secp256k1") {
+                    wallet_lib_esm_logger.throwArgumentError("unsupported curve; must be secp256k1", "privateKey", "[REDACTED]");
+                }
+                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => privateKey);
+            }
+            else {
+                // A lot of common tools do not prefix private keys with a 0x (see: #1166)
+                if (typeof (privateKey) === "string") {
+                    if (privateKey.match(/^[0-9a-f]*$/i) && privateKey.length === 64) {
+                        privateKey = "0x" + privateKey;
+                    }
+                }
+                const signingKey = new signing_key_lib_esm/* SigningKey */.Et(privateKey);
+                (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_signingKey", () => signingKey);
+            }
+            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "_mnemonic", () => null);
+            (0,properties_lib_esm/* defineReadOnly */.zG)(this, "address", (0,transactions_lib_esm/* computeAddress */.db)(this.publicKey));
+        }
+        /* istanbul ignore if */
+        if (provider && !Provider.isProvider(provider)) {
+            wallet_lib_esm_logger.throwArgumentError("invalid provider", "provider", provider);
+        }
+        (0,properties_lib_esm/* defineReadOnly */.zG)(this, "provider", provider || null);
+    }
+    get mnemonic() { return this._mnemonic(); }
+    get privateKey() { return this._signingKey().privateKey; }
+    get publicKey() { return this._signingKey().publicKey; }
+    getAddress() {
+        return Promise.resolve(this.address);
+    }
+    connect(provider) {
+        return new Wallet(this, provider);
+    }
+    signTransaction(transaction) {
+        return (0,properties_lib_esm/* resolveProperties */.mE)(transaction).then((tx) => {
+            if (tx.from != null) {
+                if ((0,lib_esm/* getAddress */.Kn)(tx.from) !== this.address) {
+                    wallet_lib_esm_logger.throwArgumentError("transaction from address mismatch", "transaction.from", transaction.from);
+                }
+                delete tx.from;
+            }
+            const signature = this._signingKey().signDigest((0,keccak256_lib_esm/* keccak256 */.w)((0,transactions_lib_esm/* serialize */.qC)(tx)));
+            return (0,transactions_lib_esm/* serialize */.qC)(tx, signature);
+        });
+    }
+    signMessage(message) {
+        return wallet_lib_esm_awaiter(this, void 0, void 0, function* () {
+            return (0,bytes_lib_esm/* joinSignature */.gV)(this._signingKey().signDigest(message_hashMessage(message)));
+        });
+    }
+    _signTypedData(domain, types, value) {
+        return wallet_lib_esm_awaiter(this, void 0, void 0, function* () {
+            // Populate any ENS names
+            const populated = yield TypedDataEncoder.resolveNames(domain, types, value, (name) => {
+                if (this.provider == null) {
+                    wallet_lib_esm_logger.throwError("cannot resolve ENS names without a provider", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                        operation: "resolveName",
+                        value: name
+                    });
+                }
+                return this.provider.resolveName(name);
+            });
+            return (0,bytes_lib_esm/* joinSignature */.gV)(this._signingKey().signDigest(TypedDataEncoder.hash(populated.domain, types, populated.value)));
+        });
+    }
+    encrypt(password, options, progressCallback) {
+        if (typeof (options) === "function" && !progressCallback) {
+            progressCallback = options;
+            options = {};
+        }
+        if (progressCallback && typeof (progressCallback) !== "function") {
+            throw new Error("invalid callback");
+        }
+        if (!options) {
+            options = {};
+        }
+        return encrypt(this, password, options, progressCallback);
+    }
+    /**
+     *  Static methods to create Wallet instances.
+     */
+    static createRandom(options) {
+        let entropy = (0,random/* randomBytes */.O)(16);
+        if (!options) {
+            options = {};
+        }
+        if (options.extraEntropy) {
+            entropy = (0,bytes_lib_esm/* arrayify */.lE)((0,bytes_lib_esm/* hexDataSlice */.p3)((0,keccak256_lib_esm/* keccak256 */.w)((0,bytes_lib_esm/* concat */.zo)([entropy, options.extraEntropy])), 0, 16));
+        }
+        const mnemonic = (0,hdnode_lib_esm/* entropyToMnemonic */.JJ)(entropy, options.locale);
+        return Wallet.fromMnemonic(mnemonic, options.path, options.locale);
+    }
+    static fromEncryptedJson(json, password, progressCallback) {
+        return decryptJsonWallet(json, password, progressCallback).then((account) => {
+            return new Wallet(account);
+        });
+    }
+    static fromEncryptedJsonSync(json, password) {
+        return new Wallet(decryptJsonWalletSync(json, password));
+    }
+    static fromMnemonic(mnemonic, path, wordlist) {
+        if (!path) {
+            path = hdnode_lib_esm/* defaultPath */.cD;
+        }
+        return new Wallet(hdnode_lib_esm/* HDNode.fromMnemonic */.m$.fromMnemonic(mnemonic, null, wordlist).derivePath(path));
+    }
+}
+function verifyMessage(message, signature) {
+    return recoverAddress(hashMessage(message), signature);
+}
+function verifyTypedData(domain, types, value, signature) {
+    return recoverAddress(_TypedDataEncoder.hash(domain, types, value), signature);
+}
+//# sourceMappingURL=index.js.map
 // EXTERNAL MODULE: ../../packages/utils/index.js
 var utils = __webpack_require__(11818);
 ;// CONCATENATED MODULE: ../../node_modules/@thi.ng/compose/thread-first.js
@@ -60197,7 +60176,7 @@ var comp = __webpack_require__(4088);
 // EXTERNAL MODULE: ../../packages/consts/index.js
 var consts = __webpack_require__(9414);
 ;// CONCATENATED MODULE: ../../packages/account/index.js
-const create=({pk}={})=>{const kp=pk?new wallet_lib_esm/* Wallet */.w5(pk):wallet_lib_esm/* Wallet.createRandom */.w5.createRandom();return kp;};const toChecksum=(0,comp/* compL */.zv)(utils/* addHexPrefix */.L_,lib_esm/* getAddress */.Kn);const isChecksummed=(0,comp/* compL */.zv)(utils/* addHexPrefix */.L_,addr=>{try{return Boolean((0,lib_esm/* getAddress */.Kn)(addr));}catch(err){return false;}});const fromPrivate=pk=>({address:threadFirst(pk,utils/* addHexPrefix */.L_,transactions_lib_esm/* computeAddress */.db),privateKey:(0,utils/* addHexPrefix */.L_)(pk)});const toAccountAddress=address=>{return address.replace(/^0x./,'0x1');};const toContractAddress=address=>{return address.replace(/^0x./,'0x8');};const randomHexAddress=(type,checksum=false)=>{if(type&&!consts/* ADDRESS_TYPES.includes */._t.includes(type))throw new Error(`Invalid address type ${type}`);if(type==='builtin')return consts/* INTERNAL_CONTRACTS_HEX_ADDRESS */.kg[(0,utils/* randomInt */.Iy)(consts/* INTERNAL_CONTRACTS_HEX_ADDRESS.length */.kg.length)];if(type==='null')return consts/* NULL_HEX_ADDRESS */.JV;const addr=create().address;if(type==='user')return toAccountAddress(addr);if(type==='contract')return toContractAddress(addr);if(checksum)return toChecksum(addr);return addr;};const isHexAddress=address=>/^0x[0-9a-fA-F]{40}$/.test(address);const isUserHexAddress=address=>address.startsWith('0x1');const isContractAddress=address=>address.startsWith('0x8');const isBuiltInAddress=address=>INTERNAL_CONTRACTS_HEX_ADDRESS.includes(address.toLowerCase());const isNullHexAddress=address=>address===NULL_HEX_ADDRESS;const isCfxHexAddress=address=>isUserHexAddress(address)||isContractAddress(address)||isBuiltInAddress(address)||isNullHexAddress(address);const validateHexAddress=(address,type)=>{if(typeof address!=='string')throw new Error('Invalid address, must be a 0x-prefixed string');if(!address.startsWith('0x'))throw new Error('Invalid address, must be a 0x-prefixed string');if(!isHexAddress(address))return false;if(type==='eth')return true;if(type==='user')return isUserHexAddress(address);if(type==='contract')return isContractAddress(address);if(type==='builtin')return isBuiltInAddress(address);if(type==='null')return isNullHexAddress(address);return isCfxHexAddress(address);};const randomAddressType=()=>{return consts/* ADDRESS_TYPES */._t[(0,utils/* randomInt */.Iy)(consts/* ADDRESS_TYPES.length */._t.length)];};const randomCfxHexAddress=()=>{return randomHexAddress(randomAddressType());};const randomPrivateKey=()=>{return create().privateKey;};const validatePrivateKey=privateKey=>{let valid=false;try{const rst=fromPrivate(privateKey);valid=Boolean(rst.address);}catch(err){valid=false;}return valid;};
+const create=({pk}={})=>{const kp=pk?new Wallet(pk):Wallet.createRandom();return kp;};const toChecksum=(0,comp/* compL */.zv)(utils/* addHexPrefix */.L_,lib_esm/* getAddress */.Kn);const isChecksummed=(0,comp/* compL */.zv)(utils/* addHexPrefix */.L_,addr=>{try{return Boolean((0,lib_esm/* getAddress */.Kn)(addr));}catch(err){return false;}});const fromPrivate=pk=>({address:threadFirst(pk,utils/* addHexPrefix */.L_,transactions_lib_esm/* computeAddress */.db),privateKey:(0,utils/* addHexPrefix */.L_)(pk)});const toAccountAddress=address=>{return address.replace(/^0x./,'0x1');};const toContractAddress=address=>{return address.replace(/^0x./,'0x8');};const randomHexAddress=(type,checksum=false)=>{if(type&&!consts/* ADDRESS_TYPES.includes */._t.includes(type))throw new Error(`Invalid address type ${type}`);if(type==='builtin')return consts/* INTERNAL_CONTRACTS_HEX_ADDRESS */.kg[(0,utils/* randomInt */.Iy)(consts/* INTERNAL_CONTRACTS_HEX_ADDRESS.length */.kg.length)];if(type==='null')return consts/* NULL_HEX_ADDRESS */.JV;const addr=create().address;if(type==='user')return toAccountAddress(addr);if(type==='contract')return toContractAddress(addr);if(checksum)return toChecksum(addr);return addr;};const isHexAddress=address=>/^0x[0-9a-fA-F]{40}$/.test(address);const isUserHexAddress=address=>address.startsWith('0x1');const isContractAddress=address=>address.startsWith('0x8');const isBuiltInAddress=address=>INTERNAL_CONTRACTS_HEX_ADDRESS.includes(address.toLowerCase());const isNullHexAddress=address=>address===NULL_HEX_ADDRESS;const isCfxHexAddress=address=>isUserHexAddress(address)||isContractAddress(address)||isBuiltInAddress(address)||isNullHexAddress(address);const validateHexAddress=(address,type)=>{if(typeof address!=='string')throw new Error('Invalid address, must be a 0x-prefixed string');if(!address.startsWith('0x'))throw new Error('Invalid address, must be a 0x-prefixed string');if(!isHexAddress(address))return false;if(type==='eth')return true;if(type==='user')return isUserHexAddress(address);if(type==='contract')return isContractAddress(address);if(type==='builtin')return isBuiltInAddress(address);if(type==='null')return isNullHexAddress(address);return isCfxHexAddress(address);};const randomAddressType=()=>{return consts/* ADDRESS_TYPES */._t[(0,utils/* randomInt */.Iy)(consts/* ADDRESS_TYPES.length */._t.length)];};const randomCfxHexAddress=()=>{return randomHexAddress(randomAddressType());};const randomPrivateKey=()=>{return create().privateKey;};const validatePrivateKey=privateKey=>{let valid=false;try{const rst=fromPrivate(privateKey);valid=Boolean(rst.address);}catch(err){valid=false;}return valid;};
 
 /***/ }),
 
@@ -60210,7 +60189,7 @@ const create=({pk}={})=>{const kp=pk?new wallet_lib_esm/* Wallet */.w5(pk):walle
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2723);
 /* harmony import */ var _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9414);
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(11239);
 const ADDR_TYPE_TO_PREFIX={user:'0x1',contract:'0x8',null:'0x0',builtin:'0x0'};const addrByNetwork=({address,networkType,networkId,addressType,privateKey}={})=>{if(typeof address!=='string')throw new Error('Invalid address, must be a string');if(!['cfx','eth'].includes(networkType))throw new Error('Invalid networkType, must be cfx or eth');if(networkId!==undefined&&networkId!==null&&!Number.isSafeInteger(networkId))throw new Error('Invalid networkId, must be a safe integer');if(networkType==='cfx'&&!Number.isSafeInteger(networkId))throw new Error('Invalid networkId, must be a safe integer');if(addressType&&!_fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_1__/* .ADDRESS_TYPES.includes */ ._t.includes(addressType))throw new Error('Invalid addressType, must be one of '+_fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_1__/* .ADDRESS_TYPES.toString */ ._t.toString());if(networkType==='cfx'){if(addressType==='null')address='0x0000000000000000000000000000000000000000';if((0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__/* .validateBase32Address */ .pd)(address,networkId,addressType))return address;if(address.includes(':')){if(addressType&&!(0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__/* .validateBase32Address */ .pd)(address,addressType))throw new Error('Invalid base32 address, address type is invalid');return (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__/* .encode */ .cv)((0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__/* .decode */ .Jx)(address).hexAddress,networkId);}if(!addressType)addressType='user';return (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_0__/* .encode */ .cv)(address.toLowerCase().replace(/0x./,ADDR_TYPE_TO_PREFIX[addressType]),networkId);}if(networkType==='eth'){if(address.includes(':')){if(privateKey)return (0,_fluent_wallet_account__WEBPACK_IMPORTED_MODULE_2__/* .fromPrivate */ .yV)(privateKey).address;else throw new Error('Unable to convert base32 address into eth hex address without private key');}else return address;}};/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (addrByNetwork);
 
 /***/ }),
@@ -60228,8 +60207,8 @@ __webpack_require__.d(__webpack_exports__, {
   "pd": () => (/* binding */ validateBase32Address)
 });
 
-// EXTERNAL MODULE: ../../packages/account/index.js + 1 modules
-var account = __webpack_require__(99855);
+// EXTERNAL MODULE: ../../packages/account/index.js + 16 modules
+var account = __webpack_require__(11239);
 // EXTERNAL MODULE: ../../packages/utils/index.js
 var utils = __webpack_require__(11818);
 // EXTERNAL MODULE: ../../node_modules/js-conflux-sdk/src/index.js
@@ -66747,7 +66726,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(89620);
 /* harmony import */ var _fluent_wallet_compose__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(4088);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(2723);
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(11239);
 /* harmony import */ var _fluent_wallet_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(11818);
 /* harmony import */ var _fluent_wallet_csp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(44611);
 
@@ -75947,7 +75926,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(89620);
 /* harmony import */ var _fluent_wallet_hdkey__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(32299);
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(11239);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(2723);
 
 
@@ -76087,7 +76066,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var _fluent_wallet_hdkey__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32299);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2723);
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(11239);
 /* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(89620);
 
 
@@ -77239,7 +77218,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2723);
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(11239);
 
 
 
@@ -77327,7 +77306,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11239);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(27797);
 
 
@@ -80643,9 +80622,12 @@ const main = ({
           // getTransactionByHash return null
           eth_blockNumber({errorFallThrough: true}, [])
             .then(n => {
-              if (
-                (!tx.resendAt && !tx.blockNumber) ||
-                n !== (tx.resendAt || tx.blockNumber)
+              if (!tx.resendAt && !tx.blockNumber) {
+                setTxSending({hash, resendAt: n})
+              } else if (
+                bignumber/* BigNumber.from */.O$.from(n)
+                  .sub(bignumber/* BigNumber.from */.O$.from(tx.resendAt || tx.blockNumber))
+                  .gte(10)
               ) {
                 setTxUnsent({hash, resendAt: n})
               }
@@ -83403,7 +83385,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "permissions": () => (/* binding */ permissions),
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
-/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(99855);
+/* harmony import */ var _fluent_wallet_account__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11239);
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(27797);
 
 
@@ -90257,8 +90239,6 @@ var lib_esm = __webpack_require__(3378);
 var src = __webpack_require__(11293);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
 var bytes_lib_esm = __webpack_require__(75398);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/wallet/lib.esm/index.js + 14 modules
-var wallet_lib_esm = __webpack_require__(32569);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/transactions/lib.esm/index.js + 3 modules
 var transactions_lib_esm = __webpack_require__(11482);
 ;// CONCATENATED MODULE: ../../node_modules/superstruct/lib/index.es.js
@@ -91705,8 +91685,8 @@ const asArray = (typedData, type = typedData.primaryType, data = typedData.messa
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
 var keccak256_lib_esm = __webpack_require__(59256);
 ;// CONCATENATED MODULE: ../../packages/signature/index.js
-const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),message):await new wallet_lib_esm/* Wallet */.w5((0,utils/* addHexPrefix */.L_)(privateKey)).signMessage(message);}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,message);const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
-async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)((0,utils/* addHexPrefix */.L_)(privateKey)),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const{TypedDataUtils}=await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('eth-sig-util')));const digest=TypedDataUtils.sign(typedData,true);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}async function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const{TypedDataUtils}=await Promise.resolve().then(()=>_interopRequireWildcard(require('eth-sig-util')));const digest=TypedDataUtils.sign(typedData,true);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(addHexPrefix(pk)),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};const ethSignTransaction=(tx,pk)=>{pk=(0,utils/* addHexPrefix */.L_)(pk);const signature=new lib_esm/* SigningKey */.Et(pk).signDigest((0,keccak256_lib_esm/* keccak256 */.w)((0,transactions_lib_esm/* serialize */.qC)(tx)));return (0,transactions_lib_esm/* serialize */.qC)(tx,signature);};const cfxRecoverTransactionToAddress=(tx,{r,s,v},netId)=>{const transaction=new src.Transaction({...tx,r:(0,utils/* addHexPrefix */.L_)(r),s:(0,utils/* addHexPrefix */.L_)(s),v:(0,utils/* addHexPrefix */.L_)(v)});let pub=transaction.recover();return (0,base32_address/* encode */.cv)('0x'+src.sign.publicKeyToAddress((0,utils/* toBuffer */.Qi)(pub)).toString('hex'),netId);};const ethRecoverTransactionToAddress=(tx,{r,s,v})=>{const addr=(0,transactions_lib_esm/* recoverAddress */.RJ)((0,utils/* addHexPrefix */.L_)(tx),{r,s,v});return addr;};const cfxEncodeTx=(tx,shouldStripHexPrefix=false)=>{const transaction=new src.Transaction(tx);const encoded=transaction.encode(false).toString('hex');if(shouldStripHexPrefix)return encoded;return`0x${encoded}`;};const ethEncodeTx=(tx,shouldStripHexPrefix=false)=>{tx=(0,transactions_lib_esm/* serialize */.qC)(tx);if(shouldStripHexPrefix)return (0,utils/* stripHexPrefix */.MT)(tx);return tx;};const cfxJoinTransactionAndSignature=({tx,signature:[r,s,v]})=>{const transaction=new src.Transaction({...tx,r:(0,utils/* addHexPrefix */.L_)(r),s:(0,utils/* addHexPrefix */.L_)(s),v:(0,utils/* addHexPrefix */.L_)(v)});return transaction.serialize();};const ethJoinTransactionAndSignature=({tx,signature:[r,s,v]})=>{return (0,transactions_lib_esm/* serialize */.qC)((0,utils/* addHexPrefix */.L_)(tx),{r,s,v});};const getTxHashFromRawTx=txhash=>{return (0,keccak256_lib_esm/* keccak256 */.w)(txhash);};
+const hashPersonalMessage=(type,message)=>type==='cfx'?CfxPersonalMessage.personalHash(message):ethHashPersonalMessage(message);async function personalSign(type,privateKey,message){return type==='cfx'?src.PersonalMessage.sign((0,utils/* addHexPrefix */.L_)(privateKey),message):(await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('eth-sig-util')))).default.personalSign((0,utils/* toBuffer */.Qi)((0,utils/* addHexPrefix */.L_)(privateKey)),{data:message});}function recoverPersonalSignature(type,signature,message,netId){if(type==='cfx'){const pub=CfxPersonalMessage.recover(signature,message);const addr=cfxSDKSign.publicKeyToAddress(toBuffer(pub));return encodeCfxAddress(addr,netId);}return verifyEthPersonalSign(message,signature);}function hashTypedData(type,typedData){return (0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));}// v4
+async function signTypedData_v4(type,privateKey,typedData){if(type==='cfx'){const hashedMessage=(0,keccak256_lib_esm/* keccak256 */.w)(getMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));const signature=src.Message.sign((0,utils/* toBuffer */.Qi)((0,utils/* addHexPrefix */.L_)(privateKey)),(0,utils/* toBuffer */.Qi)(hashedMessage));return signature;}const{TypedDataUtils}=(await Promise.resolve().then(()=>(0,interopRequireWildcard/* default */.Z)(require('eth-sig-util')))).default;const digest=TypedDataUtils.sign(typedData,true);const signature=new lib_esm/* SigningKey */.Et((0,utils/* addHexPrefix */.L_)(privateKey)).signDigest(digest);return (0,bytes_lib_esm/* joinSignature */.gV)(signature);}async function recoverTypedSignature_v4(type,signature,typedData,netId){if(type==='cfx'){const hashedMessage=keccak256(cip23GetMessage(typedData,false,type==='cfx'?'CIP23Domain':'EIP712Domain'));return encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(signature,hashedMessage))),netId);}const{TypedDataUtils}=(await Promise.resolve().then(()=>_interopRequireWildcard(require('eth-sig-util')))).default;const digest=TypedDataUtils.sign(typedData,true);const pub=ethRecoverPublicKey(digest,signature);return ethComputeAddress(pub);}const ethEcdsaSign=(hash,pk)=>new SigningKey(addHexPrefix(pk)).sign(addHexPrefix(hash));const cfxEcdsaSign=(hash,pk)=>CfxMessage.sign(toBuffer(addHexPrefix(pk)),toBuffer(hash));const ecdsaSign=(type,hash,privateKey)=>type==='cfx'?cfxEcdsaSign(hash,privateKey):ethEcdsaSign(hash,privateKey);const ethEcdsaRecover=(hash,signature)=>ethRecoverPublicKey(addHexPrefix(hash),signature);const cfxEcdsaRecover=(hash,signature,netId)=>encodeCfxAddress(cfxSDKSign.publicKeyToAddress(toBuffer(CfxMessage.recover(hash,signature))),netId);const ecdsaRecover=(type,hash,sig,netId)=>type==='cfx'?cfxEcdsaRecover(hash,sig,netId):ethEcdsaRecover(hash,sig);const cfxSignTransaction=(tx,pk,netId)=>{const transaction=new src.Transaction(tx);return transaction.sign(pk,netId).serialize();};const ethSignTransaction=(tx,pk)=>{pk=(0,utils/* addHexPrefix */.L_)(pk);const signature=new lib_esm/* SigningKey */.Et(pk).signDigest((0,keccak256_lib_esm/* keccak256 */.w)((0,transactions_lib_esm/* serialize */.qC)(tx)));return (0,transactions_lib_esm/* serialize */.qC)(tx,signature);};const cfxRecoverTransactionToAddress=(tx,{r,s,v},netId)=>{const transaction=new src.Transaction({...tx,r:(0,utils/* addHexPrefix */.L_)(r),s:(0,utils/* addHexPrefix */.L_)(s),v:(0,utils/* addHexPrefix */.L_)(v)});let pub=transaction.recover();return (0,base32_address/* encode */.cv)('0x'+src.sign.publicKeyToAddress((0,utils/* toBuffer */.Qi)(pub)).toString('hex'),netId);};const ethRecoverTransactionToAddress=(tx,{r,s,v})=>{const addr=(0,transactions_lib_esm/* recoverAddress */.RJ)((0,utils/* addHexPrefix */.L_)(tx),{r,s,v});return addr;};const cfxEncodeTx=(tx,shouldStripHexPrefix=false)=>{const transaction=new src.Transaction(tx);const encoded=transaction.encode(false).toString('hex');if(shouldStripHexPrefix)return encoded;return`0x${encoded}`;};const ethEncodeTx=(tx,shouldStripHexPrefix=false)=>{tx=(0,transactions_lib_esm/* serialize */.qC)(tx);if(shouldStripHexPrefix)return (0,utils/* stripHexPrefix */.MT)(tx);return tx;};const cfxJoinTransactionAndSignature=({tx,signature:[r,s,v]})=>{const transaction=new src.Transaction({...tx,r:(0,utils/* addHexPrefix */.L_)(r),s:(0,utils/* addHexPrefix */.L_)(s),v:(0,utils/* addHexPrefix */.L_)(v)});return transaction.serialize();};const ethJoinTransactionAndSignature=({tx,signature:[r,s,v]})=>{return (0,transactions_lib_esm/* serialize */.qC)((0,utils/* addHexPrefix */.L_)(tx),{r,s,v});};const getTxHashFromRawTx=txhash=>{return (0,keccak256_lib_esm/* keccak256 */.w)(txhash);};
 
 /***/ }),
 
@@ -92173,8 +92153,8 @@ ex_spec_Bytes256=vu;ex_spec_f=shared/* $APP.nl */.EY.nl;ex_spec_optParam=nv;
 
 // EXTERNAL MODULE: ../../packages/consts/index.js
 var consts = __webpack_require__(9414);
-// EXTERNAL MODULE: ../../packages/account/index.js + 1 modules
-var account = __webpack_require__(99855);
+// EXTERNAL MODULE: ../../packages/account/index.js + 16 modules
+var account = __webpack_require__(11239);
 // EXTERNAL MODULE: ../../node_modules/bip39/src/index.js
 var src = __webpack_require__(36832);
 // EXTERNAL MODULE: ../../packages/base32-address/index.js + 3 modules

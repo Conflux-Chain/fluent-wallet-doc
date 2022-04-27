@@ -63856,29 +63856,48 @@ __webpack_require__.r(__webpack_exports__);
 const NAME = 'cfx_accounts'
 
 const schemas = {
-  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['chainId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.chainId]], _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam],
 }
 
 const permissions = {
   external: ['popup', 'inpage'],
   locked: true,
-  db: ['getLocked', 'findAddress'],
+  db: ['getLocked', 'findAddress', 'getOneNetwork'],
 }
 
 const main = async ({
-  db: {getLocked, findAddress},
+  db: {getLocked, findAddress, getOneNetwork},
   app,
   network,
   _inpage,
+  params,
 }) => {
   if (getLocked()) return []
   if (_inpage && !app) return []
+
+  if (
+    app &&
+    app.perms.wallet_crossNetworkTypeGetConfluxBase32Address &&
+    getOneNetwork({selected: true}).type !== 'cfx'
+  ) {
+    const addr = findAddress({
+      accountId: app.currentAccount.eid,
+      networkId: getOneNetwork({
+        type: 'cfx',
+        chainId: params?.chainId || '0x405',
+      }).eid,
+      g: {value: 1},
+    })
+    if (addr) return [addr.value]
+    else return []
+  }
 
   const addrs = findAddress({
     appId: app?.eid,
     networkId: app ? app.currentNetwork.eid : network.eid,
     g: {value: 1},
   })
+
   if (app) {
     return [addrs.value]
   }
@@ -65599,36 +65618,36 @@ const schemas = {
 
 const permissions = {
   external: ['inpage'],
-  methods: ['wallet_requestPermissions'],
-  db: ['getOneApp', 'findAddress'],
-  // TODO: this should be wallet_accounts, set it to null to make it compatible with metamask
+  methods: ['wallet_requestPermissions', 'cfx_accounts'],
+  db: ['getOneApp'],
   scope: null,
 }
 
 const main = async ({
-  db: {getOneApp, findAddress},
-  rpcs: {wallet_requestPermissions},
+  db: {getOneApp},
+  rpcs: {wallet_requestPermissions, cfx_accounts},
   site,
   app,
 }) => {
   if (app) {
-    return [findAddress({appId: app.eid, g: {value: 1}}).value]
+    return await cfx_accounts()
   }
-  const permsRes = await wallet_requestPermissions([{cfx_accounts: {}}])
+  const permissionsToRequest = {
+    cfx_accounts: {},
+    wallet_crossNetworkTypeGetConfluxBase32Address: {},
+  }
+  const permsRes = await wallet_requestPermissions([permissionsToRequest])
 
   if (permsRes && !permsRes.error) {
     const newapp = getOneApp({site: site.eid})
-    const addr = findAddress({
-      appId: newapp.eid,
-      g: {value: 1},
-    }).value
+    const addrs = await cfx_accounts({app: newapp}, [])
 
     newapp.site?.post?.({
       event: 'accountsChanged',
-      params: [addr],
+      params: addrs,
     })
 
-    return [addr]
+    return addrs
   }
 
   return []
@@ -66271,11 +66290,11 @@ const schemas = {
 const permissions = {
   external: ['popup', 'inpage'],
   locked: true,
-  db: ['getLocked', 'findAddress'],
+  db: ['getLocked', 'findAddress', 'getOneNetwork'],
 }
 
 const main = async ({
-  db: {getLocked, findAddress},
+  db: {getLocked, findAddress, getOneNetwork},
   app,
   network,
   _inpage,
@@ -66283,14 +66302,32 @@ const main = async ({
   if (getLocked()) return []
   if (_inpage && !app) return []
 
+  if (
+    app &&
+    app.perms.wallet_crossNetworkTypeGetEthereumHexAddress &&
+    getOneNetwork({selected: true}).type !== 'eth'
+  ) {
+    // find any eth address under this account
+    const addrs = findAddress({
+      accountId: app.currentAccount.eid,
+      networkType: 'eth',
+      g: {value: 1},
+    })
+    const addr = addrs.reduce((rst, addr) => rst || addr?.value, null)
+    if (addr) return [addr]
+    else return []
+  }
+
   const addrs = findAddress({
     appId: app?.eid,
     networkId: app ? null : network.eid,
     g: {value: 1},
   })
+
   if (app) {
     return [addrs.value]
   }
+
   return addrs.map(({value}) => value)
 }
 
@@ -66916,36 +66953,36 @@ const schemas = {
 
 const permissions = {
   external: ['inpage'],
-  methods: ['wallet_requestPermissions'],
-  db: ['getOneApp', 'findAddress'],
-  // TODO: this should be wallet_accounts, set it to null to make it compatible with metamask
+  methods: ['wallet_requestPermissions', 'eth_accounts'],
+  db: ['getOneApp'],
   scope: null,
 }
 
 const main = async ({
-  db: {getOneApp, findAddress},
-  rpcs: {wallet_requestPermissions},
+  db: {getOneApp},
+  rpcs: {wallet_requestPermissions, eth_accounts},
   site,
   app,
 }) => {
   if (app) {
-    return [findAddress({appId: app.eid, g: {value: 1}}).value]
+    return await eth_accounts()
   }
-  const permsRes = await wallet_requestPermissions([{eth_accounts: {}}])
+  const permissionsToRequest = {
+    eth_accounts: {},
+    wallet_crossNetworkTypeGetEthereumHexAddress: {},
+  }
+  const permsRes = await wallet_requestPermissions([permissionsToRequest])
 
   if (permsRes && !permsRes.error) {
     const newapp = getOneApp({site: site.eid})
-    const addr = findAddress({
-      appId: newapp.eid,
-      g: {value: 1},
-    }).value
+    const addrs = await eth_accounts({app: newapp}, [])
 
     newapp.site?.post?.({
       event: 'accountsChanged',
-      params: [addr],
+      params: addrs,
     })
 
-    return [addr]
+    return addrs
   }
 
   return []
@@ -83106,9 +83143,9 @@ wallet_basic:{},// methods
 // to request user's signature of these accounts, eg. cfx_sendTransaction, eth_signTypedData_v4
 wallet_accounts:{},cfx_accounts:{},eth_accounts:{},// methods to about networks
 // eg. wallet_addEthereumChain, wallet_switchConfluxChain
-wallet_networks:{}});
+wallet_networks:{},wallet_crossNetworkTypeGetConfluxBase32Address:{},wallet_crossNetworkTypeGetEthereumHexAddress:{}});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/docs.js
-/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_networks:{en:'permission for methods related to network change, eg. wallet_addEthereumChain, wallet_switchConfluxChain, this permission is added by default'}});
+/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_crossNetworkTypeGetConfluxBase32Address:{en:"permission for methods need user's Conflux core space mainnet address on other network"},wallet_crossNetworkTypeGetEthereumHexAddress:{en:"permission for methods need user's Ethereum type address (hex address) on other(Conflux core) network"},wallet_networks:{en:'permission for methods related to network change, eg. wallet_addEthereumChain, wallet_switchConfluxChain, this permission is added by default'}});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/index.js
 const generateSchema=spec=>{const{mapp,map,and,empty}=spec;return[map,...Object.keys(permissions).map(permissionName=>{var _docs$permissionName;return[permissionName,{optional:true,doc:// TODO: i18n
 ((_docs$permissionName=docs[permissionName])===null||_docs$permissionName===void 0?void 0:_docs$permissionName.en)||`${permissionName} wallet permission`},// TODO: remove empty if there's more cap in permissions
@@ -83205,6 +83242,8 @@ const main = async ({
 }) => {
   if ((_inpage || _internal) && !_origin && !_popup)
     throw InvalidRequest(`no origin found`)
+
+  // called from inpage
   if ((_inpage || _internal) && !_popup) {
     const perms = formatPermissions(params)
     if (app && JSON.stringify(app.perms) === JSON.stringify(perms))
@@ -83218,6 +83257,9 @@ const main = async ({
     return await wallet_addPendingUserAuthRequest({siteId: site.eid, req})
   }
 
+  // called from popup
+  // 1. confirm app permission request (authReqId is defined)
+  // 2. alter/revoke permissions (authReqId is undefined)
   if (_popup) {
     if (params.siteId && !params.accounts.length)
       throw InvalidParams('Must have at least 1 accounts')
@@ -83854,7 +83896,7 @@ const schemas = {
 
 const permissions = {
   external: ['popup'],
-  methods: ['wallet_setAppCurrentNetwork'],
+  methods: ['wallet_setAppCurrentNetwork', 'wallet_requestPermissions'],
   db: [
     'setCurrentNetwork',
     'getNetworkById',
@@ -83862,10 +83904,22 @@ const permissions = {
   ],
 }
 
+function shouldGivenCrossNetworkAddressLookupPermissonsBasedOnNetworkChange(
+  currentNetwork,
+  nextNetwork,
+) {
+  if (currentNetwork.type === nextNetwork.type) return false
+  if (nextNetwork.type === 'cfx')
+    return 'wallet_crossNetworkTypeGetConfluxBase32Address'
+  if (nextNetwork.type === 'eth')
+    return 'wallet_crossNetworkTypeGetEthereumHexAddress'
+  return false
+}
+
 const main = async ({
   Err: {InvalidParams},
   db: {setCurrentNetwork, getNetworkById, getAppsWithDifferentSelectedNetwork},
-  rpcs: {wallet_setAppCurrentNetwork},
+  rpcs: {wallet_setAppCurrentNetwork, wallet_requestPermissions},
   params: networks,
   network,
 }) => {
@@ -83877,12 +83931,30 @@ const main = async ({
   setCurrentNetwork(networkId)
 
   await Promise.all(
-    apps.map(async app =>
-      wallet_setAppCurrentNetwork(
+    apps.map(async app => {
+      const newPerm =
+        shouldGivenCrossNetworkAddressLookupPermissonsBasedOnNetworkChange(
+          app.currentNetwork,
+          nextNetwork,
+        )
+      if (newPerm && !app.perms[newPerm]) {
+        await wallet_requestPermissions(
+          {
+            _popup: true,
+          },
+          {
+            siteId: app.site.eid,
+            permissions: [{...app.perms, [newPerm]: {}}],
+            accounts: app.account.map(a => a.eid),
+          },
+        )
+      }
+      await wallet_setAppCurrentNetwork(
         {network},
         {appId: app.eid, networkId: networkId},
-      ),
-    ),
+      )
+      return true
+    }),
   )
 
   _fluent_wallet_sentry__WEBPACK_IMPORTED_MODULE_1__/* .Sentry.setTag */ .TF.setTag('current_network', nextNetwork.name)
@@ -84056,7 +84128,9 @@ const generateMain =
       const {authReqId} = params
       const authReq = getAuthReqById(authReqId)
       if (!authReq) throw InvalidParams(`Invalid auth req id ${authReqId}`)
-      const rst = await wallet_setCurrentNetwork([network.eid])
+      const rst = await wallet_setCurrentNetwork({app: authReq.app}, [
+        network.eid,
+      ])
       if (rst?.error) return await wallet_userRejectedAuthRequest({authReqId})
       return await wallet_userApprovedAuthRequest({authReqId, res: '__null__'})
     }

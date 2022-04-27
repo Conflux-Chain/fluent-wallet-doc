@@ -61943,7 +61943,7 @@ const isAsyncFunction=fn=>isFunction(fn)&&fn instanceof AsyncFunction;
  * @fileOverview consts used in extension
  * @name index.js
  */const MAINNET='mainnet';const TESTNET='testnet';const LOCALHOST='localhost';const CUSTOM='custom';const EXT_STORAGE='ext-storage';const NULL_HEX_ADDRESS='0x0000000000000000000000000000000000000000';const ADMINE_CONTROL_HEX_ADDRESS='0x0888000000000000000000000000000000000000';const SPONSOR_WHITELIST_CONTROL_HEX_ADDRESS='0x0888000000000000000000000000000000000001';const STAKING_HEX_ADDRESS='0x0888000000000000000000000000000000000002';const INTERNAL_CONTRACTS_HEX_ADDRESS=[ADMINE_CONTROL_HEX_ADDRESS,SPONSOR_WHITELIST_CONTROL_HEX_ADDRESS,STAKING_HEX_ADDRESS];const ADDRESS_TYPES=['user','contract','builtin','null'];// * network setting
-const DEFAULT_CURRENCY_DECIMALS=18;const CFX_MAINNET_RPC_ENDPOINT='https://portal-main.confluxrpc.com';const CFX_MAINNET_NAME='Conflux Hydra';const CFX_MAINNET_CHAINID='0x405';const CFX_MAINNET_NETID=1029;const CFX_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_MAINNET_CURRENCY_NAME='Conflux';const CFX_MAINNET_EXPLORER_URL='https://confluxscan.io';const CFX_ESPACE_MAINNET_RPC_ENDPOINT='https://evm.confluxrpc.com';const CFX_ESPACE_MAINNET_NAME='Conflux eSpace';const CFX_ESPACE_MAINNET_CHAINID='0x406';const CFX_ESPACE_MAINNET_NETID=1030;const CFX_ESPACE_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_ESPACE_MAINNET_CURRENCY_NAME='Conflux';const CFX_ESPACE_MAINNET_EXPLORER_URL='https://evm.confluxscan.net';const CFX_TESTNET_RPC_ENDPOINT='https://portal-test.confluxrpc.com';const CFX_TESTNET_NAME='Conflux Testnet';const CFX_TESTNET_CHAINID='0x1';const CFX_TESTNET_NETID=1;const CFX_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_TESTNET_CURRENCY_NAME='Conflux';const CFX_TESTNET_EXPLORER_URL='https://testnet.confluxscan.io';const CFX_ESPACE_TESTNET_RPC_ENDPOINT='https://evmtestnet.confluxrpc.com';const CFX_ESPACE_TESTNET_NAME='Conflux eSpace (Testnet)';const CFX_ESPACE_TESTNET_CHAINID='0x47';const CFX_ESPACE_TESTNET_NETID=71;const CFX_ESPACE_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_ESPACE_TESTNET_CURRENCY_NAME='Conflux';const CFX_ESPACE_TESTNET_EXPLORER_URL='https://evmtestnet.confluxscan.net';const ETH_MAINNET_RPC_ENDPOINT='https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_MAINNET_NAME='Ethereum Mainnet';const ETH_MAINNET_CHAINID='0x1';const ETH_MAINNET_NETID=1;const ETH_MAINNET_CURRENCY_SYMBOL='ETH';const ETH_MAINNET_CURRENCY_NAME='Ether';const ETH_MAINNET_EXPLORER_URL='https://etherscan.io';const ETH_ROPSTEN_RPC_ENDPOINT='https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_ROPSTEN_NAME='Ethereum Ropsten';const ETH_ROPSTEN_CHAINID='0x3';const ETH_ROPSTEN_NETID=3;const ETH_ROPSTEN_CURRENCY_SYMBOL='ETH';const ETH_ROPSTEN_CURRENCY_NAME='Ether';const ETH_ROPSTEN_EXPLORER_URL='https://ropsten.etherscan.io';const ETH_RINKEBY_RPC_ENDPOINT='https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_RINKEBY_NAME='Ethereum Rinkeby';const ETH_RINKEBY_CHAINID='0x4';const ETH_RINKEBY_NETID=4;const ETH_RINKEBY_CURRENCY_SYMBOL='ETH';const ETH_RINKEBY_CURRENCY_NAME='Ether';const ETH_RINKEBY_EXPLORER_URL='https://rinkeby.etherscan.io';const ETH_GOERLI_RPC_ENDPOINT='https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_GOERLI_NAME='Ethereum Goerli';const ETH_GOERLI_CHAINID='0x5';const ETH_GOERLI_NETID=5;const ETH_GOERLI_CURRENCY_SYMBOL='ETH';const ETH_GOERLI_CURRENCY_NAME='Ether';const ETH_GOERLI_EXPLORER_URL='https://goerli.etherscan.io';const ETH_KOVAN_RPC_ENDPOINT='https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_KOVAN_NAME='Ethereum Kovan';const ETH_KOVAN_CHAINID='0x2a';const ETH_KOVAN_NETID=42;const ETH_KOVAN_CURRENCY_SYMBOL='ETH';const ETH_KOVAN_CURRENCY_NAME='Ether';const ETH_KOVAN_EXPLORER_URL='https://kovan.etherscan.io';const DEFAULT_CFX_HDPATH=`m/44'/503'/0'/0`;const DEFAULT_ETH_HDPATH=`m/44'/60'/0'/0`;const REGENERATE='REGENERATE';const CFX_LOCALNET_RPC_ENDPOINT='http://localhost:12537';const CFX_LOCALNET_NAME='CFX_LOCALNET';const CFX_LOCALNET_CHAINID='0xbb7';const CFX_LOCALNET_NETID=2999;const CFX_LOCALNET_CURRENCY_SYMBOL='CFX';const CFX_LOCALNET_CURRENCY_NAME='CFX';const ETH_LOCALNET_RPC_ENDPOINT='http://localhost:8545';const ETH_LOCALNET_NAME='ETH_LOCALNET';const ETH_LOCALNET_CHAINID='0x539';const ETH_LOCALNET_NETID=1337;const ETH_LOCALNET_CURRENCY_SYMBOL='ETH';const ETH_LOCALNET_CURRENCY_NAME='Ether';// ETH endpoints
+const DEFAULT_CURRENCY_DECIMALS=18;const CFX_MAINNET_RPC_ENDPOINT='https://portal-main.confluxrpc.com';const CFX_MAINNET_NAME='Conflux Hydra';const CFX_MAINNET_CHAINID='0x405';const CFX_MAINNET_NETID=1029;const CFX_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_MAINNET_CURRENCY_NAME='Conflux';const CFX_MAINNET_EXPLORER_URL='https://confluxscan.io';const CFX_ESPACE_MAINNET_RPC_ENDPOINT='https://evm.confluxrpc.com';const CFX_ESPACE_MAINNET_NAME='Conflux eSpace';const CFX_ESPACE_MAINNET_CHAINID='0x406';const CFX_ESPACE_MAINNET_NETID=1030;const CFX_ESPACE_MAINNET_CURRENCY_SYMBOL='CFX';const CFX_ESPACE_MAINNET_CURRENCY_NAME='Conflux';const CFX_ESPACE_MAINNET_EXPLORER_URL='https://evm.confluxscan.net';const CFX_TESTNET_RPC_ENDPOINT='https://portal-test.confluxrpc.com';const CFX_TESTNET_NAME='Conflux Testnet';const CFX_TESTNET_CHAINID='0x1';const CFX_TESTNET_NETID=1;const CFX_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_TESTNET_CURRENCY_NAME='Conflux';const CFX_TESTNET_EXPLORER_URL='https://testnet.confluxscan.io';const CFX_ESPACE_TESTNET_RPC_ENDPOINT='https://evmtestnet.confluxrpc.com';const CFX_ESPACE_TESTNET_NAME='eSpace Testnet';const CFX_ESPACE_TESTNET_CHAINID='0x47';const CFX_ESPACE_TESTNET_NETID=71;const CFX_ESPACE_TESTNET_CURRENCY_SYMBOL='CFX';const CFX_ESPACE_TESTNET_CURRENCY_NAME='Conflux';const CFX_ESPACE_TESTNET_EXPLORER_URL='https://evmtestnet.confluxscan.net';const ETH_MAINNET_RPC_ENDPOINT='https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_MAINNET_NAME='Ethereum Mainnet';const ETH_MAINNET_CHAINID='0x1';const ETH_MAINNET_NETID=1;const ETH_MAINNET_CURRENCY_SYMBOL='ETH';const ETH_MAINNET_CURRENCY_NAME='Ether';const ETH_MAINNET_EXPLORER_URL='https://etherscan.io';const ETH_ROPSTEN_RPC_ENDPOINT='https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_ROPSTEN_NAME='Ethereum Ropsten';const ETH_ROPSTEN_CHAINID='0x3';const ETH_ROPSTEN_NETID=3;const ETH_ROPSTEN_CURRENCY_SYMBOL='ETH';const ETH_ROPSTEN_CURRENCY_NAME='Ether';const ETH_ROPSTEN_EXPLORER_URL='https://ropsten.etherscan.io';const ETH_RINKEBY_RPC_ENDPOINT='https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_RINKEBY_NAME='Ethereum Rinkeby';const ETH_RINKEBY_CHAINID='0x4';const ETH_RINKEBY_NETID=4;const ETH_RINKEBY_CURRENCY_SYMBOL='ETH';const ETH_RINKEBY_CURRENCY_NAME='Ether';const ETH_RINKEBY_EXPLORER_URL='https://rinkeby.etherscan.io';const ETH_GOERLI_RPC_ENDPOINT='https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_GOERLI_NAME='Ethereum Goerli';const ETH_GOERLI_CHAINID='0x5';const ETH_GOERLI_NETID=5;const ETH_GOERLI_CURRENCY_SYMBOL='ETH';const ETH_GOERLI_CURRENCY_NAME='Ether';const ETH_GOERLI_EXPLORER_URL='https://goerli.etherscan.io';const ETH_KOVAN_RPC_ENDPOINT='https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161';const ETH_KOVAN_NAME='Ethereum Kovan';const ETH_KOVAN_CHAINID='0x2a';const ETH_KOVAN_NETID=42;const ETH_KOVAN_CURRENCY_SYMBOL='ETH';const ETH_KOVAN_CURRENCY_NAME='Ether';const ETH_KOVAN_EXPLORER_URL='https://kovan.etherscan.io';const DEFAULT_CFX_HDPATH=`m/44'/503'/0'/0`;const DEFAULT_ETH_HDPATH=`m/44'/60'/0'/0`;const REGENERATE='REGENERATE';const CFX_LOCALNET_RPC_ENDPOINT='http://localhost:12537';const CFX_LOCALNET_NAME='CFX_LOCALNET';const CFX_LOCALNET_CHAINID='0xbb7';const CFX_LOCALNET_NETID=2999;const CFX_LOCALNET_CURRENCY_SYMBOL='CFX';const CFX_LOCALNET_CURRENCY_NAME='CFX';const ETH_LOCALNET_RPC_ENDPOINT='http://localhost:8545';const ETH_LOCALNET_NAME='ETH_LOCALNET';const ETH_LOCALNET_CHAINID='0x539';const ETH_LOCALNET_NETID=1337;const ETH_LOCALNET_CURRENCY_SYMBOL='ETH';const ETH_LOCALNET_CURRENCY_NAME='Ether';// ETH endpoints
 const ETH_ENDPOINT={[ETH_MAINNET_NETID]:ETH_MAINNET_RPC_ENDPOINT,[ETH_ROPSTEN_NETID]:ETH_ROPSTEN_RPC_ENDPOINT// Rinkeby: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Kovan: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Goerli: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
@@ -67160,8 +67160,7 @@ const main = async args => {
   // 2. use `gasLimit` instead of `gas` in tx
   let {from, gas, type, ...newTx} = {...tx}
   type = type || '0x0'
-  newTx.type = parseInt(type, 16)
-  newTx.gasLimit = gas
+  let gasLimit = gas
   if (newTx.chainId && newTx.chainId !== network.chainId)
     throw InvalidParams(`Invalid chainId ${newTx.chainId}`)
 
@@ -67195,8 +67194,6 @@ const main = async args => {
   //     `Network ${network.name} don't support 1559 transactions`,
   //   )
 
-  if (!newTx.chainId) newTx.chainId = network.chainId
-  newTx.chainId = parseInt(newTx.chainId, 16)
   if (newTx.data === '0x') newTx.data = undefined
   if (!newTx.gasPrice) newTx.gasPrice = await eth_gasPrice()
 
@@ -67209,23 +67206,25 @@ const main = async args => {
     ])
   }
 
-  if (newTx.to && !newTx.gasLimit) {
+  if (newTx.to && !gasLimit) {
     const {contract: typeContract} = await wallet_detectAddressType(
       {errorFallThrough: true},
       {address: newTx.to},
     )
     if (!typeContract && !newTx.data) {
-      if (!newTx.gasLimit) newTx.gasLimit = '0x5208'
+      if (!gasLimit) gasLimit = '0x5208'
     }
   }
 
-  if (!newTx.gasLimit) {
-    const gasLimit = await eth_estimateGas({errorFallThrough: true}, [
-      newTx,
+  if (!gasLimit) {
+    gasLimit = await eth_estimateGas({errorFallThrough: true}, [
+      {from, type, ...newTx},
       block || 'latest',
     ])
-    if (!newTx.gasLimit) newTx.gasLimit = gasLimit
   }
+
+  if (!newTx.chainId) newTx.chainId = network.chainId
+  newTx.chainId = parseInt(newTx.chainId, 16)
 
   let raw
   if (fromAddr.account.accountGroup.vault.type === 'hw') {
@@ -67251,11 +67250,11 @@ const main = async args => {
 
     if (dryRun)
       pk = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-    raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .ethSignTransaction */ .jb)(newTx, pk)
+    raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .ethSignTransaction */ .jb)({...newTx, gasLimit, type: parseInt(type, 16)}, pk)
   }
 
   if (returnTxMeta) {
-    return {txMeta: {...newTx, gasLimit: undefined, type, from, gas}, raw}
+    return {txMeta: {...newTx, type, from, gas}, raw}
   }
 
   return raw

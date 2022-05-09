@@ -65820,10 +65820,11 @@ const main = async args => {
     network,
     _popup,
   } = args
+  if (tx.chainId && tx.chainId !== network.chainId)
+    throw InvalidParams(`Invalid chainId ${tx.chainId}`)
+
   const {epoch, returnTxMeta, dryRun} = opts
-  let newTx = {...tx}
-  if (newTx.chainId && newTx.chainId !== network.chainId)
-    throw InvalidParams(`Invalid chainId ${newTx.chainId}`)
+  const newTx = {...tx}
 
   const fromAddr = findAddress({
     appId: app && app.eid,
@@ -67119,6 +67120,18 @@ const schemas = {
   ],
 }
 
+// ethers.js
+// 1. don't allow from in tx
+// 2. use `gasLimit` instead of `gas` in tx
+// 3. type must be an integer
+function toEthersTx(tx) {
+  // eslint-disable-next-line no-unused-vars
+  const {from, type, gas, ...ethersTx} = tx
+  ethersTx.gasLimit = gas
+  ethersTx.type = parseInt(type, 16)
+  return ethersTx
+}
+
 const permissions = {
   external: [],
   methods: [
@@ -67153,28 +67166,26 @@ const main = async args => {
     network,
     _popup,
   } = args
+  if (tx.chainId && tx.chainId !== network.chainId)
+    throw InvalidParams(`Invalid chainId ${tx.chainId}`)
 
   const {block, returnTxMeta, dryRun} = opts
-  // ethers.js
-  // 1. don't allow from in tx
-  // 2. use `gasLimit` instead of `gas` in tx
-  let {from, gas, type, ...newTx} = {...tx}
-  type = type || '0x0'
-  let gasLimit = gas
-  if (newTx.chainId && newTx.chainId !== network.chainId)
-    throw InvalidParams(`Invalid chainId ${newTx.chainId}`)
+
+  const newTx = {...tx}
+
+  newTx.type = newTx.type || '0x0'
 
   const fromAddr = findAddress({
     appId: app && app.eid,
     selected: _popup && !app ? true : undefined,
-    value: from,
+    value: newTx.from,
     g: {
       eid: 1,
       _account: {eid: 1, _accountGroup: {vault: {type: 1, device: 1}}},
     },
   })
   // from address is not belong to wallet
-  if (!fromAddr) throw InvalidParams(`Invalid from address ${from}`)
+  if (!fromAddr) throw InvalidParams(`Invalid from address ${newTx.from}`)
 
   // tx without to must have data (deploy contract)
   if (!newTx.to && !newTx.data)
@@ -67187,6 +67198,7 @@ const main = async args => {
     throw InvalidParams(
       `Invalid transaction params: params specify an EIP-1559 transaction but the current network does not support EIP-1559`,
     )
+
   // TODO: EIP-1559 support
   // const network1559Compatible = await wallet_network1559Compatible()
   // if (!legacyTx && network1559Compatible)
@@ -67201,24 +67213,24 @@ const main = async args => {
 
   if (!newTx.nonce) {
     newTx.nonce = await eth_getTransactionCount({errorFallThrough: true}, [
-      from,
+      newTx.from,
       'pending',
     ])
   }
 
-  if (newTx.to && !gasLimit) {
+  if (newTx.to && !newTx.gas) {
     const {contract: typeContract} = await wallet_detectAddressType(
       {errorFallThrough: true},
       {address: newTx.to},
     )
     if (!typeContract && !newTx.data) {
-      if (!gasLimit) gasLimit = '0x5208'
+      if (!newTx.gas) newTx.gas = '0x5208'
     }
   }
 
-  if (!gasLimit) {
-    gasLimit = await eth_estimateGas({errorFallThrough: true}, [
-      {from, type, ...newTx},
+  if (!newTx.gas) {
+    newTx.gas = await eth_estimateGas({errorFallThrough: true}, [
+      newTx,
       block || 'latest',
     ])
   }
@@ -67230,7 +67242,7 @@ const main = async args => {
   if (fromAddr.account.accountGroup.vault.type === 'hw') {
     if (dryRun) {
       raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .ethSignTransaction */ .jb)(
-        newTx,
+        toEthersTx(newTx),
         '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       )
     } else {
@@ -67244,17 +67256,17 @@ const main = async args => {
     }
   } else {
     let pk = await wallet_getAddressPrivateKey({
-      address: from,
+      address: newTx.from,
       accountId: fromAddr.account.eid,
     })
 
     if (dryRun)
       pk = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
-    raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .ethSignTransaction */ .jb)({...newTx, gasLimit, type: parseInt(type, 16)}, pk)
+    raw = (0,_fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__/* .ethSignTransaction */ .jb)(toEthersTx(newTx), pk)
   }
 
   if (returnTxMeta) {
-    return {txMeta: {...newTx, type, from, gas}, raw}
+    return {txMeta: newTx, raw}
   }
 
   return raw

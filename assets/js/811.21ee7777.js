@@ -63761,7 +63761,7 @@ function gracefullyResetDevice(device) {
 // EXTERNAL MODULE: ../../packages/base32-address/index.js + 3 modules
 var base32_address = __webpack_require__(2723);
 ;// CONCATENATED MODULE: ../../packages/ledger/const.js
-const LEDGER_APP_NAME={CONFLUX:'Conflux',ETHEREUM:'Ethereum'};/**
+const LEDGER_APP_NAME={CONFLUX:'Conflux',ETHEREUM:'Ethereum',ESPACE:'Conflux eSpace'};/**
  * https://developer.mozilla.org/en-US/docs/Web/API/USBDevice/productID
  * Attention: as the doc said, the productId can identify a USB device.
  * But, the productId I get when I open different app using a same NanoS device is different,
@@ -63828,7 +63828,16 @@ const LEDGER_APP_NAME={CONFLUX:'Conflux',ETHEREUM:'Ethereum'};/**
    * @param {*} hdPath the hd path
    * @param {*} messageHex hex string of message
    * @returns Promise
-   */async signPersonalMessage(hdPath,messageHex){await this.setApp();try{var _this$app3;return(_this$app3=this.app)===null||_this$app3===void 0?void 0:_this$app3.signPersonalMessage(hdPath,messageHex);}catch(error){return Promise.reject(error);}}async isDeviceAuthed(){const devices=await lib_es_TransportWebUSB.list();return Boolean(devices.length);}async isAppOpen(){try{const isAuthed=await this.isDeviceAuthed();if(!isAuthed)return false;const config=await this.getAppConfiguration();const{name}=config;return name===LEDGER_APP_NAME.ETHEREUM;}catch(error){return false;}finally{await this.cleanUp();}}async openApp(){try{var _this$transport;await((_this$transport=this.transport)===null||_this$transport===void 0?void 0:_this$transport.send(LEDGER_CLA,INS.OPEN_APP,0x00,0x00,ethereum_Buffer.from(LEDGER_APP_NAME.ETHEREUM,'ascii')));return true;}catch(error){return false;}}/**
+   */async signPersonalMessage(hdPath,messageHex){await this.setApp();try{var _this$app3;return(_this$app3=this.app)===null||_this$app3===void 0?void 0:_this$app3.signPersonalMessage(hdPath,messageHex);}catch(error){return Promise.reject(error);}}async isDeviceAuthed(){const devices=await lib_es_TransportWebUSB.list();return Boolean(devices.length);}/**
+   * whether the ledger app for the evm-based or ethereum chain is open
+   * You can sign the transaction in the evm-based chain with the evm-based app or the ethereum app
+   * @param {String} chainName:'CONFLUX','ETHEREUM','ESPACE'
+   * @returns boolean
+   */async isAppOpen(chainName){try{const isAuthed=await this.isDeviceAuthed();if(!isAuthed)return false;const config=await this.getAppConfiguration();const name=(config===null||config===void 0?void 0:config.name)||'';return name===LEDGER_APP_NAME[chainName]||name===LEDGER_APP_NAME.ETHEREUM;}catch(error){return false;}finally{await this.cleanUp();}}/**
+   *
+   * @param {String} ledgerAppName: the name of the ledger app  which you want to open
+   * @returns boolean
+   */async openApp(ledgerAppName){try{var _this$transport;await((_this$transport=this.transport)===null||_this$transport===void 0?void 0:_this$transport.send(LEDGER_CLA,INS.OPEN_APP,0x00,0x00,ethereum_Buffer.from(ledgerAppName||LEDGER_APP_NAME.ETHEREUM,'ascii')));return true;}catch(error){return false;}}/**
    * auth the USBDevice
    * @returns boolean, means that whether user has already authed this hardware
    */async requestAuth(){try{await(lib_es_TransportWebUSB===null||lib_es_TransportWebUSB===void 0?void 0:lib_es_TransportWebUSB.request());return true;}catch(error){return false;}}async getAddressList(indexArray){if(!Array.isArray(indexArray))return[];const isNumber=indexArray.every(function(item){return typeof item==='number';});if(!isNumber)return[];const addressArr=[];try{for(const index of indexArray){const hdPath=`${HDPATH.ETHEREUM}${index}`;const{address}=await this.getAddress(hdPath);addressArr.push({address,hdPath});}}catch(error){return Promise.reject(this.handleTheError(error));}return addressArr;}async getDeviceInfo(){const devices=await lib_es_TransportWebUSB.list();if(devices.length>0){var _LEDGER_DEVICE$device;const device=devices[0];return{name:(_LEDGER_DEVICE$device=LEDGER_DEVICE[device===null||device===void 0?void 0:device.productName])===null||_LEDGER_DEVICE$device===void 0?void 0:_LEDGER_DEVICE$device.NAME,productId:device===null||device===void 0?void 0:device.productId,productName:device===null||device===void 0?void 0:device.productName};}return{};}/**

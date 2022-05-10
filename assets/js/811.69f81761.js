@@ -63994,7 +63994,7 @@ const permissions = {
 
 const cache = {
   type: 'ttl',
-  ttl: 24 * 60 * 60 * 1000,
+  ttl: 24 * 60 * 60 * 1000, // 1 day
   key: () => NAME,
   afterGet(_, c) {
     return c ?? 'nocache'
@@ -66465,7 +66465,7 @@ const permissions = {
 
 const cache = {
   type: 'ttl',
-  ttl: 24 * 60 * 60 * 1000,
+  ttl: 24 * 60 * 60 * 1000, // 1 day
   key: () => NAME,
 }
 
@@ -67452,7 +67452,7 @@ const permissions = {
 
 const cache = {
   type: 'ttl',
-  ttl: 24 * 60 * 60 * 1000,
+  ttl: 24 * 60 * 60 * 1000, // 1 day
   key: () => NAME,
 }
 

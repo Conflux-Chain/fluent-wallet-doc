@@ -1,5 +1,5 @@
-exports.id = 811;
-exports.ids = [811];
+exports.id = 78;
+exports.ids = [78];
 exports.modules = {
 
 /***/ 99817:
@@ -79306,6 +79306,72 @@ const main = async arg => {
   }
 
   return rst
+}
+
+
+/***/ }),
+
+/***/ 27641:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_getBlockTime'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+  methods: ['cfx_epochNumber', 'eth_blockNumber'],
+  db: [],
+}
+
+async function waitms(ms = 200) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
+async function waitTillChanged(initial, getFn, interval) {
+  let rst
+  let changed = false
+  while (!changed) {
+    rst = await getFn({_cacheConf: {type: null}}, [])
+    if (rst !== initial) {
+      changed = true
+      break
+    }
+    await waitms(interval)
+  }
+
+  return rst
+}
+
+const main = async ({
+  rpcs: {cfx_epochNumber, eth_blockNumber},
+  network,
+}) => {
+  const getNumber = network.type === 'cfx' ? cfx_epochNumber : eth_blockNumber
+  const waitms = network.type === 'cfx' ? 200 : 500
+
+  let initial = await getNumber({_cacheConf: {type: null}}, [])
+  initial = await waitTillChanged(initial, getNumber, waitms)
+
+  const initTime = new Date().getTime()
+  initial = await waitTillChanged(initial, getNumber, waitms)
+  await waitTillChanged(initial, getNumber, waitms)
+
+  return Math.floor((new Date().getTime() - initTime) / 2)
 }
 
 

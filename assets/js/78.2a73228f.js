@@ -80799,7 +80799,7 @@ const main = ({
               if (
                 bignumber/* BigNumber.from */.O$.from(n)
                   .sub(bignumber/* BigNumber.from */.O$.from(tx.resendAt || tx.txPayload.epochHeight))
-                  .gte(40)
+                  .gte(5)
               ) {
                 setTxUnsent({hash, resendAt: n})
               }
@@ -80893,7 +80893,7 @@ const main = ({
             )
             return sdone()
           }
-          keepTrack()
+          keepTrack(0)
         }),
       )
   } else if (status === 3) {
@@ -80933,7 +80933,7 @@ const main = ({
 
           if (outcomeStatus === '0x0') {
             setTxExecuted({hash, receipt})
-            keepTrack(50 * cacheTime)
+            keepTrack()
           } else {
             setTxFailed({hash, error: txExecErrorMsg})
             updateBadge(getUnfinishedTxCount())
@@ -80964,7 +80964,7 @@ const main = ({
             updateBadge(getUnfinishedTxCount())
             return true
           }
-          keepTrack(50 * cacheTime)
+          keepTrack()
           return false
         }),
         (0,transducers/* keepTruthy */.te)(), // filter non-null tx
@@ -82013,12 +82013,11 @@ const main = ({
   // this only happends in integration test
   if (!tx) return
   address = getAddressById(address)
-  const cacheTime = network.cacheTime || 1000
+  const cacheTime = Math.min(network.cacheTime || 1000, 4000)
   const {status, hash, raw} = tx
+
   const s = defs(hash, {tx, address})
-  const ss = defs(hash, {tx, address})
   const sdone = () => s.done()
-  const ssdone = () => ss.done()
   const keepTrack = (delay = cacheTime) => {
     if (!Number.isInteger(delay)) delay = cacheTime
     sdone()
@@ -82027,6 +82026,9 @@ const main = ({
       delay,
     )
   }
+
+  const ss = defs(hash, {tx, address})
+  const ssdone = () => ss.done()
   const skeepTrack = (delay = cacheTime) => {
     if (!Number.isInteger(delay)) delay = cacheTime
     ssdone()
@@ -82110,15 +82112,17 @@ const main = ({
             // failed to send
             setTxUnsent({hash})
 
-            const {errorType, shouldDiscard} = processError(err)
+            let {errorType, shouldDiscard} = processError(err)
             const isDuplicateTx = errorType === 'duplicateTx'
             const resendNonceTooStale =
-              tx.resendAt && errorType === 'nonceTooStale'
+              tx.resendAt && errorType === 'tooStaleNonce'
             const resendPriceTooLow =
               tx.resendAt && errorType === 'replaceUnderpriced'
+            if (resendPriceTooLow) errorType = 'replacedByAnotherTx'
 
-            const sameAsSuccess =
-              isDuplicateTx || resendNonceTooStale || resendPriceTooLow
+            const sameAsSuccess = isDuplicateTx || resendNonceTooStale
+            const failed =
+              !sameAsSuccess && (shouldDiscard || resendPriceTooLow)
 
             if (errorType === 'unknownError')
               (0,sentry/* capture */.IE)(err, {
@@ -82129,7 +82133,7 @@ const main = ({
               })
 
             defs({
-              failed: !sameAsSuccess && shouldDiscard && {errorType, err},
+              failed: failed && {errorType, err},
               sameAsSuccess,
               resend: !shouldDiscard && !sameAsSuccess,
             })
@@ -82193,7 +82197,7 @@ const main = ({
               } else if (
                 bignumber/* BigNumber.from */.O$.from(n)
                   .sub(bignumber/* BigNumber.from */.O$.from(tx.resendAt || tx.blockNumber))
-                  .gte(40)
+                  .gte(1)
               ) {
                 setTxUnsent({hash, resendAt: n})
               }
@@ -82231,7 +82235,7 @@ const main = ({
             )
             return sdone()
           }
-          keepTrack()
+          keepTrack(0)
         }),
       )
   } else if (status === 3) {
@@ -82262,7 +82266,7 @@ const main = ({
 
           if (status === '0x1') {
             setTxExecuted({hash, receipt})
-            keepTrack(50 * cacheTime)
+            keepTrack(0)
           } else {
             setTxFailed({hash, error: 'tx failed'})
             updateBadge(getUnfinishedTxCount())
@@ -82293,7 +82297,7 @@ const main = ({
             updateBadge(getUnfinishedTxCount())
             return true
           }
-          keepTrack(50 * cacheTime)
+          keepTrack()
           return false
         }),
         (0,transducers/* keepTruthy */.te)(), // filter non-null tx

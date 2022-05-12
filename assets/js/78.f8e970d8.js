@@ -67758,7 +67758,7 @@ const permissions = {
     'wallet_userRejectedAuthRequest',
   ],
   db: ['getNetwork', 'getAuthReqById', 'getNetworkByEndpoint'],
-  scope: {wallet_networks: {}},
+  // scope: {wallet_networks: {}},
 }
 
 const main = async ({
@@ -83246,7 +83246,7 @@ wallet_accounts:{},cfx_accounts:{},eth_accounts:{},// methods to about networks
 // eg. wallet_addEthereumChain, wallet_switchConfluxChain
 wallet_networks:{},wallet_crossNetworkTypeGetConfluxBase32Address:{},wallet_crossNetworkTypeGetEthereumHexAddress:{}});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/docs.js
-/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_crossNetworkTypeGetConfluxBase32Address:{en:"permission for methods need user's Conflux core space mainnet address on other network"},wallet_crossNetworkTypeGetEthereumHexAddress:{en:"permission for methods need user's Ethereum type address (hex address) on other(Conflux core) network"},wallet_networks:{en:'permission for methods related to network change, eg. wallet_addEthereumChain, wallet_switchConfluxChain, this permission is added by default'}});
+/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_crossNetworkTypeGetConfluxBase32Address:{en:"permission for methods need user's Conflux core space mainnet address on other network"},wallet_crossNetworkTypeGetEthereumHexAddress:{en:"permission for methods need user's Ethereum type address (hex address) on other(Conflux core) network"},wallet_networks:{en:'permission for methods related to network change, eg. wallet_switchEthereumChain, wallet_switchConfluxChain, this permission is added by default'}});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/index.js
 const generateSchema=spec=>{const{mapp,map,and,empty}=spec;return[map,...Object.keys(permissions).map(permissionName=>{var _docs$permissionName;return[permissionName,{optional:true,doc:// TODO: i18n
 ((_docs$permissionName=docs[permissionName])===null||_docs$permissionName===void 0?void 0:_docs$permissionName.en)||`${permissionName} wallet permission`},// TODO: remove empty if there's more cap in permissions

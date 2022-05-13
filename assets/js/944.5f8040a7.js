@@ -1,5 +1,5 @@
-exports.id = 78;
-exports.ids = [78];
+exports.id = 944;
+exports.ids = [944];
 exports.modules = {
 
 /***/ 99817:
@@ -77730,6 +77730,73 @@ const permissions = {
 const main = ({Err: {InvalidParams}, db, params: {method, params}}) => {
   if (!db[method]) throw InvalidParams(`Invalid db query method ${method}`)
   return db[method](params)
+}
+
+
+/***/ }),
+
+/***/ 72759:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var browser_passworder__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(89620);
+
+
+
+const NAME = 'wallet_deleteAccount'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['accountId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid], ['password', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.password]],
+}
+
+const permissions = {
+  external: ['popup'],
+  methods: ['wallet_validatePassword', 'wallet_deleteAccountGroup'],
+  db: ['retractAccount', 'findAccount'],
+}
+
+const main = async ({
+  Err: {InvalidParams},
+  db: {findAccount, retractAccount},
+  rpcs: {wallet_validatePassword, wallet_deleteAccountGroup},
+  params: {accountId, password},
+}) => {
+  if (!(await wallet_validatePassword({password})))
+    throw InvalidParams('Invalid password')
+
+  const account = findAccount({
+    accountId,
+    g: {
+      _accountGroup: {vault: {type: 1, data: 1}, account: 1},
+      address: {value: 1},
+    },
+  })
+  if (!account) throw InvalidParams(`Invalid account group id ${accountId}`)
+
+  let ddata
+  if (account.accountGroup.vault.type === 'hw') {
+    ddata = await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.decrypt)(password, account.accountGroup.vault.data)
+    delete ddata[account.address[0].value]
+    ddata = await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_1__.encrypt)(password, ddata)
+  }
+
+  if (account.accountGroup.account.length === 1) {
+    return await wallet_deleteAccountGroup({
+      accountGroupId: account.accountGroup.eid,
+      password,
+    })
+  }
+
+  retractAccount({accountId, hwVaultData: ddata})
+  return true
 }
 
 

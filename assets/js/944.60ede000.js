@@ -77622,6 +77622,15 @@ const main = async ({
       "Can't create address for cfx only vault in eth network",
     )
 
+  if (vault.type === 'hw' && vault.cfxOnly && network.type !== 'cfx')
+    throw InvalidParams(
+      "Can't create hw account address for cfx only vault in eth network",
+    )
+  if (vault.type === 'hw' && !vault.cfxOnly && network.type !== 'eth')
+    throw InvalidParams(
+      "Can't create hw account address for eth only vault in cfx network",
+    )
+
   const pwd = getPassword()
 
   const decrypted = vault.ddata || (await (0,browser_passworder__WEBPACK_IMPORTED_MODULE_4__.decrypt)(pwd, vault.data))

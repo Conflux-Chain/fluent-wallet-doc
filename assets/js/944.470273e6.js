@@ -77279,8 +77279,12 @@ async function fillMissingAccountAddress({
 }) {
   const networks = getNetwork()
   const cfxNetworks = getNetwork({type: 'cfx'})
+  const ethNetworks = getNetwork({type: 'eth'})
   const lackCfxAddr = es_any(
     account => account.address.length < cfxNetworks.length,
+  )
+  const lackEthAddr = es_any(
+    account => account.address.length < ethNetworks.length,
   )
   const lackAddr = es_any(account => account.address.length < networks.length)
   const promises = getAccountGroup().reduce(
@@ -77300,8 +77304,22 @@ async function fillMissingAccountAddress({
         } else {
           return acc
         }
-        // not cfx only account group, lack addrs
+      } else if (!cfxOnly && (vault.type === 'pub' || vault.type === 'hw')) {
+        //  lack eth network addrs
+        if (lackEthAddr(account)) {
+          return acc.concat(
+            ethNetworks.map(network =>
+              wallet_createAddress({
+                accountGroupId: eid,
+                networkId: network.eid,
+              }),
+            ),
+          )
+        } else {
+          return acc
+        }
       } else if (lackAddr(account)) {
+        // rest account group, lack addrs
         return acc.concat(
           networks.map(network => {
             wallet_createAddress({accountGroupId: eid, networkId: network.eid})

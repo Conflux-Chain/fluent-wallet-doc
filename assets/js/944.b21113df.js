@@ -83110,7 +83110,7 @@ const main = async ({
       {users, tokens},
     )
       .then(rst => {
-        return rst && upsertBalances({data: rst, networkId: network.eid})
+        return rst && upsertBalances({data: rst, networkId: network.id})
       })
       .catch(err =>
         (0,_fluent_wallet_sentry__WEBPACK_IMPORTED_MODULE_1__/* .capture */ .IE)(err, {

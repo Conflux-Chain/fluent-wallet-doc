@@ -65651,11 +65651,6 @@ const main = async ({
     const newapp = getOneApp({site: site.eid})
     const addrs = await cfx_accounts({app: newapp}, [])
 
-    newapp.site?.post?.({
-      event: 'accountsChanged',
-      params: addrs,
-    })
-
     return addrs
   }
 
@@ -66987,11 +66982,6 @@ const main = async ({
   if (permsRes && !permsRes.error) {
     const newapp = getOneApp({site: site.eid})
     const addrs = await eth_accounts({app: newapp}, [])
-
-    newapp.site?.post?.({
-      event: 'accountsChanged',
-      params: addrs,
-    })
 
     return addrs
   }
@@ -83360,13 +83350,17 @@ wallet_basic:{},// methods
 // to request user's signature of these accounts, eg. cfx_sendTransaction, eth_signTypedData_v4
 wallet_accounts:{},cfx_accounts:{},eth_accounts:{},// methods to about networks
 // eg. wallet_addEthereumChain, wallet_switchConfluxChain
-wallet_networks:{},wallet_crossNetworkTypeGetConfluxBase32Address:{},wallet_crossNetworkTypeGetEthereumHexAddress:{}});
+// wallet_networks: {},
+wallet_crossNetworkTypeGetConfluxBase32Address:{},wallet_crossNetworkTypeGetEthereumHexAddress:{}});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/docs.js
-/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_crossNetworkTypeGetConfluxBase32Address:{en:"permission for methods need user's Conflux core space mainnet address on other network"},wallet_crossNetworkTypeGetEthereumHexAddress:{en:"permission for methods need user's Ethereum type address (hex address) on other(Conflux core) network"},wallet_networks:{en:'permission for methods related to network change, eg. wallet_switchEthereumChain, wallet_switchConfluxChain, this permission is added by default'}});
+/* harmony default export */ const docs = ({wallet_basic:{en:'permission for basic rpc methods that do not request user address or signature, eg. cfx_epochNumber, eth_blockNumber, wallet_generatePrivateKey, this permission is added by default'},wallet_accounts:{en:'permission for methods that need user address or signature, eg. cfx_sendTransaction, eth_signTypedData_v4'},cfx_accounts:{en:'alias for wallet_account'},eth_accounts:{en:'alias for wallet_account'},wallet_crossNetworkTypeGetConfluxBase32Address:{en:"permission for methods need user's Conflux core space mainnet address on other network"},wallet_crossNetworkTypeGetEthereumHexAddress:{en:"permission for methods need user's Ethereum type address (hex address) on other(Conflux core) network"}// wallet_networks: {
+//   en: 'permission for methods related to network change, eg. wallet_switchEthereumChain, wallet_switchConfluxChain, this permission is added by default',
+// },
+});
 ;// CONCATENATED MODULE: ../../packages/wallet-permission/index.js
-const generateSchema=spec=>{const{mapp,map,and,empty}=spec;return[map,...Object.keys(permissions).map(permissionName=>{var _docs$permissionName;return[permissionName,{optional:true,doc:// TODO: i18n
-((_docs$permissionName=docs[permissionName])===null||_docs$permissionName===void 0?void 0:_docs$permissionName.en)||`${permissionName} wallet permission`},// TODO: remove empty if there's more cap in permissions
-[and,mapp,empty]];})];};/* harmony default export */ const wallet_permission = ((/* unused pure expression or super */ null && (perms)));
+const generateSchema=spec=>{var _docs$wallet_basic,_docs$wallet_crossNet,_docs$wallet_crossNet2,_docs$cfx_accounts,_docs$eth_accounts,_docs$wallet_accounts,_docs$cfx_accounts2,_docs$eth_accounts2,_docs$wallet_accounts2,_docs$cfx_accounts3,_docs$eth_accounts3,_docs$wallet_accounts3;const{mapp,map,and,empty,or}=spec;const emptyMap=[and,mapp,empty];// prettier-ignore
+const base=[map,{closed:true},['wallet_basic',{optional:true,doc:((_docs$wallet_basic=docs.wallet_basic)===null||_docs$wallet_basic===void 0?void 0:_docs$wallet_basic.en)||`wallet_basic wallet permission`},emptyMap],['wallet_crossNetworkTypeGetConfluxBase32Address',{optional:true,doc:((_docs$wallet_crossNet=docs.wallet_crossNetworkTypeGetConfluxBase32Address)===null||_docs$wallet_crossNet===void 0?void 0:_docs$wallet_crossNet.en)||`wallet_crossNetworkTypeGetConfluxBase32Address wallet permission`},emptyMap],['wallet_crossNetworkTypeGetEthereumHexAddress',{optional:true,doc:((_docs$wallet_crossNet2=docs.wallet_crossNetworkTypeGetEthereumHexAddress)===null||_docs$wallet_crossNet2===void 0?void 0:_docs$wallet_crossNet2.en)||`wallet_crossNetworkTypeGetEthereumHexAddress wallet permission`},emptyMap]];// prettier-ignore
+return[or,[...base,['cfx_accounts',{doc:((_docs$cfx_accounts=docs.cfx_accounts)===null||_docs$cfx_accounts===void 0?void 0:_docs$cfx_accounts.en)||`cfx_accounts wallet permission`},emptyMap],['eth_accounts',{optional:true,doc:((_docs$eth_accounts=docs.eth_accounts)===null||_docs$eth_accounts===void 0?void 0:_docs$eth_accounts.en)||`eth_accounts wallet permission`},emptyMap],['wallet_accounts',{optional:true,doc:((_docs$wallet_accounts=docs.wallet_accounts)===null||_docs$wallet_accounts===void 0?void 0:_docs$wallet_accounts.en)||`wallet_accounts wallet permission`},emptyMap]],[...base,['cfx_accounts',{optional:true,doc:((_docs$cfx_accounts2=docs.cfx_accounts)===null||_docs$cfx_accounts2===void 0?void 0:_docs$cfx_accounts2.en)||`cfx_accounts wallet permission`},emptyMap],['eth_accounts',{doc:((_docs$eth_accounts2=docs.eth_accounts)===null||_docs$eth_accounts2===void 0?void 0:_docs$eth_accounts2.en)||`eth_accounts wallet permission`},emptyMap],['wallet_accounts',{optional:true,doc:((_docs$wallet_accounts2=docs.wallet_accounts)===null||_docs$wallet_accounts2===void 0?void 0:_docs$wallet_accounts2.en)||`wallet_accounts wallet permission`},emptyMap]],[...base,['cfx_accounts',{optional:true,doc:((_docs$cfx_accounts3=docs.cfx_accounts)===null||_docs$cfx_accounts3===void 0?void 0:_docs$cfx_accounts3.en)||`cfx_accounts wallet permission`},emptyMap],['eth_accounts',{optional:true,doc:((_docs$eth_accounts3=docs.eth_accounts)===null||_docs$eth_accounts3===void 0?void 0:_docs$eth_accounts3.en)||`eth_accounts wallet permission`},emptyMap],['wallet_accounts',{doc:((_docs$wallet_accounts3=docs.wallet_accounts)===null||_docs$wallet_accounts3===void 0?void 0:_docs$wallet_accounts3.en)||`wallet_accounts wallet permission`},emptyMap]]];};/* harmony default export */ const wallet_permission = ((/* unused pure expression or super */ null && (perms)));
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_requestPermissions/index.js
 
 
@@ -83376,7 +83370,7 @@ const {map, dbid, or, zeroOrMore, oneOrMore} = spec
 const NAME = 'wallet_requestPermissions'
 
 const permissionSchema = generateSchema(spec)
-const publicSchema = [zeroOrMore, permissionSchema]
+const publicSchema = [oneOrMore, permissionSchema]
 
 const responseToAppAuthSchema = [
   map,
@@ -83470,7 +83464,9 @@ const main = async ({
       params: perms,
     }
 
-    return await wallet_addPendingUserAuthRequest({siteId: site.eid, req})
+    const rst = await wallet_addPendingUserAuthRequest({siteId: site.eid, req})
+
+    return rst
   }
 
   // called from popup
@@ -83507,7 +83503,11 @@ const main = async ({
     if (!accounts.includes(currentAccount)) currentAccount = accounts[0]
 
     const perms = formatPermissions(permissions)
-    const newPermApp = upsertAppPermissions({
+    const {
+      app: newPermApp,
+      newlyCreated,
+      accountsChanged,
+    } = upsertAppPermissions({
       siteId,
       accounts,
       currentAccount,
@@ -83515,12 +83515,7 @@ const main = async ({
       perms: perms[0],
     })
 
-    if (authReqId)
-      return await wallet_userApprovedAuthRequest({
-        authReqId,
-        res: await wallet_getPermissions({app: newPermApp}, []),
-      })
-    else {
+    if (newlyCreated || accountsChanged) {
       app = findApp({
         siteId,
         g: {
@@ -83538,6 +83533,14 @@ const main = async ({
         if (addr)
           app.site.post({event: 'accountsChanged', params: [addr.value]})
       }
+    }
+
+    if (authReqId)
+      return await wallet_userApprovedAuthRequest({
+        authReqId,
+        res: await wallet_getPermissions({app: newPermApp}, []),
+      })
+    else {
       if (app) return await wallet_getPermissions({app: newPermApp}, [])
     }
   }
@@ -84341,7 +84344,7 @@ const permissions = {
     'wallet_userRejectedAuthRequest',
   ],
   db: ['getNetwork', 'getAuthReqById'],
-  scope: {wallet_networks: {}},
+  // scope: {wallet_networks: {}},
 }
 
 const generateMain =

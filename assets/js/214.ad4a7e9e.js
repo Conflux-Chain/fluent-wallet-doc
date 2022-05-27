@@ -1,5 +1,5 @@
-exports.id = 944;
-exports.ids = [944];
+exports.id = 214;
+exports.ids = [214];
 exports.modules = {
 
 /***/ 99817:
@@ -77936,6 +77936,46 @@ const main = ({
 
 /***/ }),
 
+/***/ 26990:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'wallet_deleteMemo'
+
+const schemas = {
+  input: [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map, {closed: true}, ['memoId', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid]],
+}
+
+const permissions = {
+  external: ['popup'],
+  methods: [],
+  db: ['retract', 'getMemoById'],
+}
+
+const main = ({
+  Err: {InvalidParams},
+  db: {retract, getMemoById},
+  params: {memoId},
+}) => {
+  if (!getMemoById(memoId)) throw InvalidParams(`Invalid memo id ${memoId}`)
+  retract(memoId)
+
+  return
+}
+
+
+/***/ }),
+
 /***/ 53871:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -84802,6 +84842,73 @@ const main = async ({
     // add tokenList to network
     {eid: networkId, network: {tokenList: -1}},
   ])
+}
+
+
+/***/ }),
+
+/***/ 75415:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2723);
+
+
+
+
+const NAME = 'wallet_upsertMemo'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+    {closed: true},
+    ['address', _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.base32Address, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.ethHexAddress],
+    ['value', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.string, {min: 1}]],
+    ['memoId', {optional: true}, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.dbid],
+  ],
+}
+
+const permissions = {
+  external: ['popup'],
+  db: ['getMemoById', 'getOneMemo', 'getAddressByValue', 't'],
+}
+
+const main = ({
+  Err: {InvalidParams},
+  db: {getMemoById, getOneMemo, t},
+  params: {address, value, memoId},
+  network,
+}) => {
+  if (memoId && !getMemoById(memoId))
+    throw InvalidParams(`Invalid memo id ${memoId}`)
+  if (getOneMemo({id: [address, value]})) return
+
+  const isBase32 = (0,_fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__/* .validateBase32Address */ .pd)(address)
+
+  if (network.type === 'cfx' && !isBase32)
+    throw InvalidParams(`Invalid address ${address}, not valid base32`)
+
+  if (network.type === 'eth' && isBase32)
+    throw InvalidParams(`Invalid address ${address}, not valid hex address`)
+
+  if (memoId) {
+    t([{eid: memoId, memo: {address, value, type: network.type}}])
+  } else {
+    t([
+      {
+        eid: `memo-${address}-${value}`,
+        memo: {address, value, type: network.type},
+      },
+    ])
+  }
 }
 
 

@@ -82279,6 +82279,11 @@ const main = ({
 
             const {errorType, shouldDiscard} = processError(err)
             const isDuplicateTx = errorType === 'duplicateTx'
+            const resendNonceTooStale =
+              tx.resendAt && errorType === 'tooStaleNonce'
+
+            const sameAsSuccess = isDuplicateTx || resendNonceTooStale
+            const failed = !sameAsSuccess && shouldDiscard
 
             if (errorType === 'unknownError')
               (0,sentry/* capture */.IE)(err, {
@@ -82289,9 +82294,9 @@ const main = ({
               })
 
             defs({
-              failed: shouldDiscard && {errorType, err},
-              sameAsSuccess: isDuplicateTx,
-              resend: !shouldDiscard && !isDuplicateTx,
+              failed: failed && {errorType, err},
+              sameAsSuccess,
+              resend: !shouldDiscard && !sameAsSuccess,
             })
               .transform(
                 (0,transducers/* branchObj */.g8)({

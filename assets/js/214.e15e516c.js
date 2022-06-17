@@ -82407,7 +82407,7 @@ const main = ({
               })
           }),
           skipped: (0,map/* map */.U)(() => {
-            setTxSkipped({hash})
+            setTxSkipped({hash, skippedChecked: true})
             updateBadge(getUnfinishedTxCount())
             wallet_getBlockchainExplorerUrl({transaction: [hash]}).then(
               ({transaction: [txUrl]}) => {
@@ -82437,18 +82437,23 @@ const main = ({
       .transform(
         (0,side_effect/* sideEffect */.j)(nonce => {
           if (bignumber/* BigNumber.from */.O$.from(nonce).gt(bignumber/* BigNumber.from */.O$.from(tx.txPayload.nonce))) {
-            setTxSkipped({hash})
-            updateBadge(getUnfinishedTxCount())
-            getExt().then(ext =>
-              ext.notifications.create(hash, {
-                title: 'Skipped transaction',
-                message: `Transaction ${parseInt(
-                  tx.txPayload.nonce,
-                  16,
-                )}  skipped!`,
-              }),
-            )
-            return sdone()
+            if (tx.skippedChecked) {
+              setTxSkipped({hash, skippedChecked: true})
+              updateBadge(getUnfinishedTxCount())
+              getExt().then(ext =>
+                ext.notifications.create(hash, {
+                  title: 'Skipped transaction',
+                  message: `Transaction ${parseInt(
+                    tx.txPayload.nonce,
+                    16,
+                  )}  skipped!`,
+                }),
+              )
+              return sdone()
+            } else {
+              setTxSkipped({hash})
+              return keepTrack(0)
+            }
           }
           keepTrack(0)
         }),
@@ -83786,18 +83791,24 @@ const main = ({
           if (
             bignumber/* BigNumber.from */.O$.from(nonce).gt(bignumber/* BigNumber.from */.O$.from(tx.txPayload.nonce).add(1))
           ) {
-            setTxSkipped({hash})
-            updateBadge(getUnfinishedTxCount())
-            getExt().then(ext =>
-              ext.notifications.create(hash, {
-                title: 'Skipped transaction',
-                message: `Transaction ${parseInt(
-                  tx.txPayload.nonce,
-                  16,
-                )}  skipped!`,
-              }),
-            )
-            return sdone()
+            if (tx.skippedChecked) {
+              setTxSkipped({hash})
+              updateBadge(getUnfinishedTxCount())
+              getExt().then(ext =>
+                ext.notifications.create(hash, {
+                  title: 'Skipped transaction',
+                  message: `Transaction ${parseInt(
+                    tx.txPayload.nonce,
+                    16,
+                  )}  skipped!`,
+                }),
+              )
+              return sdone()
+            } else {
+              setTxSkipped({hash, skippedChecked: true})
+              // check if skipped again immediately
+              return keepTrack(0)
+            }
           }
           keepTrack(0)
         }),

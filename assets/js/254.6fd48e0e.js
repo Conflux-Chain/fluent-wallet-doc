@@ -1,5 +1,5 @@
-exports.id = 214;
-exports.ids = [214];
+exports.id = 254;
+exports.ids = [254];
 exports.modules = {
 
 /***/ 99817:
@@ -688,8 +688,8 @@ __webpack_require__.d(__webpack_exports__, {
 
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/address/lib.esm/index.js + 1 modules
 var lib_esm = __webpack_require__(58194);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
 var bytes_lib_esm = __webpack_require__(75398);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/hash/lib.esm/id.js
@@ -2912,8 +2912,8 @@ __webpack_require__.d(__webpack_exports__, {
 
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
 var lib_esm = __webpack_require__(75398);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
 var keccak256_lib_esm = __webpack_require__(59256);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
@@ -3059,30 +3059,33 @@ function getCreate2Address(from, salt, initCodeHash) {
 
 /***/ }),
 
-/***/ 54997:
+/***/ 43495:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "O$": () => (/* binding */ BigNumber),
-  "g$": () => (/* binding */ _base36To16)
-});
-
-// UNUSED EXPORTS: _base16To36, isBigNumberish
-
-// EXTERNAL MODULE: ../../node_modules/bn.js/lib/bn.js
-var bn = __webpack_require__(62197);
-var bn_default = /*#__PURE__*/__webpack_require__.n(bn);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
-var lib_esm = __webpack_require__(75398);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
-var logger_lib_esm = __webpack_require__(57036);
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/_version.js
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "i": () => (/* binding */ version)
+/* harmony export */ });
 const version = "bignumber/5.6.2";
 //# sourceMappingURL=_version.js.map
-;// CONCATENATED MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+
+/***/ }),
+
+/***/ 10528:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Zm": () => (/* binding */ isBigNumberish),
+/* harmony export */   "O$": () => (/* binding */ BigNumber),
+/* harmony export */   "g$": () => (/* binding */ _base36To16)
+/* harmony export */ });
+/* unused harmony export _base16To36 */
+/* harmony import */ var bn_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(62197);
+/* harmony import */ var bn_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(bn_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(75398);
+/* harmony import */ var _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57036);
+/* harmony import */ var _version__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(43495);
 
 /**
  *  BigNumber
@@ -3092,27 +3095,27 @@ const version = "bignumber/5.6.2";
  *
  */
 
-var BN = (bn_default()).BN;
+var BN = (bn_js__WEBPACK_IMPORTED_MODULE_0___default().BN);
 
 
 
-const logger = new logger_lib_esm/* Logger */.Yd(version);
+const logger = new _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger */ .Yd(_version__WEBPACK_IMPORTED_MODULE_2__/* .version */ .i);
 const _constructorGuard = {};
 const MAX_SAFE = 0x1fffffffffffff;
 function isBigNumberish(value) {
     return (value != null) && (BigNumber.isBigNumber(value) ||
         (typeof (value) === "number" && (value % 1) === 0) ||
         (typeof (value) === "string" && !!value.match(/^-?[0-9]+$/)) ||
-        isHexString(value) ||
+        (0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .isHexString */ .A7)(value) ||
         (typeof (value) === "bigint") ||
-        isBytes(value));
+        (0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .isBytes */ ._t)(value));
 }
 // Only warn about passing 10 into radix once
 let _warnedToStringRadix = false;
 class BigNumber {
     constructor(constructorGuard, hex) {
         if (constructorGuard !== _constructorGuard) {
-            logger.throwError("cannot call constructor directly; use BigNumber.from", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+            logger.throwError("cannot call constructor directly; use BigNumber.from", _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger.errors.UNSUPPORTED_OPERATION */ .Yd.errors.UNSUPPORTED_OPERATION, {
                 operation: "new (BigNumber)"
             });
         }
@@ -3236,7 +3239,7 @@ class BigNumber {
             return BigInt(this.toString());
         }
         catch (e) { }
-        return logger.throwError("this platform does not support BigInt", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+        return logger.throwError("this platform does not support BigInt", _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger.errors.UNSUPPORTED_OPERATION */ .Yd.errors.UNSUPPORTED_OPERATION, {
             value: this.toString()
         });
     }
@@ -3250,10 +3253,10 @@ class BigNumber {
                 }
             }
             else if (arguments[0] === 16) {
-                logger.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", logger_lib_esm/* Logger.errors.UNEXPECTED_ARGUMENT */.Yd.errors.UNEXPECTED_ARGUMENT, {});
+                logger.throwError("BigNumber.toString does not accept any parameters; use bigNumber.toHexString()", _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger.errors.UNEXPECTED_ARGUMENT */ .Yd.errors.UNEXPECTED_ARGUMENT, {});
             }
             else {
-                logger.throwError("BigNumber.toString does not accept parameters", logger_lib_esm/* Logger.errors.UNEXPECTED_ARGUMENT */.Yd.errors.UNEXPECTED_ARGUMENT, {});
+                logger.throwError("BigNumber.toString does not accept parameters", _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger.errors.UNEXPECTED_ARGUMENT */ .Yd.errors.UNEXPECTED_ARGUMENT, {});
             }
         }
         return toBN(this).toString(10);
@@ -3290,8 +3293,8 @@ class BigNumber {
         if (typeof (anyValue) === "bigint") {
             return BigNumber.from(anyValue.toString());
         }
-        if ((0,lib_esm/* isBytes */._t)(anyValue)) {
-            return BigNumber.from((0,lib_esm/* hexlify */.Dv)(anyValue));
+        if ((0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .isBytes */ ._t)(anyValue)) {
+            return BigNumber.from((0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .hexlify */ .Dv)(anyValue));
         }
         if (anyValue) {
             // Hexable interface (takes priority)
@@ -3309,7 +3312,7 @@ class BigNumber {
                     hex = anyValue.hex;
                 }
                 if (typeof (hex) === "string") {
-                    if ((0,lib_esm/* isHexString */.A7)(hex) || (hex[0] === "-" && (0,lib_esm/* isHexString */.A7)(hex.substring(1)))) {
+                    if ((0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .isHexString */ .A7)(hex) || (hex[0] === "-" && (0,_ethersproject_bytes__WEBPACK_IMPORTED_MODULE_3__/* .isHexString */ .A7)(hex.substring(1)))) {
                         return BigNumber.from(hex);
                     }
                 }
@@ -3377,7 +3380,7 @@ function throwFault(fault, operation, value) {
     if (value != null) {
         params.value = value;
     }
-    return logger.throwError(fault, logger_lib_esm/* Logger.errors.NUMERIC_FAULT */.Yd.errors.NUMERIC_FAULT, params);
+    return logger.throwError(fault, _ethersproject_logger__WEBPACK_IMPORTED_MODULE_1__/* .Logger.errors.NUMERIC_FAULT */ .Yd.errors.NUMERIC_FAULT, params);
 }
 // value should have no prefix
 function _base36To16(value) {
@@ -3991,8 +3994,8 @@ const Base58 = new BaseX("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuv
 //console.log(Base58.decode("Qmd2V777o5XvJbYMeMb8k2nU5f8d3ciUQ5YpYuWhzv8iDj"))
 //console.log(Base58.encode(Base58.decode("Qmd2V777o5XvJbYMeMb8k2nU5f8d3ciUQ5YpYuWhzv8iDj")))
 //# sourceMappingURL=index.js.map
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/strings/lib.esm/utf8.js + 1 modules
 var utf8 = __webpack_require__(71320);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/pbkdf2/lib.esm/pbkdf2.js
@@ -8059,8 +8062,8 @@ __webpack_require__.d(__webpack_exports__, {
 
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/address/lib.esm/index.js + 1 modules
 var lib_esm = __webpack_require__(58194);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
 var bytes_lib_esm = __webpack_require__(75398);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/keccak256/lib.esm/index.js
@@ -8582,6 +8585,480 @@ function parse(rawTransaction) {
         operation: "parseTransaction",
         transactionType: payload[0]
     });
+}
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 77962:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "bM": () => (/* binding */ formatUnits),
+  "vz": () => (/* binding */ parseUnits)
+});
+
+// UNUSED EXPORTS: commify, formatEther, parseEther
+
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bytes/lib.esm/index.js + 1 modules
+var lib_esm = __webpack_require__(75398);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
+var logger_lib_esm = __webpack_require__(57036);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/_version.js
+var _version = __webpack_require__(43495);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/fixednumber.js
+
+
+
+
+const logger = new logger_lib_esm/* Logger */.Yd(_version/* version */.i);
+
+const _constructorGuard = {};
+const Zero = bignumber/* BigNumber.from */.O$.from(0);
+const NegativeOne = bignumber/* BigNumber.from */.O$.from(-1);
+function throwFault(message, fault, operation, value) {
+    const params = { fault: fault, operation: operation };
+    if (value !== undefined) {
+        params.value = value;
+    }
+    return logger.throwError(message, logger_lib_esm/* Logger.errors.NUMERIC_FAULT */.Yd.errors.NUMERIC_FAULT, params);
+}
+// Constant to pull zeros from for multipliers
+let zeros = "0";
+while (zeros.length < 256) {
+    zeros += zeros;
+}
+// Returns a string "1" followed by decimal "0"s
+function getMultiplier(decimals) {
+    if (typeof (decimals) !== "number") {
+        try {
+            decimals = bignumber/* BigNumber.from */.O$.from(decimals).toNumber();
+        }
+        catch (e) { }
+    }
+    if (typeof (decimals) === "number" && decimals >= 0 && decimals <= 256 && !(decimals % 1)) {
+        return ("1" + zeros.substring(0, decimals));
+    }
+    return logger.throwArgumentError("invalid decimal size", "decimals", decimals);
+}
+function formatFixed(value, decimals) {
+    if (decimals == null) {
+        decimals = 0;
+    }
+    const multiplier = getMultiplier(decimals);
+    // Make sure wei is a big number (convert as necessary)
+    value = bignumber/* BigNumber.from */.O$.from(value);
+    const negative = value.lt(Zero);
+    if (negative) {
+        value = value.mul(NegativeOne);
+    }
+    let fraction = value.mod(multiplier).toString();
+    while (fraction.length < multiplier.length - 1) {
+        fraction = "0" + fraction;
+    }
+    // Strip training 0
+    fraction = fraction.match(/^([0-9]*[1-9]|0)(0*)/)[1];
+    const whole = value.div(multiplier).toString();
+    if (multiplier.length === 1) {
+        value = whole;
+    }
+    else {
+        value = whole + "." + fraction;
+    }
+    if (negative) {
+        value = "-" + value;
+    }
+    return value;
+}
+function parseFixed(value, decimals) {
+    if (decimals == null) {
+        decimals = 0;
+    }
+    const multiplier = getMultiplier(decimals);
+    if (typeof (value) !== "string" || !value.match(/^-?[0-9.]+$/)) {
+        logger.throwArgumentError("invalid decimal value", "value", value);
+    }
+    // Is it negative?
+    const negative = (value.substring(0, 1) === "-");
+    if (negative) {
+        value = value.substring(1);
+    }
+    if (value === ".") {
+        logger.throwArgumentError("missing value", "value", value);
+    }
+    // Split it into a whole and fractional part
+    const comps = value.split(".");
+    if (comps.length > 2) {
+        logger.throwArgumentError("too many decimal points", "value", value);
+    }
+    let whole = comps[0], fraction = comps[1];
+    if (!whole) {
+        whole = "0";
+    }
+    if (!fraction) {
+        fraction = "0";
+    }
+    // Trim trailing zeros
+    while (fraction[fraction.length - 1] === "0") {
+        fraction = fraction.substring(0, fraction.length - 1);
+    }
+    // Check the fraction doesn't exceed our decimals size
+    if (fraction.length > multiplier.length - 1) {
+        throwFault("fractional component exceeds decimals", "underflow", "parseFixed");
+    }
+    // If decimals is 0, we have an empty string for fraction
+    if (fraction === "") {
+        fraction = "0";
+    }
+    // Fully pad the string with zeros to get to wei
+    while (fraction.length < multiplier.length - 1) {
+        fraction += "0";
+    }
+    const wholeValue = bignumber/* BigNumber.from */.O$.from(whole);
+    const fractionValue = bignumber/* BigNumber.from */.O$.from(fraction);
+    let wei = (wholeValue.mul(multiplier)).add(fractionValue);
+    if (negative) {
+        wei = wei.mul(NegativeOne);
+    }
+    return wei;
+}
+class FixedFormat {
+    constructor(constructorGuard, signed, width, decimals) {
+        if (constructorGuard !== _constructorGuard) {
+            logger.throwError("cannot use FixedFormat constructor; use FixedFormat.from", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                operation: "new FixedFormat"
+            });
+        }
+        this.signed = signed;
+        this.width = width;
+        this.decimals = decimals;
+        this.name = (signed ? "" : "u") + "fixed" + String(width) + "x" + String(decimals);
+        this._multiplier = getMultiplier(decimals);
+        Object.freeze(this);
+    }
+    static from(value) {
+        if (value instanceof FixedFormat) {
+            return value;
+        }
+        if (typeof (value) === "number") {
+            value = `fixed128x${value}`;
+        }
+        let signed = true;
+        let width = 128;
+        let decimals = 18;
+        if (typeof (value) === "string") {
+            if (value === "fixed") {
+                // defaults...
+            }
+            else if (value === "ufixed") {
+                signed = false;
+            }
+            else {
+                const match = value.match(/^(u?)fixed([0-9]+)x([0-9]+)$/);
+                if (!match) {
+                    logger.throwArgumentError("invalid fixed format", "format", value);
+                }
+                signed = (match[1] !== "u");
+                width = parseInt(match[2]);
+                decimals = parseInt(match[3]);
+            }
+        }
+        else if (value) {
+            const check = (key, type, defaultValue) => {
+                if (value[key] == null) {
+                    return defaultValue;
+                }
+                if (typeof (value[key]) !== type) {
+                    logger.throwArgumentError("invalid fixed format (" + key + " not " + type + ")", "format." + key, value[key]);
+                }
+                return value[key];
+            };
+            signed = check("signed", "boolean", signed);
+            width = check("width", "number", width);
+            decimals = check("decimals", "number", decimals);
+        }
+        if (width % 8) {
+            logger.throwArgumentError("invalid fixed format width (not byte aligned)", "format.width", width);
+        }
+        if (decimals > 80) {
+            logger.throwArgumentError("invalid fixed format (decimals too large)", "format.decimals", decimals);
+        }
+        return new FixedFormat(_constructorGuard, signed, width, decimals);
+    }
+}
+class FixedNumber {
+    constructor(constructorGuard, hex, value, format) {
+        if (constructorGuard !== _constructorGuard) {
+            logger.throwError("cannot use FixedNumber constructor; use FixedNumber.from", logger_lib_esm/* Logger.errors.UNSUPPORTED_OPERATION */.Yd.errors.UNSUPPORTED_OPERATION, {
+                operation: "new FixedFormat"
+            });
+        }
+        this.format = format;
+        this._hex = hex;
+        this._value = value;
+        this._isFixedNumber = true;
+        Object.freeze(this);
+    }
+    _checkFormat(other) {
+        if (this.format.name !== other.format.name) {
+            logger.throwArgumentError("incompatible format; use fixedNumber.toFormat", "other", other);
+        }
+    }
+    addUnsafe(other) {
+        this._checkFormat(other);
+        const a = parseFixed(this._value, this.format.decimals);
+        const b = parseFixed(other._value, other.format.decimals);
+        return FixedNumber.fromValue(a.add(b), this.format.decimals, this.format);
+    }
+    subUnsafe(other) {
+        this._checkFormat(other);
+        const a = parseFixed(this._value, this.format.decimals);
+        const b = parseFixed(other._value, other.format.decimals);
+        return FixedNumber.fromValue(a.sub(b), this.format.decimals, this.format);
+    }
+    mulUnsafe(other) {
+        this._checkFormat(other);
+        const a = parseFixed(this._value, this.format.decimals);
+        const b = parseFixed(other._value, other.format.decimals);
+        return FixedNumber.fromValue(a.mul(b).div(this.format._multiplier), this.format.decimals, this.format);
+    }
+    divUnsafe(other) {
+        this._checkFormat(other);
+        const a = parseFixed(this._value, this.format.decimals);
+        const b = parseFixed(other._value, other.format.decimals);
+        return FixedNumber.fromValue(a.mul(this.format._multiplier).div(b), this.format.decimals, this.format);
+    }
+    floor() {
+        const comps = this.toString().split(".");
+        if (comps.length === 1) {
+            comps.push("0");
+        }
+        let result = FixedNumber.from(comps[0], this.format);
+        const hasFraction = !comps[1].match(/^(0*)$/);
+        if (this.isNegative() && hasFraction) {
+            result = result.subUnsafe(ONE.toFormat(result.format));
+        }
+        return result;
+    }
+    ceiling() {
+        const comps = this.toString().split(".");
+        if (comps.length === 1) {
+            comps.push("0");
+        }
+        let result = FixedNumber.from(comps[0], this.format);
+        const hasFraction = !comps[1].match(/^(0*)$/);
+        if (!this.isNegative() && hasFraction) {
+            result = result.addUnsafe(ONE.toFormat(result.format));
+        }
+        return result;
+    }
+    // @TODO: Support other rounding algorithms
+    round(decimals) {
+        if (decimals == null) {
+            decimals = 0;
+        }
+        // If we are already in range, we're done
+        const comps = this.toString().split(".");
+        if (comps.length === 1) {
+            comps.push("0");
+        }
+        if (decimals < 0 || decimals > 80 || (decimals % 1)) {
+            logger.throwArgumentError("invalid decimal count", "decimals", decimals);
+        }
+        if (comps[1].length <= decimals) {
+            return this;
+        }
+        const factor = FixedNumber.from("1" + zeros.substring(0, decimals), this.format);
+        const bump = BUMP.toFormat(this.format);
+        return this.mulUnsafe(factor).addUnsafe(bump).floor().divUnsafe(factor);
+    }
+    isZero() {
+        return (this._value === "0.0" || this._value === "0");
+    }
+    isNegative() {
+        return (this._value[0] === "-");
+    }
+    toString() { return this._value; }
+    toHexString(width) {
+        if (width == null) {
+            return this._hex;
+        }
+        if (width % 8) {
+            logger.throwArgumentError("invalid byte width", "width", width);
+        }
+        const hex = bignumber/* BigNumber.from */.O$.from(this._hex).fromTwos(this.format.width).toTwos(width).toHexString();
+        return (0,lib_esm/* hexZeroPad */.$m)(hex, width / 8);
+    }
+    toUnsafeFloat() { return parseFloat(this.toString()); }
+    toFormat(format) {
+        return FixedNumber.fromString(this._value, format);
+    }
+    static fromValue(value, decimals, format) {
+        // If decimals looks more like a format, and there is no format, shift the parameters
+        if (format == null && decimals != null && !(0,bignumber/* isBigNumberish */.Zm)(decimals)) {
+            format = decimals;
+            decimals = null;
+        }
+        if (decimals == null) {
+            decimals = 0;
+        }
+        if (format == null) {
+            format = "fixed";
+        }
+        return FixedNumber.fromString(formatFixed(value, decimals), FixedFormat.from(format));
+    }
+    static fromString(value, format) {
+        if (format == null) {
+            format = "fixed";
+        }
+        const fixedFormat = FixedFormat.from(format);
+        const numeric = parseFixed(value, fixedFormat.decimals);
+        if (!fixedFormat.signed && numeric.lt(Zero)) {
+            throwFault("unsigned value cannot be negative", "overflow", "value", value);
+        }
+        let hex = null;
+        if (fixedFormat.signed) {
+            hex = numeric.toTwos(fixedFormat.width).toHexString();
+        }
+        else {
+            hex = numeric.toHexString();
+            hex = (0,lib_esm/* hexZeroPad */.$m)(hex, fixedFormat.width / 8);
+        }
+        const decimal = formatFixed(numeric, fixedFormat.decimals);
+        return new FixedNumber(_constructorGuard, hex, decimal, fixedFormat);
+    }
+    static fromBytes(value, format) {
+        if (format == null) {
+            format = "fixed";
+        }
+        const fixedFormat = FixedFormat.from(format);
+        if ((0,lib_esm/* arrayify */.lE)(value).length > fixedFormat.width / 8) {
+            throw new Error("overflow");
+        }
+        let numeric = bignumber/* BigNumber.from */.O$.from(value);
+        if (fixedFormat.signed) {
+            numeric = numeric.fromTwos(fixedFormat.width);
+        }
+        const hex = numeric.toTwos((fixedFormat.signed ? 0 : 1) + fixedFormat.width).toHexString();
+        const decimal = formatFixed(numeric, fixedFormat.decimals);
+        return new FixedNumber(_constructorGuard, hex, decimal, fixedFormat);
+    }
+    static from(value, format) {
+        if (typeof (value) === "string") {
+            return FixedNumber.fromString(value, format);
+        }
+        if ((0,lib_esm/* isBytes */._t)(value)) {
+            return FixedNumber.fromBytes(value, format);
+        }
+        try {
+            return FixedNumber.fromValue(value, 0, format);
+        }
+        catch (error) {
+            // Allow NUMERIC_FAULT to bubble up
+            if (error.code !== logger_lib_esm/* Logger.errors.INVALID_ARGUMENT */.Yd.errors.INVALID_ARGUMENT) {
+                throw error;
+            }
+        }
+        return logger.throwArgumentError("invalid FixedNumber value", "value", value);
+    }
+    static isFixedNumber(value) {
+        return !!(value && value._isFixedNumber);
+    }
+}
+const ONE = FixedNumber.from(1);
+const BUMP = FixedNumber.from("0.5");
+//# sourceMappingURL=fixednumber.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/units/lib.esm/_version.js
+const version = "units/5.6.1";
+//# sourceMappingURL=_version.js.map
+;// CONCATENATED MODULE: ../../node_modules/@ethersproject/units/lib.esm/index.js
+
+
+
+
+const lib_esm_logger = new logger_lib_esm/* Logger */.Yd(version);
+const names = [
+    "wei",
+    "kwei",
+    "mwei",
+    "gwei",
+    "szabo",
+    "finney",
+    "ether",
+];
+// Some environments have issues with RegEx that contain back-tracking, so we cannot
+// use them.
+function commify(value) {
+    const comps = String(value).split(".");
+    if (comps.length > 2 || !comps[0].match(/^-?[0-9]*$/) || (comps[1] && !comps[1].match(/^[0-9]*$/)) || value === "." || value === "-.") {
+        lib_esm_logger.throwArgumentError("invalid value", "value", value);
+    }
+    // Make sure we have at least one whole digit (0 if none)
+    let whole = comps[0];
+    let negative = "";
+    if (whole.substring(0, 1) === "-") {
+        negative = "-";
+        whole = whole.substring(1);
+    }
+    // Make sure we have at least 1 whole digit with no leading zeros
+    while (whole.substring(0, 1) === "0") {
+        whole = whole.substring(1);
+    }
+    if (whole === "") {
+        whole = "0";
+    }
+    let suffix = "";
+    if (comps.length === 2) {
+        suffix = "." + (comps[1] || "0");
+    }
+    while (suffix.length > 2 && suffix[suffix.length - 1] === "0") {
+        suffix = suffix.substring(0, suffix.length - 1);
+    }
+    const formatted = [];
+    while (whole.length) {
+        if (whole.length <= 3) {
+            formatted.unshift(whole);
+            break;
+        }
+        else {
+            const index = whole.length - 3;
+            formatted.unshift(whole.substring(index));
+            whole = whole.substring(0, index);
+        }
+    }
+    return negative + formatted.join(",") + suffix;
+}
+function formatUnits(value, unitName) {
+    if (typeof (unitName) === "string") {
+        const index = names.indexOf(unitName);
+        if (index !== -1) {
+            unitName = 3 * index;
+        }
+    }
+    return formatFixed(value, (unitName != null) ? unitName : 18);
+}
+function parseUnits(value, unitName) {
+    if (typeof (value) !== "string") {
+        lib_esm_logger.throwArgumentError("value must be a string", "value", value);
+    }
+    if (typeof (unitName) === "string") {
+        const index = names.indexOf(unitName);
+        if (index !== -1) {
+            unitName = 3 * index;
+        }
+    }
+    return parseFixed(value, (unitName != null) ? unitName : 18);
+}
+function formatEther(wei) {
+    return formatUnits(wei, 18);
+}
+function parseEther(ether) {
+    return parseUnits(ether, 18);
 }
 //# sourceMappingURL=index.js.map
 
@@ -60847,8 +61324,8 @@ __webpack_require__.d(__webpack_exports__, {
 var lib_esm = __webpack_require__(58194);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/transactions/lib.esm/index.js + 3 modules
 var transactions_lib_esm = __webpack_require__(11482);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/properties/lib.esm/index.js + 1 modules
 var properties_lib_esm = __webpack_require__(84427);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/logger/lib.esm/index.js + 1 modules
@@ -62824,7 +63301,8 @@ const isAsyncFunction=fn=>isFunction(fn)&&fn instanceof AsyncFunction;
 /* harmony export */   "sU": () => (/* binding */ CFX_MAINNET_NETID),
 /* harmony export */   "mO": () => (/* binding */ CFX_TESTNET_NETID),
 /* harmony export */   "JH": () => (/* binding */ DEFAULT_CFX_HDPATH),
-/* harmony export */   "uD": () => (/* binding */ DEFAULT_ETH_HDPATH)
+/* harmony export */   "uD": () => (/* binding */ DEFAULT_ETH_HDPATH),
+/* harmony export */   "Pp": () => (/* binding */ ETH_TX_TYPES)
 /* harmony export */ });
 /* unused harmony exports MAINNET, TESTNET, LOCALHOST, CUSTOM, EXT_STORAGE, ADMINE_CONTROL_HEX_ADDRESS, SPONSOR_WHITELIST_CONTROL_HEX_ADDRESS, STAKING_HEX_ADDRESS, DEFAULT_CURRENCY_DECIMALS, CFX_MAINNET_RPC_ENDPOINT, CFX_MAINNET_CHAINID, CFX_MAINNET_CURRENCY_SYMBOL, CFX_MAINNET_CURRENCY_NAME, CFX_MAINNET_EXPLORER_URL, CFX_ESPACE_MAINNET_RPC_ENDPOINT, CFX_ESPACE_MAINNET_NAME, CFX_ESPACE_MAINNET_CHAINID, CFX_ESPACE_MAINNET_NETID, CFX_ESPACE_MAINNET_CURRENCY_SYMBOL, CFX_ESPACE_MAINNET_CURRENCY_NAME, CFX_ESPACE_MAINNET_EXPLORER_URL, CFX_TESTNET_RPC_ENDPOINT, CFX_TESTNET_NAME, CFX_TESTNET_CHAINID, CFX_TESTNET_CURRENCY_SYMBOL, CFX_TESTNET_CURRENCY_NAME, CFX_TESTNET_EXPLORER_URL, CFX_ESPACE_TESTNET_RPC_ENDPOINT, CFX_ESPACE_TESTNET_NAME, CFX_ESPACE_TESTNET_CHAINID, CFX_ESPACE_TESTNET_NETID, CFX_ESPACE_TESTNET_CURRENCY_SYMBOL, CFX_ESPACE_TESTNET_CURRENCY_NAME, CFX_ESPACE_TESTNET_EXPLORER_URL, ETH_MAINNET_RPC_ENDPOINT, ETH_MAINNET_NAME, ETH_MAINNET_CHAINID, ETH_MAINNET_NETID, ETH_MAINNET_CURRENCY_SYMBOL, ETH_MAINNET_CURRENCY_NAME, ETH_MAINNET_EXPLORER_URL, ETH_ROPSTEN_RPC_ENDPOINT, ETH_ROPSTEN_NAME, ETH_ROPSTEN_CHAINID, ETH_ROPSTEN_NETID, ETH_ROPSTEN_CURRENCY_SYMBOL, ETH_ROPSTEN_CURRENCY_NAME, ETH_ROPSTEN_EXPLORER_URL, ETH_RINKEBY_RPC_ENDPOINT, ETH_RINKEBY_NAME, ETH_RINKEBY_CHAINID, ETH_RINKEBY_NETID, ETH_RINKEBY_CURRENCY_SYMBOL, ETH_RINKEBY_CURRENCY_NAME, ETH_RINKEBY_EXPLORER_URL, ETH_GOERLI_RPC_ENDPOINT, ETH_GOERLI_NAME, ETH_GOERLI_CHAINID, ETH_GOERLI_NETID, ETH_GOERLI_CURRENCY_SYMBOL, ETH_GOERLI_CURRENCY_NAME, ETH_GOERLI_EXPLORER_URL, ETH_KOVAN_RPC_ENDPOINT, ETH_KOVAN_NAME, ETH_KOVAN_CHAINID, ETH_KOVAN_NETID, ETH_KOVAN_CURRENCY_SYMBOL, ETH_KOVAN_CURRENCY_NAME, ETH_KOVAN_EXPLORER_URL, REGENERATE, CFX_LOCALNET_RPC_ENDPOINT, CFX_LOCALNET_NAME, CFX_LOCALNET_CHAINID, CFX_LOCALNET_NETID, CFX_LOCALNET_CURRENCY_SYMBOL, CFX_LOCALNET_CURRENCY_NAME, ETH_LOCALNET_RPC_ENDPOINT, ETH_LOCALNET_NAME, ETH_LOCALNET_CHAINID, ETH_LOCALNET_NETID, ETH_LOCALNET_CURRENCY_SYMBOL, ETH_LOCALNET_CURRENCY_NAME, ETH_ENDPOINT, CFX_SCAN_DOMAINS, ETH_SCAN_DOMAINS */
 /**
@@ -62835,7 +63313,7 @@ const DEFAULT_CURRENCY_DECIMALS=18;const CFX_MAINNET_RPC_ENDPOINT='https://porta
 const ETH_ENDPOINT={[ETH_MAINNET_NETID]:ETH_MAINNET_RPC_ENDPOINT,[ETH_ROPSTEN_NETID]:ETH_ROPSTEN_RPC_ENDPOINT// Rinkeby: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Kovan: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 // Goerli: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-};const CFX_SCAN_DOMAINS={[CFX_MAINNET_NETID]:'https://confluxscan.io',[CFX_TESTNET_NETID]:'https://testnet.confluxscan.io'};const ETH_SCAN_DOMAINS={[ETH_MAINNET_NETID]:'https://etherscan.io/',[CFX_TESTNET_NETID]:'https://ropsten.etherscan.io/'};
+};const CFX_SCAN_DOMAINS={[CFX_MAINNET_NETID]:'https://confluxscan.io',[CFX_TESTNET_NETID]:'https://testnet.confluxscan.io'};const ETH_SCAN_DOMAINS={[ETH_MAINNET_NETID]:'https://etherscan.io/',[CFX_TESTNET_NETID]:'https://ropsten.etherscan.io/'};const ETH_TX_TYPES={LEGACY:'0x0',EIP2930:'0x1',EIP1559:'0x2'};
 
 /***/ }),
 
@@ -64088,7 +64566,8 @@ var checks = __webpack_require__(34577);
 /* harmony export */ });
 /* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__({map,ethHexAddress,Hash32,Uint,Byte,Bytes,and,eq,chainId,catn,optionalMapKey}){const AccessEntrySpec=[map,{closed:true},['address',{optional:true},ethHexAddress],['storageKeys',{optional:true},[catn,['32BtyeHexValue',Hash32]]]];const AccessListSpec=[catn,['AccessListEntry',AccessEntrySpec]];const TxMapSpecs={from:['from',ethHexAddress],type:['type',{doc:'EIP 2718 Type'},Byte],nonce:['nonce',Uint],to:['to',{doc:'Only optional when creating contract'},ethHexAddress],gas:['gas',{doc:'gas limit'},Uint],gasLimit:['gasLimit',{doc:'gas limit, same as the "gas" key'},Uint],gasPrice:['gasPrice',{doc:'gas price'},Uint],value:['value',Uint],data:['data',{doc:'input data'},Bytes],maxPriorityFeePerGas:['maxPriorityFeePerGas',Uint],maxFeePerGas:['maxFeePerGas',Uint],accessList:['accessList',AccessListSpec],chainId:['chainId',chainId]};// EIP-2930
 const Transaction2930Unsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x1']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),optionalMapKey(TxMapSpecs.gasPrice),optionalMapKey(TxMapSpecs.accessList),optionalMapKey(TxMapSpecs.chainId)];// EIP-1559
-const Transaction1559Unsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x2']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),TxMapSpecs.maxPriorityFeePerGas,TxMapSpecs.maxFeePerGas,optionalMapKey(TxMapSpecs.accessList),optionalMapKey(TxMapSpecs.chainId)];// EIP-155
+const Transaction1559Unsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x2']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),optionalMapKey(TxMapSpecs.maxPriorityFeePerGas),optionalMapKey(TxMapSpecs.maxFeePerGas),optionalMapKey(TxMapSpecs.accessList),optionalMapKey(TxMapSpecs.chainId),optionalMapKey(TxMapSpecs.gasPrice)//actually no gasPrice params for EIP-1559 transaction,but sometimes, the dapp developer will pass this param
+];// EIP-155
 const TransactionLegacyUnsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x0']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),optionalMapKey(TxMapSpecs.gasPrice),optionalMapKey(TxMapSpecs.chainId)];return{AccessEntrySpec,AccessListSpec,TxMapSpecs,Transaction2930Unsigned,Transaction1559Unsigned,TransactionLegacyUnsigned};}
 
 /***/ }),
@@ -66359,7 +66838,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
-/* harmony import */ var _ethersproject_bignumber__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54997);
+/* harmony import */ var _ethersproject_bignumber__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(10528);
 
 
 
@@ -67848,6 +68327,177 @@ const main = async ({f, db: {getOneNetwork}, params, _inpage, app}) => {
 
 /***/ }),
 
+/***/ 55722:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "GAS_API_BASE_URL": () => (/* binding */ GAS_API_BASE_URL),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var bn_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(62197);
+/* harmony import */ var _ethersproject_units__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(77962);
+
+
+
+
+const NAME = 'eth_estimate1559Fee'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+  methods: [
+    'eth_getBlockByNumber',
+    'eth_feeHistory',
+    'wallet_network1559Compatible',
+  ],
+  db: [],
+}
+//Gas station url for EIP1559
+const GAS_API_BASE_URL = 'https://gas-api.metaswap.codefi.network'
+// How many blocks to consider for priority fee estimation
+const FEE_HISTORY_BLOCKS = 5
+// Levels of priority fee
+const PRIORITY_LEVELS = ['low', 'medium', 'high']
+const SETTINGS_BY_PRIORITY_LEVEL = {
+  low: {
+    percentile: 10,
+    baseFeePercentageMultiplier: new bn_js__WEBPACK_IMPORTED_MODULE_1__(110),
+    minSuggestedMaxPriorityFeePerGas: new bn_js__WEBPACK_IMPORTED_MODULE_1__(1000000000),
+  },
+  medium: {
+    percentile: 20,
+    baseFeePercentageMultiplier: new bn_js__WEBPACK_IMPORTED_MODULE_1__(120),
+    minSuggestedMaxPriorityFeePerGas: new bn_js__WEBPACK_IMPORTED_MODULE_1__(1500000000),
+  },
+  high: {
+    percentile: 30,
+    baseFeePercentageMultiplier: new bn_js__WEBPACK_IMPORTED_MODULE_1__(125),
+    minSuggestedMaxPriorityFeePerGas: new bn_js__WEBPACK_IMPORTED_MODULE_1__(2000000000),
+  },
+}
+// Which percentile of effective priority fees to include
+const FEE_HISTORY_PERCENTILES = [
+  SETTINGS_BY_PRIORITY_LEVEL.low.percentile,
+  SETTINGS_BY_PRIORITY_LEVEL.medium.percentile,
+  SETTINGS_BY_PRIORITY_LEVEL.high.percentile,
+]
+/**
+ * A gas fee estimates based on gas fees that have been used in the recent past tx.
+ * @param {*} param
+ */
+const main = async ({
+  Err: {InvalidParams},
+  rpcs: {eth_feeHistory, eth_getBlockByNumber, wallet_network1559Compatible},
+  network,
+}) => {
+  const network1559Compatible = await wallet_network1559Compatible()
+  if (!network1559Compatible)
+    throw InvalidParams(
+      `Network ${network.name} don't support 1559 transaction`,
+    )
+  let gasInfo = {}
+  //First fetch through gas station,if error occured, then fetch througe the rpc: eth_feeHistory
+  try {
+    gasInfo = await getGasFeeByGasStation(Number(network.chainId))
+  } catch (error) {
+    const latestBlock = await eth_getBlockByNumber(['latest', false])
+    const baseFeePerGas = new bn_js__WEBPACK_IMPORTED_MODULE_1__(Number(latestBlock?.baseFeePerGas))
+    const feeData = await eth_feeHistory([
+      FEE_HISTORY_BLOCKS,
+      'latest',
+      FEE_HISTORY_PERCENTILES,
+    ])
+    gasInfo = calculateGasFeeEstimatesForPriorityLevels(feeData, baseFeePerGas)
+  }
+  return gasInfo
+}
+
+function calculateGasFeeEstimatesForPriorityLevels(feeData, baseFeePerGas) {
+  const levelSpecificEstimates = PRIORITY_LEVELS.reduce(
+    (obj, priorityLevel) => {
+      const gasEstimatesForPriorityLevel = calculateEstimatesForPriorityLevel(
+        priorityLevel,
+        feeData,
+        baseFeePerGas,
+      )
+      return {...obj, [priorityLevel]: gasEstimatesForPriorityLevel}
+    },
+    {},
+  )
+  return {
+    ...levelSpecificEstimates,
+    estimatedBaseFee: (0,_ethersproject_units__WEBPACK_IMPORTED_MODULE_2__/* .formatUnits */ .bM)(baseFeePerGas.toString(), 'gwei'),
+  }
+}
+
+function calculateEstimatesForPriorityLevel(
+  priorityLevel,
+  feeData,
+  baseFeePerGas,
+) {
+  const settings = SETTINGS_BY_PRIORITY_LEVEL[priorityLevel]
+  const adjustedBaseFeePerGas = baseFeePerGas
+    .mul(settings.baseFeePercentageMultiplier)
+    .divn(100)
+  const priorityFees = feeData.reward
+    ?.map(
+      rewards =>
+        new bn_js__WEBPACK_IMPORTED_MODULE_1__(Number(rewards[PRIORITY_LEVELS.indexOf(priorityLevel)])),
+    )
+    .filter(bn_js__WEBPACK_IMPORTED_MODULE_1__.isBN)
+  const adjustedPriorityFee = medianOf(priorityFees)
+  const suggestedMaxPriorityFeePerGas = bn_js__WEBPACK_IMPORTED_MODULE_1__.max(
+    adjustedPriorityFee,
+    settings.minSuggestedMaxPriorityFeePerGas,
+  )
+  const suggestedMaxFeePerGas = adjustedBaseFeePerGas.add(
+    suggestedMaxPriorityFeePerGas,
+  )
+  return {
+    suggestedMaxPriorityFeePerGas: (0,_ethersproject_units__WEBPACK_IMPORTED_MODULE_2__/* .formatUnits */ .bM)(
+      suggestedMaxPriorityFeePerGas.toString(),
+      'gwei',
+    ),
+    suggestedMaxFeePerGas: (0,_ethersproject_units__WEBPACK_IMPORTED_MODULE_2__/* .formatUnits */ .bM)(
+      suggestedMaxFeePerGas.toString(),
+      'gwei',
+    ),
+  }
+}
+
+function medianOf(numbers) {
+  const sortedNumbers = numbers.slice().sort((a, b) => a.cmp(b))
+  const len = sortedNumbers.length
+  const index = Math.floor((len - 1) / 2)
+  return sortedNumbers[index]
+}
+
+async function getGasFeeByGasStation(chainId) {
+  const gaseFeeApiUrl = `${GAS_API_BASE_URL}/networks/${chainId}/suggestedGasFees`
+  if (typeof window?.fetch === 'function') {
+    const res = await fetch(gaseFeeApiUrl, {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'},
+    }).then(res => res.json())
+    return res
+  }
+
+  return {}
+}
+
+
+/***/ }),
+
 /***/ 79108:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -67928,13 +68578,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const NAME = 'eth_feeHistory'
-
 const schemas = {
   input: [
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.cat,
-    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint,
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.number,
     [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.or, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.blockRef, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.Uint],
-    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.and, _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.number, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.gte, 0], [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.lte, 100]]],
+    [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.schema, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.zeroOrMore, [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.number, {max: 100, min: 1}]]],
   ],
 }
 
@@ -68297,6 +68946,38 @@ const main = ({f, params}) => {
 
 /***/ }),
 
+/***/ 86693:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+
+
+const NAME = 'eth_maxPriorityFeePerGas'
+
+const schemas = {
+  input: _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.optParam,
+}
+
+const permissions = {
+  external: ['popup', 'inpage'],
+  locked: true,
+}
+
+const main = async ({f}) => {
+  return await f([])
+}
+
+
+/***/ }),
+
 /***/ 24125:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -68438,9 +69119,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
-/* harmony import */ var _fluent_wallet_eth_transaction_schema__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(11719);
+/* harmony import */ var _fluent_wallet_eth_transaction_schema__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(11719);
 /* harmony import */ var _fluent_wallet_signature__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(52206);
 /* harmony import */ var _fluent_wallet_ledger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(83799);
+/* harmony import */ var _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9414);
+/* harmony import */ var _ethersproject_units__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(77962);
+
+
 
 
 
@@ -68450,7 +69135,7 @@ const {
   TransactionLegacyUnsigned,
   Transaction1559Unsigned,
   Transaction2930Unsigned,
-} = (0,_fluent_wallet_eth_transaction_schema__WEBPACK_IMPORTED_MODULE_3__/* ["default"] */ .Z)(_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__)
+} = (0,_fluent_wallet_eth_transaction_schema__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .Z)(_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__)
 
 const {or, cat, zeroOrOne, map, blockRef, boolean} = _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__
 
@@ -68489,21 +69174,24 @@ function toEthersTx(tx) {
   const {from, type, gas, ...ethersTx} = tx
   ethersTx.gasLimit = gas
   ethersTx.type = parseInt(type, 16)
+  if (type === _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_3__/* .ETH_TX_TYPES.EIP1559 */ .Pp.EIP1559) {
+    //EIP-1559
+    delete ethersTx.gasPrice
+  }
   return ethersTx
 }
 
 const permissions = {
   external: [],
   methods: [
-    // TODO: ledger support for eth
     'eth_signTxWithLedgerNanoS',
     'wallet_getAddressPrivateKey',
     'eth_getTransactionCount',
-    // 'eth_blockNumber',
     'eth_gasPrice',
     'eth_estimateGas',
     'wallet_detectAddressType',
-    // 'wallet_network1559Compatible',
+    'wallet_network1559Compatible',
+    'eth_estimate1559Fee',
   ],
   db: ['findAddress'],
 }
@@ -68513,13 +69201,13 @@ const main = async args => {
     Err: {InvalidParams},
     db: {findAddress},
     rpcs: {
-      // eth_blockNumber,
       eth_gasPrice,
-      // wallet_network1559Compatible,
+      wallet_network1559Compatible,
       wallet_getAddressPrivateKey,
       eth_estimateGas,
       eth_getTransactionCount,
       wallet_detectAddressType,
+      eth_estimate1559Fee,
     },
     params: [tx, opts = {}],
     app,
@@ -68534,8 +69222,11 @@ const main = async args => {
   tx.from = tx.from.toLowerCase()
   if (tx.to) tx.to = tx.to.toLowerCase()
   const newTx = {...tx}
-
-  newTx.type = newTx.type || '0x0'
+  const network1559Compatible = await wallet_network1559Compatible()
+  if (!newTx.type) {
+    if (network1559Compatible) newTx.type = _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_3__/* .ETH_TX_TYPES.EIP1559 */ .Pp.EIP1559
+    else newTx.type = _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_3__/* .ETH_TX_TYPES.LEGACY */ .Pp.LEGACY
+  }
 
   const fromAddr = findAddress({
     appId: app && app.eid,
@@ -68546,6 +69237,7 @@ const main = async args => {
       _account: {eid: 1, _accountGroup: {vault: {type: 1, device: 1}}},
     },
   })
+
   // from address is not belong to wallet
   if (!fromAddr) throw InvalidParams(`Invalid from address ${newTx.from}`)
 
@@ -68555,22 +69247,7 @@ const main = async args => {
       `Invalid tx, [to] and [data] can't be omit at the same time`,
     )
 
-  const legacyTx = !newTx.type || newTx.type === '0x0'
-  if (!legacyTx)
-    throw InvalidParams(
-      `Invalid transaction params: params specify an EIP-1559 transaction but the current network does not support EIP-1559`,
-    )
-
-  // TODO: EIP-1559 support
-  // const network1559Compatible = await wallet_network1559Compatible()
-  // if (!legacyTx && network1559Compatible)
-  //   throw InvalidParams(
-  //     `Network ${network.name} don't support 1559 transactions`,
-  //   )
-
   if (newTx.data === '0x') newTx.data = undefined
-  if (!newTx.gasPrice) newTx.gasPrice = await eth_gasPrice()
-
   if (!newTx.value) newTx.value = '0x0'
 
   if (!newTx.nonce) {
@@ -68579,6 +69256,14 @@ const main = async args => {
       'pending',
     ])
   }
+  // EIP-1559
+  const is1559Tx = newTx.type === _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_3__/* .ETH_TX_TYPES.EIP1559 */ .Pp.EIP1559
+  if (is1559Tx && !network1559Compatible)
+    throw InvalidParams(
+      `Network ${network.name} don't support 1559 transaction`,
+    )
+
+  if (!is1559Tx && !newTx.gasPrice) newTx.gasPrice = await eth_gasPrice()
 
   if (newTx.to && !newTx.gas) {
     const {contract: typeContract} = await wallet_detectAddressType(
@@ -68589,7 +69274,6 @@ const main = async args => {
       if (!newTx.gas) newTx.gas = '0x5208'
     }
   }
-
   if (!newTx.gas) {
     newTx.gas = await eth_estimateGas({errorFallThrough: true}, [
       newTx,
@@ -68599,7 +69283,21 @@ const main = async args => {
 
   if (!newTx.chainId) newTx.chainId = network.chainId
   newTx.chainId = parseInt(newTx.chainId, 16)
-
+  if (is1559Tx && network1559Compatible) {
+    const gasInfoEip1559 = await eth_estimate1559Fee()
+    const {suggestedMaxPriorityFeePerGas, suggestedMaxFeePerGas} =
+      gasInfoEip1559?.medium || {}
+    if (!newTx.maxPriorityFeePerGas)
+      newTx.maxPriorityFeePerGas = (0,_ethersproject_units__WEBPACK_IMPORTED_MODULE_5__/* .parseUnits */ .vz)(
+        suggestedMaxPriorityFeePerGas,
+        'gwei',
+      ).toHexString()
+    if (!newTx.maxFeePerGas)
+      newTx.maxFeePerGas = (0,_ethersproject_units__WEBPACK_IMPORTED_MODULE_5__/* .parseUnits */ .vz)(
+        suggestedMaxFeePerGas,
+        'gwei',
+      ).toHexString()
+  }
   let raw
   if (fromAddr.account.accountGroup.vault.type === 'hw') {
     if (dryRun) {
@@ -82071,8 +82769,8 @@ var keep = __webpack_require__(75335);
 ;// CONCATENATED MODULE: ../../packages/conflux-tx-error/index.js
 // shouldDiscard means should stop tracking this tx
 function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==='string'){var _err$data,_err$data$includes,_err$data2,_err$data2$includes,_err$data3,_err$data3$includes,_err$data4,_err$data4$includes,_err$data5,_err$data5$includes,_err$data6,_err$data6$includes,_err$data7,_err$data7$includes,_err$data8,_err$data8$includes,_err$data9,_err$data9$includes,_err$data10,_err$data10$includes,_err$data11,_err$data11$includes,_err$data12,_err$data12$includes,_err$data13,_err$data13$match;if((_err$data=err.data)!==null&&_err$data!==void 0&&(_err$data$includes=_err$data.includes)!==null&&_err$data$includes!==void 0&&_err$data$includes.call(_err$data,'tx pool is full')||(_err$data2=err.data)!==null&&_err$data2!==void 0&&(_err$data2$includes=_err$data2.includes)!==null&&_err$data2$includes!==void 0&&_err$data2$includes.call(_err$data2,'Transaction Pool is full'))return{errorType:'txPoolFull',shouldDiscard:true};if((_err$data3=err.data)!==null&&_err$data3!==void 0&&(_err$data3$includes=_err$data3.includes)!==null&&_err$data3$includes!==void 0&&_err$data3$includes.call(_err$data3,'still in the catch up mode'))return{errorType:'nodeInCatchUpMode',shouldDiscard:true};if((_err$data4=err.data)!==null&&_err$data4!==void 0&&(_err$data4$includes=_err$data4.includes)!==null&&_err$data4$includes!==void 0&&_err$data4$includes.call(_err$data4,'Can not recover pubkey'))return{errorType:'canNotRecoverPubKey',shouldDiscard:true};if((_err$data5=err.data)!==null&&_err$data5!==void 0&&(_err$data5$includes=_err$data5.includes)!==null&&_err$data5$includes!==void 0&&_err$data5$includes.call(_err$data5,'RlpIncorrectListLen'))return{errorType:'rlpIncorrectListLen',shouldDiscard:true};if((_err$data6=err.data)!==null&&_err$data6!==void 0&&(_err$data6$includes=_err$data6.includes)!==null&&_err$data6$includes!==void 0&&_err$data6$includes.call(_err$data6,'ChainIdMismatch'))return{errorType:'chainIdMismatch',shouldDiscard:true};if((_err$data7=err.data)!==null&&_err$data7!==void 0&&(_err$data7$includes=_err$data7.includes)!==null&&_err$data7$includes!==void 0&&_err$data7$includes.call(_err$data7,'ZeroGasPrice'))return{errorType:'zeroGasPrice',shouldDiscard:true};if((_err$data8=err.data)!==null&&_err$data8!==void 0&&(_err$data8$includes=_err$data8.includes)!==null&&_err$data8$includes!==void 0&&_err$data8$includes.call(_err$data8,'too distant future'))return{errorType:'tooDistantFuture',shouldDiscard:true};if((_err$data9=err.data)!==null&&_err$data9!==void 0&&(_err$data9$includes=_err$data9.includes)!==null&&_err$data9$includes!==void 0&&_err$data9$includes.call(_err$data9,'tx already exist'))return{errorType:'duplicateTx',shouldDiscard:false};if((_err$data10=err.data)!==null&&_err$data10!==void 0&&(_err$data10$includes=_err$data10.includes)!==null&&_err$data10$includes!==void 0&&_err$data10$includes.call(_err$data10,'EpochHeightOutOfBound'))return{errorType:'epochHeightOutOfBound',shouldDiscard:true};if((_err$data11=err.data)!==null&&_err$data11!==void 0&&(_err$data11$includes=_err$data11.includes)!==null&&_err$data11$includes!==void 0&&_err$data11$includes.call(_err$data11,'exceeds the maximum value'))return{errorType:'gasExceedsLimit',shouldDiscard:true};if((_err$data12=err.data)!==null&&_err$data12!==void 0&&(_err$data12$includes=_err$data12.includes)!==null&&_err$data12$includes!==void 0&&_err$data12$includes.call(_err$data12,'too stale nonce'))return{errorType:'tooStaleNonce',shouldDiscard:true};if((_err$data13=err.data)!==null&&_err$data13!==void 0&&(_err$data13$match=_err$data13.match)!==null&&_err$data13$match!==void 0&&_err$data13$match.call(_err$data13,/same nonce already inserted.*replace.*gas price/))return{errorType:'replacedWithHigherGasPriceTx',shouldDiscard:true};}return{errorType:'unknownError',shouldDiscard:true};}
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@thi.ng/compose/identity.js
 var identity = __webpack_require__(94249);
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_handleUnfinishedCFXTx/index.js
@@ -83473,8 +84171,8 @@ function processError(err){if(typeof(err===null||err===void 0?void 0:err.data)==
 if(/transaction underpriced/i.test(errstr))return{errorType:'gasTooLow',shouldDiscard:true};if(/tx\s?pool is full/i.test(errstr)||/transaction pool is full/i.test(errstr))return{errorType:'txPoolFull',shouldDiscard:true};if(/exceeds block gas limit/i.test(errstr))return{errorType:'gasExceedsLimit',shouldDiscard:true};// https://github.com/ethereum/go-ethereum/blob/2d20fed893faa894f50af709349b13b6ad9b45db/core/error.go#L58
 if(/gas limit reached/i.test(errstr))return{errorType:'gasLimitReached',shouldDiscard:false};if(/oversized data/i.test(errstr))return{errorType:'oversizedData',shouldDiscard:true};if(/nonce too low/i.test(errstr)||/too stale nonce/i.test(errstr))return{errorType:'tooStaleNonce',shouldDiscard:true};if(/nonce too high/i.test(errstr))return{errorType:'nonceTooHigh',shouldDiscard:true};if(/nonce has max value/i.test(errstr))return{errorType:'nonceMax',shouldDiscard:true};if(/insufficient funds/i.test(errstr))return{errorType:'insufficientFunds',shouldDiscard:true};if(/intrinsic gas too low/i.test(errstr))return{errorType:'intrinsicGas',shouldDiscard:true};if(/transaction type not supported/i.test(errstr))return{errorType:'txTypeNotSupported',shouldDiscard:true};if(/max fee per gas higher than/i.test(errstr))return{errorType:'feeCapVeryHigh',shouldDiscard:true};if(/max fee per gas less than block base fee/i.test(errstr))return{errorType:'feeCapTooLow',shouldDiscard:true};if(/max priority fee per gas higher than max fee per gas/i.test(errstr))return{errorType:'tipAboveFeeCap',shouldDiscard:true};if(/max priority fee per gas higher than/i.test(errstr))return{errorType:'tipVeryHigh',shouldDiscard:true};// can't find this error in geth
 if(/invalid chainid/i.test(errstr))return{errorType:'chainIdMismatch',shouldDiscard:true};}return{errorType:'unknownError',shouldDiscard:true};}
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 // EXTERNAL MODULE: ../../node_modules/@thi.ng/compose/identity.js
 var identity = __webpack_require__(94249);
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_handleUnfinishedETHTx/index.js
@@ -85131,9 +85829,10 @@ DISCONNECTED:{code:4900,name:'Disconnected'},// disconnected from requested chai
 CHAIN_DISCONNECTED:{code:4901,name:'Chain Disconnected'},UNRECOGNIZED_CHAIN_ID:{code:4902,name:'Unrecognized chain ID'}};const Parse=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.PARSE.name} ${ERROR.PARSE.code}]\n`);const InvalidRequest=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.INVALID_REQUEST.name} ${ERROR.INVALID_REQUEST.code}]\n`);const MethodNotFound=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.METHOD_NOT_FOUND.name} ${ERROR.METHOD_NOT_FOUND.code}]\n`);const InvalidParams=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.INVALID_PARAMS.name} ${ERROR.INVALID_PARAMS.code}]\n`);const Internal=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.INTERNAL.name} ${ERROR.INTERNAL.code}]\n`);const Server=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.SERVER.name} ${ERROR.SERVER.code}]\n`);const UserRejected=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.USER_REJECTED.name} ${ERROR.USER_REJECTED.code}]\n`);const Unauthorized=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.UNAUTHORIZED.name} ${ERROR.UNAUTHORIZED.code}]\n`);const UnsupportedMethod=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.UNSUPPORTED_METHOD.name} ${ERROR.UNSUPPORTED_METHOD.code}]\n`);const Disconnected=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.DISCONNECTED.name} ${ERROR.DISCONNECTED.code}]\n`);const ChainDisconnected=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.CHAIN_DISCONNECTED.name} ${ERROR.CHAIN_DISCONNECTED.code}]\n`);const UnrecognizedChainId=errors_defRpcError(()=>``,msg=>`${msg} [${ERROR.UNRECOGNIZED_CHAIN_ID.name} ${ERROR.UNRECOGNIZED_CHAIN_ID.code}]\n`);const errorInstanceToErrorCode=instance=>{if(instance instanceof Parse)return ERROR.PARSE.code;if(instance instanceof InvalidRequest)return ERROR.INVALID_REQUEST.code;if(instance instanceof MethodNotFound)return ERROR.METHOD_NOT_FOUND.code;if(instance instanceof InvalidParams)return ERROR.INVALID_PARAMS.code;if(instance instanceof Internal)return ERROR.INTERNAL.code;if(instance instanceof Server)return ERROR.SERVER.code;if(instance instanceof UserRejected)return ERROR.USER_REJECTED.code;if(instance instanceof Unauthorized)return ERROR.UNAUTHORIZED.code;if(instance instanceof UnsupportedMethod)return ERROR.UNSUPPORTED_METHOD.code;if(instance instanceof Disconnected)return ERROR.DISCONNECTED.code;if(instance instanceof ChainDisconnected)return ERROR.CHAIN_DISCONNECTED.code;if(instance instanceof UnrecognizedChainId)return ERROR.UNRECOGNIZED_CHAIN_ID.code;if(!(instance!==null&&instance!==void 0&&instance.code))return-32000;if(instance.code>=-32099&&instance.code<=-32000)return instance.code;return-32000;};const guessErrorType=err=>{if(!(err!==null&&err!==void 0&&err.code))return Internal;if(err!==null&&err!==void 0&&err.code){if(err.code>=-32099&&err.code<=-32000)return defRpcError(()=>``,msg=>`${msg} [${ERROR.SERVER.name} ${err.code}]\n`);if(err.code===ERROR.PARSE.code)return Parse;if(err.code===ERROR.INVALID_REQUEST.code)return InvalidRequest;if(err.code===ERROR.METHOD_NOT_FOUND.code)return MethodNotFound;if(err.code===ERROR.INVALID_PARAMS.code)return InvalidParams;if(err.code===ERROR.INTERNAL.code)return Internal;if(err.code===ERROR.SERVER.code)return Server;if(err.code===ERROR.USER_REJECTED)return UserRejected;if(err.code===ERROR.UNAUTHORIZED.code)return Unauthorized;if(err.code===ERROR.UNSUPPORTED_METHOD)return UnsupportedMethod;if(err.code===ERROR.DISCONNECTED)return Disconnected;if(err.code===ERROR.CHAIN_DISCON)return ChainDisconnected;}return Internal;};const parseError=(err,prefix='',suffix='')=>{const C=guessErrorType(err);const error=new C(prefix+(err===null||err===void 0?void 0:err.message)||''+suffix);error.code=(err===null||err===void 0?void 0:err.code)||error.code;error.data=(err===null||err===void 0?void 0:err.data)||error.data;return error;};
 // EXTERNAL MODULE: ../../packages/consts/index.js
 var consts = __webpack_require__(9414);
-// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js + 1 modules
-var bignumber = __webpack_require__(54997);
+// EXTERNAL MODULE: ../../node_modules/@ethersproject/bignumber/lib.esm/bignumber.js
+var bignumber = __webpack_require__(10528);
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_sendTransaction/index.js
+
 
 
 
@@ -85221,6 +85920,9 @@ const main = async ({
       throw InvalidParams(`Invalid from address in tx ${from}`)
 
     delete params[0].nonce
+    if (params[0].type === consts/* ETH_TX_TYPES.EIP1559 */.Pp.EIP1559 && params[0].gasPrice) {
+      delete params[0].gasPrice
+    }
     try {
       // try sign tx
       await signTxFn(
@@ -85310,7 +86012,6 @@ const main = async ({
     throw Server(`Server error while signning tx`)
   }
   const {raw: rawtx, txMeta} = signed
-
   const txhash = (0,signature/* getTxHashFromRawTx */.PV)(rawtx)
   const duptx = getAddrTxByHash({addressId: addr, txhash})
 
@@ -85322,7 +86023,6 @@ const main = async ({
   const blockNumber =
     network.type === 'eth' &&
     (await eth_blockNumber({errorFallThrough: true}, []))
-
   const dbtxs = [
     {eid: 'newTxPayload', txPayload: txMeta},
     {eid: 'newTxExtra', txExtra: {ok: false}},
@@ -85342,7 +86042,6 @@ const main = async ({
     {eid: addr, address: {tx: 'newTxId'}},
     authReqId && {eid: authReq.app.eid, app: {tx: 'newTxId'}},
   ]
-
   const {
     tempids: {newTxId},
   } = t(dbtxs)
@@ -85355,8 +86054,9 @@ const main = async ({
       },
       {txhash},
     )
-  } catch (err) {} // eslint-disable-line no-empty
 
+    // eslint-disable-next-line no-empty
+  } catch (err) {}
   return await new Promise((resolve, reject) => {
     handleUnfinishedTxFn(
       {network: authReqId ? authReq.app.currentNetwork : network},

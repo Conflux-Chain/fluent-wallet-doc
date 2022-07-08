@@ -84145,11 +84145,14 @@ const main = ({
             // get the error message in receipt
             cfx_getTransactionReceipt({errorFallThrough: true}, [hash])
               .then(receipt => {
-                let err
+                let err = ''
                 if (receipt?.txExecErrorMsg) {
                   err = receipt.txExecErrorMsg
                 }
-                setTxFailed({hash, error: receipt.txExecErrorMsg})
+                setTxFailed({
+                  hash,
+                  error: err || 'tx failed',
+                })
                 updateBadge(getUnfinishedTxCount())
                 getExt().then(ext =>
                   ext.notifications.create(hash, {
@@ -85595,15 +85598,21 @@ const main = ({
             setTxExecuted({hash, receipt})
             keepTrack(0)
           } else {
-            setTxFailed({hash, error: txExecErrorMsg || 'tx failed'})
+            let err = ''
+            if (txExecErrorMsg) {
+              err = txExecErrorMsg
+            }
+            setTxFailed({hash, error: err || 'tx failed'})
             updateBadge(getUnfinishedTxCount())
             getExt().then(ext =>
               ext.notifications.create(hash, {
                 title: 'Failed transaction',
-                message: `Transaction ${parseInt(
-                  tx.txPayload.nonce,
-                  16,
-                )} failed!`,
+                message:
+                  txExecErrorMsg ||
+                  `Transaction ${parseInt(
+                    tx.txPayload.nonce,
+                    16,
+                  )} failed! ${err}`,
               }),
             )
           }

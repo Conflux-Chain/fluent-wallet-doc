@@ -68676,17 +68676,22 @@ const main = async args => {
     }
   }
 
-  if (!newTx.gas || !newTx.storageLimit) {
-    const {gasLimit, storageCollateralized} =
-      await cfx_estimateGasAndCollateral({errorFallThrough: true}, [
-        newTx,
-        epoch,
-      ])
-    if (!newTx.gas) newTx.gas = gasLimit
-    if (!newTx.storageLimit) newTx.storageLimit = storageCollateralized
-  }
-
   if (!newTx.gasPrice) newTx.gasPrice = await cfx_gasPrice()
+
+  if (!newTx.gas || !newTx.storageLimit) {
+    try {
+      const {gasLimit, storageCollateralized} =
+        await cfx_estimateGasAndCollateral({errorFallThrough: true}, [
+          newTx,
+          epoch,
+        ])
+      if (!newTx.gas) newTx.gas = gasLimit
+      if (!newTx.storageLimit) newTx.storageLimit = storageCollateralized
+    } catch (err) {
+      err.data = {originalData: err.data, estimateError: true}
+      throw err
+    }
+  }
 
   let raw
   if (fromAddr.account.accountGroup.vault.type === 'hw') {
@@ -70238,10 +70243,15 @@ const main = async args => {
     }
   }
   if (!newTx.gas) {
-    newTx.gas = await eth_estimateGas({errorFallThrough: true}, [
-      newTx,
-      block || 'latest',
-    ])
+    try {
+      newTx.gas = await eth_estimateGas({errorFallThrough: true}, [
+        newTx,
+        block || 'latest',
+      ])
+    } catch (err) {
+      err.data = {originalData: err.data, estimateError: true}
+      throw err
+    }
   }
 
   if (!newTx.chainId) newTx.chainId = network.chainId
@@ -88427,8 +88437,8 @@ const main = async ({
         [...params, {dryRun: true}],
       )
     } catch (err) {
-      if (!/Can not estimate.*NotEnoughCash/i.test(err.message)) {
-        if (err?.code === ERROR.USER_REJECTED.code) throw err
+      if (err?.code === ERROR.USER_REJECTED.code) throw err
+      if (!err?.data?.estimateError) {
         err.message = `Error while processing tx.\nparams:\n${JSON.stringify(
           params,
           null,

@@ -1,5 +1,5 @@
-exports.id = 74;
-exports.ids = [74];
+exports.id = 795;
+exports.ids = [795];
 exports.modules = {
 
 /***/ 99817:
@@ -64191,6 +64191,457 @@ const isAsyncFunction=fn=>isFunction(fn)&&fn instanceof AsyncFunction;
 
 /***/ }),
 
+/***/ 95895:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "h": () => (/* binding */ fetch)
+});
+
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/errors/HTTPError.js
+// eslint-lint-disable-next-line @typescript-eslint/naming-convention
+class HTTPError extends Error {
+    constructor(response, request, options) {
+        const code = (response.status || response.status === 0) ? response.status : '';
+        const title = response.statusText || '';
+        const status = `${code} ${title}`.trim();
+        const reason = status ? `status code ${status}` : 'an unknown error';
+        super(`Request failed with ${reason}`);
+        this.name = 'HTTPError';
+        this.response = response;
+        this.request = request;
+        this.options = options;
+    }
+}
+//# sourceMappingURL=HTTPError.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/errors/TimeoutError.js
+class TimeoutError extends Error {
+    constructor(request) {
+        super('Request timed out');
+        this.name = 'TimeoutError';
+        this.request = request;
+    }
+}
+//# sourceMappingURL=TimeoutError.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/is.js
+// eslint-disable-next-line @typescript-eslint/ban-types
+const isObject = (value) => value !== null && typeof value === 'object';
+//# sourceMappingURL=is.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/merge.js
+
+const validateAndMerge = (...sources) => {
+    for (const source of sources) {
+        if ((!isObject(source) || Array.isArray(source)) && typeof source !== 'undefined') {
+            throw new TypeError('The `options` argument must be an object');
+        }
+    }
+    return deepMerge({}, ...sources);
+};
+const mergeHeaders = (source1 = {}, source2 = {}) => {
+    const result = new globalThis.Headers(source1);
+    const isHeadersInstance = source2 instanceof globalThis.Headers;
+    const source = new globalThis.Headers(source2);
+    for (const [key, value] of source.entries()) {
+        if ((isHeadersInstance && value === 'undefined') || value === undefined) {
+            result.delete(key);
+        }
+        else {
+            result.set(key, value);
+        }
+    }
+    return result;
+};
+// TODO: Make this strongly-typed (no `any`).
+const deepMerge = (...sources) => {
+    let returnValue = {};
+    let headers = {};
+    for (const source of sources) {
+        if (Array.isArray(source)) {
+            if (!Array.isArray(returnValue)) {
+                returnValue = [];
+            }
+            returnValue = [...returnValue, ...source];
+        }
+        else if (isObject(source)) {
+            for (let [key, value] of Object.entries(source)) {
+                if (isObject(value) && key in returnValue) {
+                    value = deepMerge(returnValue[key], value);
+                }
+                returnValue = { ...returnValue, [key]: value };
+            }
+            if (isObject(source.headers)) {
+                headers = mergeHeaders(headers, source.headers);
+                returnValue.headers = headers;
+            }
+        }
+    }
+    return returnValue;
+};
+//# sourceMappingURL=merge.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/core/constants.js
+const supportsAbortController = typeof globalThis.AbortController === 'function';
+const supportsStreams = typeof globalThis.ReadableStream === 'function';
+const supportsFormData = typeof globalThis.FormData === 'function';
+const requestMethods = ['get', 'post', 'put', 'patch', 'head', 'delete'];
+const validate = () => undefined;
+validate();
+const responseTypes = {
+    json: 'application/json',
+    text: 'text/*',
+    formData: 'multipart/form-data',
+    arrayBuffer: '*/*',
+    blob: '*/*',
+};
+// The maximum value of a 32bit int (see issue #117)
+const maxSafeTimeout = 2147483647;
+const stop = Symbol('stop');
+//# sourceMappingURL=constants.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/normalize.js
+
+const normalizeRequestMethod = (input) => requestMethods.includes(input) ? input.toUpperCase() : input;
+const retryMethods = ['get', 'put', 'head', 'delete', 'options', 'trace'];
+const retryStatusCodes = [408, 413, 429, 500, 502, 503, 504];
+const retryAfterStatusCodes = [413, 429, 503];
+const defaultRetryOptions = {
+    limit: 2,
+    methods: retryMethods,
+    statusCodes: retryStatusCodes,
+    afterStatusCodes: retryAfterStatusCodes,
+    maxRetryAfter: Number.POSITIVE_INFINITY,
+};
+const normalizeRetryOptions = (retry = {}) => {
+    if (typeof retry === 'number') {
+        return {
+            ...defaultRetryOptions,
+            limit: retry,
+        };
+    }
+    if (retry.methods && !Array.isArray(retry.methods)) {
+        throw new Error('retry.methods must be an array');
+    }
+    if (retry.statusCodes && !Array.isArray(retry.statusCodes)) {
+        throw new Error('retry.statusCodes must be an array');
+    }
+    return {
+        ...defaultRetryOptions,
+        ...retry,
+        afterStatusCodes: retryAfterStatusCodes,
+    };
+};
+//# sourceMappingURL=normalize.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/time.js
+
+// `Promise.race()` workaround (#91)
+const timeout = async (request, abortController, options) => new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+        if (abortController) {
+            abortController.abort();
+        }
+        reject(new TimeoutError(request));
+    }, options.timeout);
+    void options
+        .fetch(request)
+        .then(resolve)
+        .catch(reject)
+        .then(() => {
+        clearTimeout(timeoutId);
+    });
+});
+const delay = async (ms) => new Promise(resolve => {
+    setTimeout(resolve, ms);
+});
+//# sourceMappingURL=time.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/core/Ky.js
+
+
+
+
+
+
+class Ky {
+    // eslint-disable-next-line complexity
+    constructor(input, options = {}) {
+        var _a, _b, _c;
+        this._retryCount = 0;
+        this._input = input;
+        this._options = {
+            // TODO: credentials can be removed when the spec change is implemented in all browsers. Context: https://www.chromestatus.com/feature/4539473312350208
+            credentials: this._input.credentials || 'same-origin',
+            ...options,
+            headers: mergeHeaders(this._input.headers, options.headers),
+            hooks: deepMerge({
+                beforeRequest: [],
+                beforeRetry: [],
+                beforeError: [],
+                afterResponse: [],
+            }, options.hooks),
+            method: normalizeRequestMethod((_a = options.method) !== null && _a !== void 0 ? _a : this._input.method),
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            prefixUrl: String(options.prefixUrl || ''),
+            retry: normalizeRetryOptions(options.retry),
+            throwHttpErrors: options.throwHttpErrors !== false,
+            timeout: typeof options.timeout === 'undefined' ? 10000 : options.timeout,
+            fetch: (_b = options.fetch) !== null && _b !== void 0 ? _b : globalThis.fetch.bind(globalThis),
+        };
+        if (typeof this._input !== 'string' && !(this._input instanceof URL || this._input instanceof globalThis.Request)) {
+            throw new TypeError('`input` must be a string, URL, or Request');
+        }
+        if (this._options.prefixUrl && typeof this._input === 'string') {
+            if (this._input.startsWith('/')) {
+                throw new Error('`input` must not begin with a slash when using `prefixUrl`');
+            }
+            if (!this._options.prefixUrl.endsWith('/')) {
+                this._options.prefixUrl += '/';
+            }
+            this._input = this._options.prefixUrl + this._input;
+        }
+        if (supportsAbortController) {
+            this.abortController = new globalThis.AbortController();
+            if (this._options.signal) {
+                this._options.signal.addEventListener('abort', () => {
+                    this.abortController.abort();
+                });
+            }
+            this._options.signal = this.abortController.signal;
+        }
+        this.request = new globalThis.Request(this._input, this._options);
+        if (this._options.searchParams) {
+            // eslint-disable-next-line unicorn/prevent-abbreviations
+            const textSearchParams = typeof this._options.searchParams === 'string'
+                ? this._options.searchParams.replace(/^\?/, '')
+                : new URLSearchParams(this._options.searchParams).toString();
+            // eslint-disable-next-line unicorn/prevent-abbreviations
+            const searchParams = '?' + textSearchParams;
+            const url = this.request.url.replace(/(?:\?.*?)?(?=#|$)/, searchParams);
+            // To provide correct form boundary, Content-Type header should be deleted each time when new Request instantiated from another one
+            if (((supportsFormData && this._options.body instanceof globalThis.FormData)
+                || this._options.body instanceof URLSearchParams) && !(this._options.headers && this._options.headers['content-type'])) {
+                this.request.headers.delete('content-type');
+            }
+            this.request = new globalThis.Request(new globalThis.Request(url, this.request), this._options);
+        }
+        if (this._options.json !== undefined) {
+            this._options.body = JSON.stringify(this._options.json);
+            this.request.headers.set('content-type', (_c = this._options.headers.get('content-type')) !== null && _c !== void 0 ? _c : 'application/json');
+            this.request = new globalThis.Request(this.request, { body: this._options.body });
+        }
+    }
+    // eslint-disable-next-line @typescript-eslint/promise-function-async
+    static create(input, options) {
+        const ky = new Ky(input, options);
+        const fn = async () => {
+            if (ky._options.timeout > maxSafeTimeout) {
+                throw new RangeError(`The \`timeout\` option cannot be greater than ${maxSafeTimeout}`);
+            }
+            // Delay the fetch so that body method shortcuts can set the Accept header
+            await Promise.resolve();
+            let response = await ky._fetch();
+            for (const hook of ky._options.hooks.afterResponse) {
+                // eslint-disable-next-line no-await-in-loop
+                const modifiedResponse = await hook(ky.request, ky._options, ky._decorateResponse(response.clone()));
+                if (modifiedResponse instanceof globalThis.Response) {
+                    response = modifiedResponse;
+                }
+            }
+            ky._decorateResponse(response);
+            if (!response.ok && ky._options.throwHttpErrors) {
+                let error = new HTTPError(response, ky.request, ky._options);
+                for (const hook of ky._options.hooks.beforeError) {
+                    // eslint-disable-next-line no-await-in-loop
+                    error = await hook(error);
+                }
+                throw error;
+            }
+            // If `onDownloadProgress` is passed, it uses the stream API internally
+            /* istanbul ignore next */
+            if (ky._options.onDownloadProgress) {
+                if (typeof ky._options.onDownloadProgress !== 'function') {
+                    throw new TypeError('The `onDownloadProgress` option must be a function');
+                }
+                if (!supportsStreams) {
+                    throw new Error('Streams are not supported in your environment. `ReadableStream` is missing.');
+                }
+                return ky._stream(response.clone(), ky._options.onDownloadProgress);
+            }
+            return response;
+        };
+        const isRetriableMethod = ky._options.retry.methods.includes(ky.request.method.toLowerCase());
+        const result = (isRetriableMethod ? ky._retry(fn) : fn());
+        for (const [type, mimeType] of Object.entries(responseTypes)) {
+            result[type] = async () => {
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+                ky.request.headers.set('accept', ky.request.headers.get('accept') || mimeType);
+                const awaitedResult = await result;
+                const response = awaitedResult.clone();
+                if (type === 'json') {
+                    if (response.status === 204) {
+                        return '';
+                    }
+                    if (options.parseJson) {
+                        return options.parseJson(await response.text());
+                    }
+                }
+                return response[type]();
+            };
+        }
+        return result;
+    }
+    _calculateRetryDelay(error) {
+        this._retryCount++;
+        if (this._retryCount < this._options.retry.limit && !(error instanceof TimeoutError)) {
+            if (error instanceof HTTPError) {
+                if (!this._options.retry.statusCodes.includes(error.response.status)) {
+                    return 0;
+                }
+                const retryAfter = error.response.headers.get('Retry-After');
+                if (retryAfter && this._options.retry.afterStatusCodes.includes(error.response.status)) {
+                    let after = Number(retryAfter);
+                    if (Number.isNaN(after)) {
+                        after = Date.parse(retryAfter) - Date.now();
+                    }
+                    else {
+                        after *= 1000;
+                    }
+                    if (typeof this._options.retry.maxRetryAfter !== 'undefined' && after > this._options.retry.maxRetryAfter) {
+                        return 0;
+                    }
+                    return after;
+                }
+                if (error.response.status === 413) {
+                    return 0;
+                }
+            }
+            const BACKOFF_FACTOR = 0.3;
+            return BACKOFF_FACTOR * (2 ** (this._retryCount - 1)) * 1000;
+        }
+        return 0;
+    }
+    _decorateResponse(response) {
+        if (this._options.parseJson) {
+            response.json = async () => this._options.parseJson(await response.text());
+        }
+        return response;
+    }
+    async _retry(fn) {
+        try {
+            return await fn();
+            // eslint-disable-next-line @typescript-eslint/no-implicit-any-catch
+        }
+        catch (error) {
+            const ms = Math.min(this._calculateRetryDelay(error), maxSafeTimeout);
+            if (ms !== 0 && this._retryCount > 0) {
+                await delay(ms);
+                for (const hook of this._options.hooks.beforeRetry) {
+                    // eslint-disable-next-line no-await-in-loop
+                    const hookResult = await hook({
+                        request: this.request,
+                        options: this._options,
+                        error: error,
+                        retryCount: this._retryCount,
+                    });
+                    // If `stop` is returned from the hook, the retry process is stopped
+                    if (hookResult === stop) {
+                        return;
+                    }
+                }
+                return this._retry(fn);
+            }
+            throw error;
+        }
+    }
+    async _fetch() {
+        for (const hook of this._options.hooks.beforeRequest) {
+            // eslint-disable-next-line no-await-in-loop
+            const result = await hook(this.request, this._options);
+            if (result instanceof Request) {
+                this.request = result;
+                break;
+            }
+            if (result instanceof Response) {
+                return result;
+            }
+        }
+        if (this._options.timeout === false) {
+            return this._options.fetch(this.request.clone());
+        }
+        return timeout(this.request.clone(), this.abortController, this._options);
+    }
+    /* istanbul ignore next */
+    _stream(response, onDownloadProgress) {
+        const totalBytes = Number(response.headers.get('content-length')) || 0;
+        let transferredBytes = 0;
+        return new globalThis.Response(new globalThis.ReadableStream({
+            async start(controller) {
+                const reader = response.body.getReader();
+                if (onDownloadProgress) {
+                    onDownloadProgress({ percent: 0, transferredBytes: 0, totalBytes }, new Uint8Array());
+                }
+                async function read() {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        controller.close();
+                        return;
+                    }
+                    if (onDownloadProgress) {
+                        transferredBytes += value.byteLength;
+                        const percent = totalBytes === 0 ? 0 : transferredBytes / totalBytes;
+                        onDownloadProgress({ percent, transferredBytes, totalBytes }, value);
+                    }
+                    controller.enqueue(value);
+                    await read();
+                }
+                await read();
+            },
+        }));
+    }
+}
+//# sourceMappingURL=Ky.js.map
+;// CONCATENATED MODULE: ../../node_modules/ky/distribution/index.js
+/*! MIT License © Sindre Sorhus */
+
+
+
+const createInstance = (defaults) => {
+    // eslint-disable-next-line @typescript-eslint/promise-function-async
+    const ky = (input, options) => Ky.create(input, validateAndMerge(defaults, options));
+    for (const method of requestMethods) {
+        // eslint-disable-next-line @typescript-eslint/promise-function-async
+        ky[method] = (input, options) => Ky.create(input, validateAndMerge(defaults, options, { method }));
+    }
+    ky.create = (newDefaults) => createInstance(validateAndMerge(newDefaults));
+    ky.extend = (newDefaults) => createInstance(validateAndMerge(defaults, newDefaults));
+    ky.stop = stop;
+    return ky;
+};
+const ky = createInstance();
+/* harmony default export */ const distribution = (ky);
+
+
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ../../packages/fetch-rpc/index.js
+// eslint-disable-line import/no-unresolved
+const DEFAULT_FETCH_OPTS={credentials:'omit',mode:'cors',retry:{limit:2,methods:['get','put','head','delete','options','trace'],statusCode:[408,413,429,500,502,503,504],afterStatusCodes:[413,429,503],maxRetryAfter:Infinity,timeout:10000}};const initFetcher=(opts={})=>{return distribution.create({...DEFAULT_FETCH_OPTS,...opts});};
+;// CONCATENATED MODULE: ../../packages/confluxscan-api/fetcher.js
+const fetch=initFetcher();
+
+/***/ }),
+
+/***/ 52093:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "A": () => (/* binding */ getURL),
+/* harmony export */   "v": () => (/* binding */ isCoreNetworkId)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9414);
+function getURL(networkId,...args){return[_fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_0__/* .CFX_SCAN_API_ENDPOINTS */ .qc[networkId],...args].reduce((acc,s)=>acc+s);}function isCoreNetworkId(networkId){if(networkId===_fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_0__/* .CFX_MAINNET_NETID */ .sU||networkId===_fluent_wallet_consts__WEBPACK_IMPORTED_MODULE_0__/* .CFX_TESTNET_NETID */ .mO)return true;return false;}
+
+/***/ }),
+
 /***/ 9414:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -64238,7 +64689,7 @@ const ABI=[{inputs:[{internalType:'address',name:'tokenHolder',type:'address'}],
 
 /***/ }),
 
-/***/ 6096:
+/***/ 80341:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -64253,21 +64704,18 @@ __webpack_require__.d(__webpack_exports__, {
 var _777 = __webpack_require__(58934);
 ;// CONCATENATED MODULE: ../../packages/contract-method-name/eth-name.js
 const getEthContractMethodSignature=async transactionData=>{return _777/* iface.parseTransaction */.cd.parseTransaction({data:transactionData});};
-// EXTERNAL MODULE: ../../packages/consts/index.js
-var consts = __webpack_require__(9414);
-;// CONCATENATED MODULE: ../../packages/contract-method-name/constance.js
-const ETH_FOUR_BYTE_DOMAIN='https://www.4byte.directory';// ETH endpoints
-const ETH_ENDPOINT={1:'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',3:'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',4:'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',42:'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',5:'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'};const CFX_SCAN_DOMAINS={[consts/* CFX_MAINNET_NETID */.sU]:'https://confluxscan.io',[consts/* CFX_TESTNET_NETID */.mO]:'https://testnet.confluxscan.io'};
-// EXTERNAL MODULE: ../../packages/fetch-rpc/index.js + 9 modules
-var fetch_rpc = __webpack_require__(75347);
-;// CONCATENATED MODULE: ../../packages/contract-method-name/util/fetch-helper.js
-const fetcher=(0,fetch_rpc/* initFetcher */._)();function fetchHelper(url){return fetcher.get(url).json().catch(()=>null);}/* harmony default export */ const fetch_helper = (fetchHelper);
 // EXTERNAL MODULE: ../../node_modules/@ethersproject/abi/lib.esm/interface.js + 15 modules
 var lib_esm_interface = __webpack_require__(64168);
 // EXTERNAL MODULE: ../../packages/base32-address/index.js + 3 modules
 var base32_address = __webpack_require__(2723);
 // EXTERNAL MODULE: ../../packages/account/index.js + 16 modules
 var account = __webpack_require__(11239);
+// EXTERNAL MODULE: ../../packages/confluxscan-api/fetcher.js + 10 modules
+var fetcher = __webpack_require__(95895);
+// EXTERNAL MODULE: ../../packages/confluxscan-api/utils.js
+var utils = __webpack_require__(52093);
+;// CONCATENATED MODULE: ../../packages/confluxscan-api/contract.js
+async function abi(opts={}){if(!Number.isInteger(opts.networkId))throw new Error('invalid networkId, must be a integer');if((0,utils/* isCoreNetworkId */.v)(opts.networkId))return abiCoreSpace(opts);return abiESpace(opts);}async function abiCoreSpace({networkId=undefined,address=undefined}){try{const res=await (0,fetcher/* fetch */.h)((0,utils/* getURL */.A)(networkId,'contract','/getabi'),{address}).json();if(res.code===0)return JSON.parse(res.data);throw new Error(res.message);}catch(err){return;}}async function abiESpace({networkId=undefined,address=undefined}){try{const res=await (0,fetcher/* fetch */.h)((0,utils/* getURL */.A)(networkId,{module:'contract',action:'getabi',address})).json();if(res.status==='1')return JSON.parse(res.result);throw new Error(res.message);}catch(err){return;}}
 ;// CONCATENATED MODULE: ../../packages/contract-method-name/cfx-name.js
 const eip777AbiSignatures=[// '0x70a08231', // balanceOf
 // '0x313ce567', // decimals
@@ -64280,7 +64728,7 @@ const eip777AbiSignatures=[// '0x70a08231', // balanceOf
 '0x9bd9bbc6',// send
 '0x23b872dd'// transferFrom
 // burn
-];const getCFXScanDomain=netId=>{return CFX_SCAN_DOMAINS[`${netId}`];};const getCFXAbi=async(address,netId)=>{const scanDomain=getCFXScanDomain(netId);return await fetch_helper(`${scanDomain}/v1/contract/${address}?fields=abi`);};const getCFXContractMethodSignature=async(address,transactionData,netId,offlineOnly=false)=>{if(!(0,base32_address/* validateBase32Address */.pd)(address)){throw new Error('inValidate base32 address');}try{let abiInterface;if(eip777AbiSignatures.includes(transactionData.substring(0,10))){abiInterface=_777/* iface */.cd;}else if(!offlineOnly){const response=await getCFXAbi(address,netId);abiInterface=new lib_esm_interface/* Interface */.vU(JSON.parse(response.abi));}else{throw new Error('failed to parse transaction data');}const ret=abiInterface.parseTransaction({data:transactionData});if(ret.args){ret.args=ret.args.map(arg=>(0,account/* isHexAddress */.Cd)(arg)?(0,base32_address/* encode */.cv)(arg.substring(2),netId):arg);}return ret;}catch(e){throw new Error('failed to parse transaction data');}};
+];const getCFXContractMethodSignature=async(address,transactionData,netId,offlineOnly=false)=>{if(!(0,base32_address/* validateBase32Address */.pd)(address)){throw new Error('invalid base32 address');}try{let abiInterface;if(eip777AbiSignatures.includes(transactionData.substring(0,10))){abiInterface=_777/* iface */.cd;}else if(!offlineOnly){const response=await abi({address,networkId:netId});if(!response)throw new Error('failed to parse transaction data');abiInterface=new lib_esm_interface/* Interface */.vU(response);}else{throw new Error('failed to parse transaction data');}const ret=abiInterface.parseTransaction({data:transactionData});if(ret.args){ret.args=ret.args.map(arg=>(0,account/* isHexAddress */.Cd)(arg)?(0,base32_address/* encode */.cv)(arg.substring(2),netId):arg);}return ret;}catch(e){throw new Error('failed to parse transaction data');}};
 ;// CONCATENATED MODULE: ../../packages/contract-method-name/index.js
 
 
@@ -65095,442 +65543,6 @@ const Transaction2930Unsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.typ
 const Transaction1559Unsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x2']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),optionalMapKey(TxMapSpecs.maxPriorityFeePerGas),optionalMapKey(TxMapSpecs.maxFeePerGas),optionalMapKey(TxMapSpecs.accessList),optionalMapKey(TxMapSpecs.chainId),optionalMapKey(TxMapSpecs.gasPrice)//actually no gasPrice params for EIP-1559 transaction,but sometimes, the dapp developer will pass this param
 ];// EIP-155
 const TransactionLegacyUnsigned=[map,{closed:true},TxMapSpecs.from,[TxMapSpecs.type[0],optionalMapKey(TxMapSpecs.type)[1],[and,TxMapSpecs.type[2],[eq,'0x0']]],optionalMapKey(TxMapSpecs.nonce),optionalMapKey(TxMapSpecs.to),optionalMapKey(TxMapSpecs.gas),optionalMapKey(TxMapSpecs.gasLimit),optionalMapKey(TxMapSpecs.value),optionalMapKey(TxMapSpecs.data),optionalMapKey(TxMapSpecs.gasPrice),optionalMapKey(TxMapSpecs.chainId)];return{AccessEntrySpec,AccessListSpec,TxMapSpecs,Transaction2930Unsigned,Transaction1559Unsigned,TransactionLegacyUnsigned};}
-
-/***/ }),
-
-/***/ 75347:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "_": () => (/* binding */ initFetcher)
-});
-
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/errors/HTTPError.js
-// eslint-lint-disable-next-line @typescript-eslint/naming-convention
-class HTTPError extends Error {
-    constructor(response, request, options) {
-        const code = (response.status || response.status === 0) ? response.status : '';
-        const title = response.statusText || '';
-        const status = `${code} ${title}`.trim();
-        const reason = status ? `status code ${status}` : 'an unknown error';
-        super(`Request failed with ${reason}`);
-        this.name = 'HTTPError';
-        this.response = response;
-        this.request = request;
-        this.options = options;
-    }
-}
-//# sourceMappingURL=HTTPError.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/errors/TimeoutError.js
-class TimeoutError extends Error {
-    constructor(request) {
-        super('Request timed out');
-        this.name = 'TimeoutError';
-        this.request = request;
-    }
-}
-//# sourceMappingURL=TimeoutError.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/is.js
-// eslint-disable-next-line @typescript-eslint/ban-types
-const isObject = (value) => value !== null && typeof value === 'object';
-//# sourceMappingURL=is.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/merge.js
-
-const validateAndMerge = (...sources) => {
-    for (const source of sources) {
-        if ((!isObject(source) || Array.isArray(source)) && typeof source !== 'undefined') {
-            throw new TypeError('The `options` argument must be an object');
-        }
-    }
-    return deepMerge({}, ...sources);
-};
-const mergeHeaders = (source1 = {}, source2 = {}) => {
-    const result = new globalThis.Headers(source1);
-    const isHeadersInstance = source2 instanceof globalThis.Headers;
-    const source = new globalThis.Headers(source2);
-    for (const [key, value] of source.entries()) {
-        if ((isHeadersInstance && value === 'undefined') || value === undefined) {
-            result.delete(key);
-        }
-        else {
-            result.set(key, value);
-        }
-    }
-    return result;
-};
-// TODO: Make this strongly-typed (no `any`).
-const deepMerge = (...sources) => {
-    let returnValue = {};
-    let headers = {};
-    for (const source of sources) {
-        if (Array.isArray(source)) {
-            if (!Array.isArray(returnValue)) {
-                returnValue = [];
-            }
-            returnValue = [...returnValue, ...source];
-        }
-        else if (isObject(source)) {
-            for (let [key, value] of Object.entries(source)) {
-                if (isObject(value) && key in returnValue) {
-                    value = deepMerge(returnValue[key], value);
-                }
-                returnValue = { ...returnValue, [key]: value };
-            }
-            if (isObject(source.headers)) {
-                headers = mergeHeaders(headers, source.headers);
-                returnValue.headers = headers;
-            }
-        }
-    }
-    return returnValue;
-};
-//# sourceMappingURL=merge.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/core/constants.js
-const supportsAbortController = typeof globalThis.AbortController === 'function';
-const supportsStreams = typeof globalThis.ReadableStream === 'function';
-const supportsFormData = typeof globalThis.FormData === 'function';
-const requestMethods = ['get', 'post', 'put', 'patch', 'head', 'delete'];
-const validate = () => undefined;
-validate();
-const responseTypes = {
-    json: 'application/json',
-    text: 'text/*',
-    formData: 'multipart/form-data',
-    arrayBuffer: '*/*',
-    blob: '*/*',
-};
-// The maximum value of a 32bit int (see issue #117)
-const maxSafeTimeout = 2147483647;
-const stop = Symbol('stop');
-//# sourceMappingURL=constants.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/normalize.js
-
-const normalizeRequestMethod = (input) => requestMethods.includes(input) ? input.toUpperCase() : input;
-const retryMethods = ['get', 'put', 'head', 'delete', 'options', 'trace'];
-const retryStatusCodes = [408, 413, 429, 500, 502, 503, 504];
-const retryAfterStatusCodes = [413, 429, 503];
-const defaultRetryOptions = {
-    limit: 2,
-    methods: retryMethods,
-    statusCodes: retryStatusCodes,
-    afterStatusCodes: retryAfterStatusCodes,
-    maxRetryAfter: Number.POSITIVE_INFINITY,
-};
-const normalizeRetryOptions = (retry = {}) => {
-    if (typeof retry === 'number') {
-        return {
-            ...defaultRetryOptions,
-            limit: retry,
-        };
-    }
-    if (retry.methods && !Array.isArray(retry.methods)) {
-        throw new Error('retry.methods must be an array');
-    }
-    if (retry.statusCodes && !Array.isArray(retry.statusCodes)) {
-        throw new Error('retry.statusCodes must be an array');
-    }
-    return {
-        ...defaultRetryOptions,
-        ...retry,
-        afterStatusCodes: retryAfterStatusCodes,
-    };
-};
-//# sourceMappingURL=normalize.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/utils/time.js
-
-// `Promise.race()` workaround (#91)
-const timeout = async (request, abortController, options) => new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-        if (abortController) {
-            abortController.abort();
-        }
-        reject(new TimeoutError(request));
-    }, options.timeout);
-    void options
-        .fetch(request)
-        .then(resolve)
-        .catch(reject)
-        .then(() => {
-        clearTimeout(timeoutId);
-    });
-});
-const delay = async (ms) => new Promise(resolve => {
-    setTimeout(resolve, ms);
-});
-//# sourceMappingURL=time.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/core/Ky.js
-
-
-
-
-
-
-class Ky {
-    // eslint-disable-next-line complexity
-    constructor(input, options = {}) {
-        var _a, _b, _c;
-        this._retryCount = 0;
-        this._input = input;
-        this._options = {
-            // TODO: credentials can be removed when the spec change is implemented in all browsers. Context: https://www.chromestatus.com/feature/4539473312350208
-            credentials: this._input.credentials || 'same-origin',
-            ...options,
-            headers: mergeHeaders(this._input.headers, options.headers),
-            hooks: deepMerge({
-                beforeRequest: [],
-                beforeRetry: [],
-                beforeError: [],
-                afterResponse: [],
-            }, options.hooks),
-            method: normalizeRequestMethod((_a = options.method) !== null && _a !== void 0 ? _a : this._input.method),
-            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            prefixUrl: String(options.prefixUrl || ''),
-            retry: normalizeRetryOptions(options.retry),
-            throwHttpErrors: options.throwHttpErrors !== false,
-            timeout: typeof options.timeout === 'undefined' ? 10000 : options.timeout,
-            fetch: (_b = options.fetch) !== null && _b !== void 0 ? _b : globalThis.fetch.bind(globalThis),
-        };
-        if (typeof this._input !== 'string' && !(this._input instanceof URL || this._input instanceof globalThis.Request)) {
-            throw new TypeError('`input` must be a string, URL, or Request');
-        }
-        if (this._options.prefixUrl && typeof this._input === 'string') {
-            if (this._input.startsWith('/')) {
-                throw new Error('`input` must not begin with a slash when using `prefixUrl`');
-            }
-            if (!this._options.prefixUrl.endsWith('/')) {
-                this._options.prefixUrl += '/';
-            }
-            this._input = this._options.prefixUrl + this._input;
-        }
-        if (supportsAbortController) {
-            this.abortController = new globalThis.AbortController();
-            if (this._options.signal) {
-                this._options.signal.addEventListener('abort', () => {
-                    this.abortController.abort();
-                });
-            }
-            this._options.signal = this.abortController.signal;
-        }
-        this.request = new globalThis.Request(this._input, this._options);
-        if (this._options.searchParams) {
-            // eslint-disable-next-line unicorn/prevent-abbreviations
-            const textSearchParams = typeof this._options.searchParams === 'string'
-                ? this._options.searchParams.replace(/^\?/, '')
-                : new URLSearchParams(this._options.searchParams).toString();
-            // eslint-disable-next-line unicorn/prevent-abbreviations
-            const searchParams = '?' + textSearchParams;
-            const url = this.request.url.replace(/(?:\?.*?)?(?=#|$)/, searchParams);
-            // To provide correct form boundary, Content-Type header should be deleted each time when new Request instantiated from another one
-            if (((supportsFormData && this._options.body instanceof globalThis.FormData)
-                || this._options.body instanceof URLSearchParams) && !(this._options.headers && this._options.headers['content-type'])) {
-                this.request.headers.delete('content-type');
-            }
-            this.request = new globalThis.Request(new globalThis.Request(url, this.request), this._options);
-        }
-        if (this._options.json !== undefined) {
-            this._options.body = JSON.stringify(this._options.json);
-            this.request.headers.set('content-type', (_c = this._options.headers.get('content-type')) !== null && _c !== void 0 ? _c : 'application/json');
-            this.request = new globalThis.Request(this.request, { body: this._options.body });
-        }
-    }
-    // eslint-disable-next-line @typescript-eslint/promise-function-async
-    static create(input, options) {
-        const ky = new Ky(input, options);
-        const fn = async () => {
-            if (ky._options.timeout > maxSafeTimeout) {
-                throw new RangeError(`The \`timeout\` option cannot be greater than ${maxSafeTimeout}`);
-            }
-            // Delay the fetch so that body method shortcuts can set the Accept header
-            await Promise.resolve();
-            let response = await ky._fetch();
-            for (const hook of ky._options.hooks.afterResponse) {
-                // eslint-disable-next-line no-await-in-loop
-                const modifiedResponse = await hook(ky.request, ky._options, ky._decorateResponse(response.clone()));
-                if (modifiedResponse instanceof globalThis.Response) {
-                    response = modifiedResponse;
-                }
-            }
-            ky._decorateResponse(response);
-            if (!response.ok && ky._options.throwHttpErrors) {
-                let error = new HTTPError(response, ky.request, ky._options);
-                for (const hook of ky._options.hooks.beforeError) {
-                    // eslint-disable-next-line no-await-in-loop
-                    error = await hook(error);
-                }
-                throw error;
-            }
-            // If `onDownloadProgress` is passed, it uses the stream API internally
-            /* istanbul ignore next */
-            if (ky._options.onDownloadProgress) {
-                if (typeof ky._options.onDownloadProgress !== 'function') {
-                    throw new TypeError('The `onDownloadProgress` option must be a function');
-                }
-                if (!supportsStreams) {
-                    throw new Error('Streams are not supported in your environment. `ReadableStream` is missing.');
-                }
-                return ky._stream(response.clone(), ky._options.onDownloadProgress);
-            }
-            return response;
-        };
-        const isRetriableMethod = ky._options.retry.methods.includes(ky.request.method.toLowerCase());
-        const result = (isRetriableMethod ? ky._retry(fn) : fn());
-        for (const [type, mimeType] of Object.entries(responseTypes)) {
-            result[type] = async () => {
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                ky.request.headers.set('accept', ky.request.headers.get('accept') || mimeType);
-                const awaitedResult = await result;
-                const response = awaitedResult.clone();
-                if (type === 'json') {
-                    if (response.status === 204) {
-                        return '';
-                    }
-                    if (options.parseJson) {
-                        return options.parseJson(await response.text());
-                    }
-                }
-                return response[type]();
-            };
-        }
-        return result;
-    }
-    _calculateRetryDelay(error) {
-        this._retryCount++;
-        if (this._retryCount < this._options.retry.limit && !(error instanceof TimeoutError)) {
-            if (error instanceof HTTPError) {
-                if (!this._options.retry.statusCodes.includes(error.response.status)) {
-                    return 0;
-                }
-                const retryAfter = error.response.headers.get('Retry-After');
-                if (retryAfter && this._options.retry.afterStatusCodes.includes(error.response.status)) {
-                    let after = Number(retryAfter);
-                    if (Number.isNaN(after)) {
-                        after = Date.parse(retryAfter) - Date.now();
-                    }
-                    else {
-                        after *= 1000;
-                    }
-                    if (typeof this._options.retry.maxRetryAfter !== 'undefined' && after > this._options.retry.maxRetryAfter) {
-                        return 0;
-                    }
-                    return after;
-                }
-                if (error.response.status === 413) {
-                    return 0;
-                }
-            }
-            const BACKOFF_FACTOR = 0.3;
-            return BACKOFF_FACTOR * (2 ** (this._retryCount - 1)) * 1000;
-        }
-        return 0;
-    }
-    _decorateResponse(response) {
-        if (this._options.parseJson) {
-            response.json = async () => this._options.parseJson(await response.text());
-        }
-        return response;
-    }
-    async _retry(fn) {
-        try {
-            return await fn();
-            // eslint-disable-next-line @typescript-eslint/no-implicit-any-catch
-        }
-        catch (error) {
-            const ms = Math.min(this._calculateRetryDelay(error), maxSafeTimeout);
-            if (ms !== 0 && this._retryCount > 0) {
-                await delay(ms);
-                for (const hook of this._options.hooks.beforeRetry) {
-                    // eslint-disable-next-line no-await-in-loop
-                    const hookResult = await hook({
-                        request: this.request,
-                        options: this._options,
-                        error: error,
-                        retryCount: this._retryCount,
-                    });
-                    // If `stop` is returned from the hook, the retry process is stopped
-                    if (hookResult === stop) {
-                        return;
-                    }
-                }
-                return this._retry(fn);
-            }
-            throw error;
-        }
-    }
-    async _fetch() {
-        for (const hook of this._options.hooks.beforeRequest) {
-            // eslint-disable-next-line no-await-in-loop
-            const result = await hook(this.request, this._options);
-            if (result instanceof Request) {
-                this.request = result;
-                break;
-            }
-            if (result instanceof Response) {
-                return result;
-            }
-        }
-        if (this._options.timeout === false) {
-            return this._options.fetch(this.request.clone());
-        }
-        return timeout(this.request.clone(), this.abortController, this._options);
-    }
-    /* istanbul ignore next */
-    _stream(response, onDownloadProgress) {
-        const totalBytes = Number(response.headers.get('content-length')) || 0;
-        let transferredBytes = 0;
-        return new globalThis.Response(new globalThis.ReadableStream({
-            async start(controller) {
-                const reader = response.body.getReader();
-                if (onDownloadProgress) {
-                    onDownloadProgress({ percent: 0, transferredBytes: 0, totalBytes }, new Uint8Array());
-                }
-                async function read() {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        controller.close();
-                        return;
-                    }
-                    if (onDownloadProgress) {
-                        transferredBytes += value.byteLength;
-                        const percent = totalBytes === 0 ? 0 : transferredBytes / totalBytes;
-                        onDownloadProgress({ percent, transferredBytes, totalBytes }, value);
-                    }
-                    controller.enqueue(value);
-                    await read();
-                }
-                await read();
-            },
-        }));
-    }
-}
-//# sourceMappingURL=Ky.js.map
-;// CONCATENATED MODULE: ../../node_modules/ky/distribution/index.js
-/*! MIT License © Sindre Sorhus */
-
-
-
-const createInstance = (defaults) => {
-    // eslint-disable-next-line @typescript-eslint/promise-function-async
-    const ky = (input, options) => Ky.create(input, validateAndMerge(defaults, options));
-    for (const method of requestMethods) {
-        // eslint-disable-next-line @typescript-eslint/promise-function-async
-        ky[method] = (input, options) => Ky.create(input, validateAndMerge(defaults, options, { method }));
-    }
-    ky.create = (newDefaults) => createInstance(validateAndMerge(newDefaults));
-    ky.extend = (newDefaults) => createInstance(validateAndMerge(defaults, newDefaults));
-    ky.stop = stop;
-    return ky;
-};
-const ky = createInstance();
-/* harmony default export */ const distribution = (ky);
-
-
-//# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ../../packages/fetch-rpc/index.js
-// eslint-disable-line import/no-unresolved
-const DEFAULT_FETCH_OPTS={credentials:'omit',mode:'cors',retry:{limit:2,methods:['get','put','head','delete','options','trace'],statusCode:[408,413,429,500,502,503,504],afterStatusCodes:[413,429,503],maxRetryAfter:Infinity,timeout:10000}};const initFetcher=(opts={})=>{return distribution.create({...DEFAULT_FETCH_OPTS,...opts});};
 
 /***/ }),
 
@@ -81394,7 +81406,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
 /* harmony import */ var _fluent_wallet_base32_address__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2723);
-/* harmony import */ var _fluent_wallet_contract_method_name__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6096);
+/* harmony import */ var _fluent_wallet_contract_method_name__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(80341);
 
 
 
@@ -81538,7 +81550,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "main": () => (/* binding */ main)
 /* harmony export */ });
 /* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
-/* harmony import */ var _fluent_wallet_contract_method_name__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6096);
+/* harmony import */ var _fluent_wallet_contract_method_name__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(80341);
 
 
 
@@ -86446,7 +86458,7 @@ const main = async ({
 
 /***/ }),
 
-/***/ 39435:
+/***/ 44549:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -86465,16 +86477,14 @@ __webpack_require__.d(__webpack_exports__, {
 var spec = __webpack_require__(27797);
 // EXTERNAL MODULE: ../../packages/consts/index.js
 var consts = __webpack_require__(9414);
-// EXTERNAL MODULE: ../../packages/fetch-rpc/index.js + 9 modules
-var fetch_rpc = __webpack_require__(75347);
-;// CONCATENATED MODULE: ../../packages/confluxscan-api/fetcher.js
-const fetch=(0,fetch_rpc/* initFetcher */._)();
-;// CONCATENATED MODULE: ../../packages/confluxscan-api/utils.js
-function getURL(networkId,...args){return[consts/* CFX_SCAN_API_ENDPOINTS */.qc[networkId],...args].reduce((acc,s)=>acc+s);}function isCoreNetworkId(networkId){if(networkId===consts/* CFX_MAINNET_NETID */.sU||networkId===consts/* CFX_TESTNET_NETID */.mO)return true;return false;}
+// EXTERNAL MODULE: ../../packages/confluxscan-api/fetcher.js + 10 modules
+var fetcher = __webpack_require__(95895);
+// EXTERNAL MODULE: ../../packages/confluxscan-api/utils.js
+var utils = __webpack_require__(52093);
 ;// CONCATENATED MODULE: ../../packages/confluxscan-api/account.js
-function transaction(opts={}){if(!Number.isInteger(opts.networkId))throw new Error('invalid networkId, must be a integer');if(isCoreNetworkId(opts.networkId))return transactionsCoreSpace(opts);return transactionsESpace(opts);}function toHex(str){return`0x${parseInt(str,10).toString(16)}`;}function formatCoreTxs(txs,chainId){return txs.map(({input,contractCreated,epochNumber,from,gasFee,gasPrice,hash,// method,
+function transaction(opts={}){if(!Number.isInteger(opts.networkId))throw new Error('invalid networkId, must be a integer');if((0,utils/* isCoreNetworkId */.v)(opts.networkId))return transactionsCoreSpace(opts);return transactionsESpace(opts);}function toHex(str){return`0x${parseInt(str,10).toString(16)}`;}function formatCoreTxs(txs,chainId){return txs.map(({input,contractCreated,epochNumber,from,gasFee,gasPrice,hash,// method,
 nonce,status,timestamp,to,transactionIndex,value})=>{const tx={hash,created:timestamp*1000,fromScan:true,extra:{ok:false},payload:{from,gasPrice:toHex(gasPrice),nonce:toHex(nonce),to,value:toHex(value),chainId},receipt:{gasFee:toHex(gasFee),index:toHex(transactionIndex),epochNumber:toHex(epochNumber)}};if(status===2){tx.status=-2;}else if(status===1){tx.status=-1;tx.err='tx failed';}else tx.status=5;if(input&&input!=='0x')tx.payload.data=input;if(contractCreated)tx.receipt.contractCreated=contractCreated;return tx;});}async function transactionsCoreSpace({chainId=undefined,networkId=undefined,address=undefined,page=1,size=100,from=undefined,to=undefined,startblock=undefined,endblock=undefined,minTimestamp=undefined,maxTimestamp=undefined,sort='DESC',withInput=true}){try{let searchParams={account:address,limit:size,from,to,minEpochNumber:startblock,maxEpochNumber:endblock,minTimestamp,maxTimestamp,withInput,sort};// remove undefined values
-searchParams=Object.keys(searchParams).reduce((acc,k)=>{const v=searchParams[k];if(v!==undefined)acc[k]=v;return acc;},{});let finished=false;let list=[];while(!finished){searchParams.skip=(page-1)*size;const res=await fetch(getURL(networkId,'account','/transactions'),{searchParams}).json();if(res.code===0)list=list.concat(res.data.list);else throw new Error(res.message);if(list.length>=res.data.total)finished=true;else page=page+1;}return{list:formatCoreTxs(list,chainId),total:list.length};}catch(err){return;}}function formatEspaceTxs(txs,chainId){return txs.map(({blockHash,blockNumber,contractAddress,from,gas,gasPrice,gasUsed,hash,input,isError,nonce,timestamp,to,transactionIndex,txreceipt_status,value})=>{const tx={fromScan:true,hash,blockHash,blockNumber,created:parseInt(timestamp,10)*1000,extra:{ok:false},payload:{type:'0x0',from,gas,gasPrice:toHex(gasPrice),nonce:toHex(nonce),to,value:toHex(value),chainId},receipt:{blockHash,blockNumber,gasUsed,transactionIndex:toHex(transactionIndex)}};if(isError!=='0'||txreceipt_status!=='1'){tx.status=-1;tx.err='rejected or canceled';}else tx.status=5;if(contractAddress)tx.receipt.contractCreated=contractAddress;if(input&&input!=='0x')tx.payload.data=input;return tx;});}async function transactionsESpace({chainId=undefined,networkId=undefined,address=undefined,startblock=undefined,endblock=undefined,page=1,size=100,sort='desc'}){if(typeof chainId!=='string')throw new Error('chainId is required');try{let finished=false;let list=[];while(!finished){const res=await fetch(getURL(networkId),{searchParams:{module:'account',action:'txlist',address,page,offset:size,startblock,endblock,sort:sort.toLowerCase()}}).json();if(res.status==='1')list=list.concat(res.result);else throw new Error(res.message);if(res.result.length===size)page=page+1;else finished=true;}return{list:formatEspaceTxs(list,chainId),total:list.length};}catch(err){return;}}
+searchParams=Object.keys(searchParams).reduce((acc,k)=>{const v=searchParams[k];if(v!==undefined)acc[k]=v;return acc;},{});let finished=false;let list=[];while(!finished){searchParams.skip=(page-1)*size;const res=await (0,fetcher/* fetch */.h)((0,utils/* getURL */.A)(networkId,'account','/transactions'),{searchParams}).json();if(res.code===0)list=list.concat(res.data.list);else throw new Error(res.message);if(list.length>=res.data.total)finished=true;else page=page+1;}return{list:formatCoreTxs(list,chainId),total:list.length};}catch(err){return;}}function formatEspaceTxs(txs,chainId){return txs.map(({blockHash,blockNumber,contractAddress,from,gas,gasPrice,gasUsed,hash,input,isError,nonce,timestamp,to,transactionIndex,txreceipt_status,value})=>{const tx={fromScan:true,hash,blockHash,blockNumber,created:parseInt(timestamp,10)*1000,extra:{ok:false},payload:{type:'0x0',from,gas,gasPrice:toHex(gasPrice),nonce:toHex(nonce),to,value:toHex(value),chainId},receipt:{blockHash,blockNumber,gasUsed,transactionIndex:toHex(transactionIndex)}};if(isError!=='0'||txreceipt_status!=='1'){tx.status=-1;tx.err='rejected or canceled';}else tx.status=5;if(contractAddress)tx.receipt.contractCreated=contractAddress;if(input&&input!=='0x')tx.payload.data=input;return tx;});}async function transactionsESpace({chainId=undefined,networkId=undefined,address=undefined,startblock=undefined,endblock=undefined,page=1,size=100,sort='desc'}){if(typeof chainId!=='string')throw new Error('chainId is required');try{let finished=false;let list=[];while(!finished){const res=await (0,fetcher/* fetch */.h)((0,utils/* getURL */.A)(networkId),{searchParams:{module:'account',action:'txlist',address,page,offset:size,startblock,endblock,sort:sort.toLowerCase()}}).json();if(res.status==='1')list=list.concat(res.result);else throw new Error(res.message);if(res.result.length===size)page=page+1;else finished=true;}return{list:formatEspaceTxs(list,chainId),total:list.length};}catch(err){return;}}
 ;// CONCATENATED MODULE: ../../packages/rpcs/wallet_refetchTxList/node_modules/@thi.ng/memoize/memoize1.js
 /**
  * Optimized memoization for single arg functions. If the function
@@ -98618,9 +98628,9 @@ Sj=function(){var a=new Rj;this.tc=!1;this.stack=[];this.cache=a};Tj=function(a)
 Uj=function(a){var b=new Rj,c=$APP.fg;this.tc=!1;this.stack=[];this.cache=b;this.vb=a;this.he=0;this.errors=c};
 Vj=function(a,b,c){var d=Bj.j(c,$APP.Bd([uj(a,b)]));return function(e,f,g){if($APP.Sd(e)){var h=new Uj(f);f=function(){return h.tc=$APP.ce(!0)};d.G?d.G(h,$APP.ad,0,e,f):d.call(null,h,$APP.ad,0,e,f);if($APP.z(h.tc))return g;for(;;){e=0===h.stack.length?null:h.stack.pop();if(null==e)return $APP.hg.h(g,h.errors);e.l?e.l():e.call(null);if($APP.z(h.tc))return g}}else return $APP.Qe.h(g,hj(b,f,a,e,El))}};Wj=function(){};
 Xj=function(a,b){if(null!=a&&null!=a.oe)a=a.oe(a,b);else{var c=Xj[$APP.aa(null==a?null:a)];if(null!=c)a=c.h?c.h(a,b):c.call(null,a,b);else if(c=Xj._,null!=c)a=c.h?c.h(a,b):c.call(null,a,b);else throw $APP.qb("Registry.-schema",a);}return a};
-bk=function(a){if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof Wm)Wm=function(b,c){this.zd=b;this.dg=c;this.s=393216;this.A=0},Wm.prototype.J=function(b,c){return new Wm(this.zd,c)},Wm.prototype.I=function(){return this.dg},Wm.prototype.Ne=$APP.Qc,Wm.prototype.oe=function(b,c){return this.zd.g?this.zd.g(c):this.zd.call(null,c)},Wm.R=!0,Wm.P="malli.registry/t_malli$registry23635",Wm.S=function(b){return pc(b,"malli.registry/t_malli$registry23635")};return new Wm(a,$APP.Jf)};
+bk=function(a){if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof Wm)Wm=function(b,c){this.zd=b;this.dg=c;this.s=393216;this.A=0},Wm.prototype.J=function(b,c){return new Wm(this.zd,c)},Wm.prototype.I=function(){return this.dg},Wm.prototype.Ne=$APP.Qc,Wm.prototype.oe=function(b,c){return this.zd.g?this.zd.g(c):this.zd.call(null,c)},Wm.R=!0,Wm.P="malli.registry/t_malli$registry23712",Wm.S=function(b){return pc(b,"malli.registry/t_malli$registry23712")};return new Wm(a,$APP.Jf)};
 ck=function(a){return null==a?null:null!=a&&$APP.Qc===a.Ne?a:$APP.Td(a)?bk(a):(null!=a?$APP.Qc===a.Ne||(a.jb?0:$APP.ob(Wj,a)):$APP.ob(Wj,a))?a:null};
-ek=function(a){var b=$APP.on.h(ck,a);if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof qn)qn=function(c,d,e){this.Ue=c;this.Pe=d;this.fg=e;this.s=393216;this.A=0},qn.prototype.J=function(c,d){return new qn(this.Ue,this.Pe,d)},qn.prototype.I=function(){return this.fg},qn.prototype.Ne=$APP.Qc,qn.prototype.oe=function(c,d){return $APP.Of(function(e){return Xj(e,d)},this.Pe)},qn.R=!0,qn.P="malli.registry/t_malli$registry23645",qn.S=function(c){return pc(c,"malli.registry/t_malli$registry23645")};
+ek=function(a){var b=$APP.on.h(ck,a);if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof qn)qn=function(c,d,e){this.Ue=c;this.Pe=d;this.fg=e;this.s=393216;this.A=0},qn.prototype.J=function(c,d){return new qn(this.Ue,this.Pe,d)},qn.prototype.I=function(){return this.fg},qn.prototype.Ne=$APP.Qc,qn.prototype.oe=function(c,d){return $APP.Of(function(e){return Xj(e,d)},this.Pe)},qn.R=!0,qn.P="malli.registry/t_malli$registry23723",qn.S=function(c){return pc(c,"malli.registry/t_malli$registry23723")};
 return new qn(a,b,$APP.Jf)};bj=function(a){this.f=a;this.ic=null;this.s=32769;this.A=0};ik=function(a){if(null!=a&&null!=a.Na)a=a.Na(a);else{var b=ik[$APP.aa(null==a?null:a)];if(null!=b)a=b.g?b.g(a):b.call(null,a);else if(b=ik._,null!=b)a=b.g?b.g(a):b.call(null,a);else throw $APP.qb("IntoSchema.-type",a);}return a};
 jk=function(a){if(null!=a&&null!=a.Oa)a=a.Oa(a);else{var b=jk[$APP.aa(null==a?null:a)];if(null!=b)a=b.g?b.g(a):b.call(null,a);else if(b=jk._,null!=b)a=b.g?b.g(a):b.call(null,a);else throw $APP.qb("IntoSchema.-type-properties",a);}return a};
 $APP.kk=function(a,b,c,d){if(null!=a&&null!=a.Ma)a=a.Ma(a,b,c,d);else{var e=$APP.kk[$APP.aa(null==a?null:a)];if(null!=e)a=e.K?e.K(a,b,c,d):e.call(null,a,b,c,d);else if(e=$APP.kk._,null!=e)a=e.K?e.K(a,b,c,d):e.call(null,a,b,c,d);else throw $APP.qb("IntoSchema.-into-schema",a);}return a};
@@ -99255,8 +99265,8 @@ null],null),$APP.dz);if($APP.z(f))return $APP.Ub(f);throw Error(["Var ",$APP.G.g
 return $APP.z(g)?(g=$APP.$b(d),$APP.z(g)?$APP.$b(e):g):g}())){var f=d.g?d.g(a):d.call(null,a);c.h?c.h(f,"(alias 'm 'malli.core)"):c.call(null,f,"(alias 'm 'malli.core)");return function(g){var h=e.g?e.g(f):e.call(null,f);g=$APP.G.g(g);return c.h?c.h(h,g):c.call(null,h,g)}}return b}}),dl;
 Zf(nD,ck(function(){var a=$APP.Fk.j($APP.Bd([cD(),Xg([$APP.pb(RegExp("")),Cl(!0)]),fD(),$APP.Bh([$APP.Dz,$APP.Wp,$APP.$z,$APP.mA,$APP.Kq,$APP.wt,$APP.yr,$APP.Xq,$APP.Lz,$APP.Ku,$APP.Tq],[$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.Dz,$APP.mm,$APP.bf],null)),$APP.ms(new $APP.n(null,3,[$APP.Gk,$APP.Wp,$APP.mm,$APP.le,Kp,rl(null)],null)),$APP.ms(new $APP.n(null,3,[$APP.Gk,$APP.$z,$APP.mm,$APP.ge,Kp,rl(null)],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.mA,$APP.mm,$APP.Tc],null)),$APP.ms(new $APP.n(null,
 3,[$APP.Gk,$APP.Kq,$APP.mm,$APP.df,Kp,Js],null)),$APP.ms(new $APP.n(null,3,[$APP.Gk,$APP.wt,$APP.mm,$APP.kb,Kp,rl($APP.ud)],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.yr,$APP.mm,$APP.Ve],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.Xq,$APP.mm,$APP.fb],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.Lz,$APP.mm,$APP.Vi],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.Ku,$APP.mm,$APP.$d],null)),$APP.ms(new $APP.n(null,2,[$APP.Gk,$APP.Tq,$APP.mm,$APP.nb],null))]),gD(),hD()]));if("undefined"===typeof Yj||
-"undefined"===typeof Zj||"undefined"===typeof pD)pD=function(b,c,d){this.zd=b;this.Sf=c;this.cg=d;this.s=393216;this.A=0},pD.prototype.J=function(b,c){return new pD(this.zd,this.Sf,c)},pD.prototype.I=function(){return this.cg},pD.prototype.Ne=$APP.Qc,pD.prototype.oe=function(b,c){return this.Sf.get(c)},pD.R=!0,pD.P="malli.registry/t_malli$registry23632",pD.S=function(b){return pc(b,"malli.registry/t_malli$registry23632")};return new pD(a,a,$APP.Jf)}()));var zD;
-if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof qD)qD=function(a){this.eg=a;this.s=393216;this.A=0},qD.prototype.J=function(a,b){return new qD(b)},qD.prototype.I=function(){return this.eg},qD.prototype.Ne=$APP.Qc,qD.prototype.oe=function(a,b){return Xj($APP.$b(nD),b)},qD.R=!0,qD.P="malli.registry/t_malli$registry23640",qD.S=function(a){return pc(a,"malli.registry/t_malli$registry23640")};zD=new qD($APP.Jf);dl=ck(zD);var Ns;Ns={};$APP.Gn=function Gn(a){switch(arguments.length){case 1:return Gn.g(arguments[0]);case 2:return Gn.h(arguments[0],arguments[1]);default:throw Error(["Invalid arity: ",$APP.G.g(arguments.length)].join(""));}};$APP.Gn.g=function(a){var b=new $a;for(a=$APP.J(a);;)if(null!=a)b=b.append($APP.G.g($APP.O(a))),a=$APP.P(a);else return b.toString()};$APP.Gn.h=function(a,b){var c=new $a;for(b=$APP.J(b);;)if(null!=b)c.append($APP.G.g($APP.O(b))),b=$APP.P(b),null!=b&&c.append(a);else return c.toString()};
+"undefined"===typeof Zj||"undefined"===typeof pD)pD=function(b,c,d){this.zd=b;this.Sf=c;this.cg=d;this.s=393216;this.A=0},pD.prototype.J=function(b,c){return new pD(this.zd,this.Sf,c)},pD.prototype.I=function(){return this.cg},pD.prototype.Ne=$APP.Qc,pD.prototype.oe=function(b,c){return this.Sf.get(c)},pD.R=!0,pD.P="malli.registry/t_malli$registry23709",pD.S=function(b){return pc(b,"malli.registry/t_malli$registry23709")};return new pD(a,a,$APP.Jf)}()));var zD;
+if("undefined"===typeof Yj||"undefined"===typeof Zj||"undefined"===typeof qD)qD=function(a){this.eg=a;this.s=393216;this.A=0},qD.prototype.J=function(a,b){return new qD(b)},qD.prototype.I=function(){return this.eg},qD.prototype.Ne=$APP.Qc,qD.prototype.oe=function(a,b){return Xj($APP.$b(nD),b)},qD.R=!0,qD.P="malli.registry/t_malli$registry23716",qD.S=function(a){return pc(a,"malli.registry/t_malli$registry23716")};zD=new qD($APP.Jf);dl=ck(zD);var Ns;Ns={};$APP.Gn=function Gn(a){switch(arguments.length){case 1:return Gn.g(arguments[0]);case 2:return Gn.h(arguments[0],arguments[1]);default:throw Error(["Invalid arity: ",$APP.G.g(arguments.length)].join(""));}};$APP.Gn.g=function(a){var b=new $a;for(a=$APP.J(a);;)if(null!=a)b=b.append($APP.G.g($APP.O(a))),a=$APP.P(a);else return b.toString()};$APP.Gn.h=function(a,b){var c=new $a;for(b=$APP.J(b);;)if(null!=b)c.append($APP.G.g($APP.O(b))),b=$APP.P(b),null!=b&&c.append(a);else return c.toString()};
 $APP.Gn.B=2;var rm=$APP.Bh([mp,$APP.VA,$APP.dr,$APP.Dz,Op,Sz,$APP.Nu,$APP.Wp,pp,Np,Dp,$APP.RA,$APP.Cp,Dq,$APP.$z,$APP.Oz,np,$APP.oA,QA,sA,Ty,$APP.mA,$APP.bB,av,$APP.Al,GA,$APP.Kq,Cz,$APP.nz,$APP.wt,hq,$APP.pt,Mz,rA,Jz,HA,$APP.nl,Zp,BA,Up,Eq,$APP.nq,lr,Kz,cr,$APP.yr,$APP.Xq,oq,$APP.vt,Dl,gq,tj,ot,$APP.Mu,Yp,Vp,$APP.Qu,$APP.or,Zq,Lp,$APP.Lz,tm,iz,Bp,Iz,Wq,$APP.wp,$APP.Ku,$APP.Xu,$APP.uA,dq,El,$APP.Tu,$APP.Tq,Pp],[new $APP.n(null,1,[$APP.Pr,new $APP.n(null,1,[sm,"disallowed key"],null)],null),new $APP.n(null,1,
 [$APP.Pr,new $APP.n(null,1,[sm,"should be true"],null)],null),new $APP.n(null,1,[Or,new $APP.n(null,1,[sm,function(a){a=$APP.Ef(a);a=$APP.R.h(a,$APP.Cm);return["should be ",$APP.G.g($APP.vd.h(1,$APP.ud($APP.fm.g(a)))?$APP.O($APP.fm.g(a)):["either ",$APP.Gn.h(", ",Th($APP.fm.g(a)))," or ",$APP.G.g($APP.Ed($APP.fm.g(a)))].join(""))].join("")}],null)],null),new $APP.n(null,1,[$APP.Pr,new $APP.n(null,1,[sm,"should be a qualified symbol"],null)],null),new $APP.n(null,1,[$APP.Pr,new $APP.n(null,1,[sm,"should be a uri"],
 null)],null),new $APP.n(null,1,[$APP.Pr,new $APP.n(null,1,[sm,"should be a simple keyword"],null)],null),new $APP.n(null,1,[Or,new $APP.n(null,1,[sm,function(a){a=$APP.Ef(a);var b=$APP.R.h(a,$APP.Cm);return"number"===typeof $APP.R.h(a,$APP.Vl)?["should be at most ",$APP.G.g($APP.O($APP.fm.g(b)))].join(""):"should be a number"}],null)],null),new $APP.n(null,1,[Or,new $APP.n(null,1,[sm,nm(new $APP.n(null,2,[$APP.mm,$APP.le,Mr,"should be a double"],null))],null)],null),new $APP.n(null,1,[$APP.Pr,new $APP.n(null,

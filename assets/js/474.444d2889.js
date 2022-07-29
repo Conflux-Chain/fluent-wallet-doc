@@ -1,5 +1,5 @@
-exports.id = 795;
-exports.ids = [795];
+exports.id = 474;
+exports.ids = [474];
 exports.modules = {
 
 /***/ 99817:
@@ -88407,6 +88407,8 @@ const main = async ({
   },
   params,
   _inpage,
+  _popup,
+  _sendAction,
   app,
   network,
 }) => {
@@ -88547,9 +88549,11 @@ const main = async ({
   const blockNumber =
     network.type === 'eth' &&
     (await eth_blockNumber({errorFallThrough: true}, []))
+  const txExtra = {ok: false}
+  if (_popup && _sendAction) txExtra.sendAction = _sendAction
   const dbtxs = [
     {eid: 'newTxPayload', txPayload: txMeta},
-    {eid: 'newTxExtra', txExtra: {ok: false}},
+    {eid: 'newTxExtra', txExtra},
     {
       eid: 'newTxId',
       tx: {
@@ -88608,6 +88612,49 @@ const main = async ({
       },
     )
   })
+}
+
+
+/***/ }),
+
+/***/ 90688:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "NAME": () => (/* binding */ NAME),
+/* harmony export */   "schemas": () => (/* binding */ schemas),
+/* harmony export */   "permissions": () => (/* binding */ permissions),
+/* harmony export */   "main": () => (/* binding */ main)
+/* harmony export */ });
+/* harmony import */ var _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27797);
+/* harmony import */ var _fluent_wallet_wallet_send_transaction__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(64601);
+
+
+
+
+const NAME = 'wallet_sendTransactionWithAction'
+
+const schemas = {
+  input: [
+    _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
+    {closed: true},
+    ['tx', _fluent_wallet_wallet_send_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input],
+    ['action', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'cancel', 'speedUp']],
+  ],
+}
+
+const permissions = {
+  external: ['popup'],
+  methods: ['wallet_sendTransaction'],
+}
+
+const main = ({
+  rpcs: {wallet_sendTransaction},
+  params: {action, tx},
+}) => {
+  return wallet_sendTransaction({_sendAction: action}, tx)
 }
 
 

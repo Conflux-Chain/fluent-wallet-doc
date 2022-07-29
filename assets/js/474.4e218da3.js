@@ -88641,7 +88641,7 @@ const schemas = {
     _fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.map,
     {closed: true},
     ['tx', _fluent_wallet_wallet_send_transaction__WEBPACK_IMPORTED_MODULE_1__.schemas.input],
-    ['action', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'cancel', 'speedUp']],
+    ['action', [_fluent_wallet_spec__WEBPACK_IMPORTED_MODULE_0__.enums, 'cancel', 'speedup']],
   ],
 }
 

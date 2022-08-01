@@ -71058,7 +71058,10 @@ const main = async ({
 
   // chain id duplicate with builtin network
   const [dupChainIdBuiltInNetwork] = getNetwork({chainId, builtin: true})
-  if (dupChainIdBuiltInNetwork)
+  if (
+    dupChainIdBuiltInNetwork &&
+    toUpdateNetwork?.eid !== dupChainIdBuiltInNetwork.eid
+  )
     throw InvalidParams(`Duplicate chainId ${chainId} with builtin network`)
 
   // this returns menas the rpcurl is valid
@@ -71090,16 +71093,17 @@ const main = async ({
     {
       eid: toUpdateNetwork?.eid || 'networkId',
       network: {
-        isCustom: true,
+        isCustom: toUpdateNetwork?.isCustom ?? true,
         name,
-        cacheTime: networkType === 'cfx' ? 1000 : 15000,
+        cacheTime:
+          toUpdateNetwork?.cacheTime ?? (networkType === 'cfx' ? 1000 : 15000),
         endpoint: url,
         type: networkType,
         hdPath: hdPathId,
         chainId,
         netId: parseInt(netId, 10),
         ticker,
-        builtin: false,
+        builtin: toUpdateNetwork?.cacheTime ?? false,
       },
     },
     explorerUrl && {
@@ -89409,10 +89413,27 @@ const main = ({
 }) => {
   const network = getNetworkById(params.networkId)
   if (!network) throw InvalidParams(`Invalid network id: ${params.networkId}`)
-  if (network.builtin)
+  if (network.builtin && network.endpoint === params.rpcUrls[0])
     throw InvalidParams(`Don't support update builtin network`)
-  // eslint-disable-next-line no-unused-vars
-  const {networkId, ...newParams} = params
+
+  let newParams
+  // only allow changing builtin network's rpcUrls
+  if (network.builtin) {
+    newParams = {
+      rpcUrls: params.rpcUrls,
+
+      chainId: network.chainId,
+      chainName: network.name,
+      nativeCurrency: {...network.ticker},
+      blockExplorerUrls: [network.scanUrl],
+      iconUrls: [network.icon],
+      hdPath: network.hdPath.eid,
+    }
+  } else {
+    // eslint-disable-next-line no-unused-vars
+    let {networkId, ...newParams1} = params
+    newParams = newParams1
+  }
 
   return wallet_addNetwork({toUpdateNetwork: network}, newParams)
 }

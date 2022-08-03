@@ -71056,14 +71056,6 @@ const main = async ({
   if (Number.isInteger(hdPath) && !getHdPathById(hdPath))
     throw InvalidParams(`Invalid hdPath id ${hdPath}`)
 
-  // chain id duplicate with builtin network
-  const [dupChainIdBuiltInNetwork] = getNetwork({chainId, builtin: true})
-  if (
-    dupChainIdBuiltInNetwork &&
-    toUpdateNetwork?.eid !== dupChainIdBuiltInNetwork.eid
-  )
-    throw InvalidParams(`Duplicate chainId ${chainId} with builtin network`)
-
   // this returns menas the rpcurl is valid
   const {
     type: networkType,
@@ -71075,6 +71067,18 @@ const main = async ({
     throw InvalidParams(
       `Invalid chainId ${chainId}, got ${detectedChainId} from remote`,
     )
+
+  // chain id duplicate with builtin network
+  const [dupChainIdBuiltInNetwork] = getNetwork({
+    chainId,
+    builtin: true,
+    type: networkType,
+  })
+  if (
+    dupChainIdBuiltInNetwork &&
+    toUpdateNetwork?.eid !== dupChainIdBuiltInNetwork.eid
+  )
+    throw InvalidParams(`Duplicate chainId ${chainId} with builtin network`)
 
   hdPath = hdPath || networkType
 
@@ -71093,7 +71097,9 @@ const main = async ({
     {
       eid: toUpdateNetwork?.eid || 'networkId',
       network: {
-        isCustom: toUpdateNetwork?.isCustom ?? true,
+        isCustom: toUpdateNetwork?.builtin
+          ? false
+          : toUpdateNetwork?.isCustom ?? true,
         name,
         cacheTime:
           toUpdateNetwork?.cacheTime ?? (networkType === 'cfx' ? 1000 : 15000),

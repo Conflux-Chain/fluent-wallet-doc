@@ -84081,7 +84081,7 @@ const main = ({
             if (errorType === 'unknownError')
               (0,sentry/* capture */.IE)(err, {
                 tags: {
-                  custome_type: 'unknown sendTx error',
+                  custom_type: 'unknown sendTx error',
                   rpc_network: network.name,
                 },
               })
@@ -85480,7 +85480,7 @@ const main = ({
             if (errorType === 'unknownError')
               (0,sentry/* capture */.IE)(err, {
                 tags: {
-                  custome_type: 'unknown sendTx error',
+                  custom_type: 'unknown sendTx error',
                   rpc_network: network.name,
                 },
               })
